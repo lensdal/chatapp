@@ -1,0 +1,192 @@
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import type { EventItem, Task } from '../types'
+import { useStore } from '../store/store'
+import { childById, groupById } from '../lib/selectors'
+import { colorClasses, priorityChip, priorityLabel } from '../lib/ui'
+import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
+import { Pill } from './ui'
+import { format } from 'date-fns'
+
+export function KidTag({ childId, plain = false }: { childId?: string; plain?: boolean }) {
+  const { state } = useStore()
+  const child = childById(state, childId)
+  if (!child) return null
+  const pill = (
+    <Pill className={`${colorClasses[child.color].softText} hover:opacity-80`}>
+      <span>{child.emoji}</span>
+      {child.name}
+    </Pill>
+  )
+  return plain ? pill : <Link to={`/kids/${child.id}`}>{pill}</Link>
+}
+
+export function GroupTag({ groupId, plain = false }: { groupId: string; plain?: boolean }) {
+  const { state } = useStore()
+  const group = groupById(state, groupId)
+  if (!group) return null
+  const pill = (
+    <Pill className="bg-black/[0.04] text-ink/60 hover:bg-black/[0.07]">
+      <span>{group.emoji}</span>
+      <span className="max-w-[130px] truncate">{group.name}</span>
+    </Pill>
+  )
+  return plain ? pill : <Link to={`/chats/${group.id}`}>{pill}</Link>
+}
+
+const methodMeta = {
+  venmo: { label: 'Venmo', className: 'bg-sky text-white hover:bg-sky/90' },
+  cashapp: { label: 'Cash App', className: 'bg-mint text-white hover:bg-mint/90' },
+} as const
+
+export function PaymentButton({ task }: { task: Task }) {
+  const { dispatch } = useStore()
+  if (!task.payment) return null
+  const { amount, recipient, method, paid } = task.payment
+  if (paid) {
+    return (
+      <span className="chip bg-mint-soft text-mint">
+        <Check size={13} strokeWidth={3} /> Paid ${amount}
+      </span>
+    )
+  }
+  const meta = methodMeta[method]
+  return (
+    <button
+      onClick={() => dispatch({ type: 'PAY_TASK', taskId: task.id })}
+      className={`chip ${meta.className} shadow-soft transition`}
+      title={`Simulated — pays ${recipient} $${amount} via ${meta.label}`}
+    >
+      <DollarSign size={13} strokeWidth={2.6} />
+      Pay ${amount} · {meta.label}
+    </button>
+  )
+}
+
+export function TaskRow({
+  task,
+  showGroup = true,
+  showKid = true,
+}: {
+  task: Task
+  showGroup?: boolean
+  showKid?: boolean
+}) {
+  const { dispatch } = useStore()
+  const due = task.dueDate ? fmtRelativeDue(task.dueDate) : null
+  const dueTone =
+    due?.tone === 'overdue'
+      ? 'text-tang'
+      : due?.tone === 'soon'
+        ? 'text-[#B7841A]'
+        : 'text-ink/45'
+
+  return (
+    <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
+      <button
+        onClick={() => dispatch({ type: 'TOGGLE_TASK', taskId: task.id })}
+        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition ${
+          task.done
+            ? 'border-mint bg-mint text-white'
+            : 'border-black/15 text-transparent hover:border-violet'
+        }`}
+        aria-label={task.done ? 'Mark as not done' : 'Mark as done'}
+      >
+        <Check size={14} strokeWidth={3} />
+      </button>
+
+      <div className="min-w-0 flex-1">
+        <div
+          className={`text-sm font-semibold leading-snug ${
+            task.done ? 'text-ink/35 line-through' : 'text-ink'
+          }`}
+        >
+          {task.title}
+        </div>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {due && !task.done && (
+            <span className={`text-xs font-semibold ${dueTone}`}>{due.label}</span>
+          )}
+          {showKid && <KidTag childId={task.childId} />}
+          {showGroup && <GroupTag groupId={task.groupId} />}
+        </div>
+      </div>
+
+      <div className="flex shrink-0 flex-col items-end gap-1.5">
+        {task.payment ? (
+          <PaymentButton task={task} />
+        ) : (
+          !task.done && (
+            <span className={`chip ${priorityChip[task.priority]}`}>
+              {priorityLabel[task.priority]}
+            </span>
+          )
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function EventRow({
+  event,
+  showGroup = true,
+  showKid = true,
+}: {
+  event: EventItem
+  showGroup?: boolean
+  showKid?: boolean
+}) {
+  const { dispatch } = useStore()
+  const d = new Date(event.date)
+  const group = groupById(useStore().state, event.groupId)
+  return (
+    <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
+      <div
+        className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${
+          group ? colorClasses[group.color].soft : 'bg-canvas'
+        }`}
+      >
+        <span className="text-[11px] font-bold uppercase tracking-wide text-ink/50">
+          {format(d, 'MMM')}
+        </span>
+        <span className="text-xl font-extrabold leading-none">{format(d, 'd')}</span>
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-bold leading-snug">{event.title}</div>
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/50">
+          <span className="font-semibold">{fmtTime(event.date)}</span>
+          {event.location && (
+            <span className="inline-flex items-center gap-1">
+              <MapPin size={12} /> {event.location}
+            </span>
+          )}
+        </div>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {showKid && <KidTag childId={event.childId} />}
+          {showGroup && <GroupTag groupId={event.groupId} />}
+        </div>
+      </div>
+
+      <button
+        onClick={() => dispatch({ type: 'TOGGLE_EVENT_GOOGLE', eventId: event.id })}
+        className={`chip shrink-0 shadow-soft transition ${
+          event.addedToGoogle
+            ? 'bg-mint-soft text-mint'
+            : 'bg-white text-ink/60 ring-1 ring-black/10 hover:text-violet'
+        }`}
+        title={fmtDay(event.date)}
+      >
+        {event.addedToGoogle ? (
+          <>
+            <CalendarCheck size={13} /> On calendar
+          </>
+        ) : (
+          <>
+            <CalendarPlus size={13} /> Add to Google
+          </>
+        )}
+      </button>
+    </div>
+  )
+}
