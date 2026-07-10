@@ -152,7 +152,8 @@ export interface EventItem {
 export interface Payment {
   amount: number
   recipient: string
-  method: PaymentMethod
+  methods: PaymentMethod[]
+  handles: PaymentHandles
   paid: boolean
 }
 

@@ -5,7 +5,8 @@ import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
 import { parseForward, detectChild } from '../lib/parse'
-import type { PaymentMethod, Priority } from '../types'
+import { usePaymentFields } from './usePaymentFields'
+import type { Priority } from '../types'
 import { format } from 'date-fns'
 
 type Kind = 'task' | 'event'
@@ -51,9 +52,7 @@ export default function PromoteModal({
   const [priority, setPriority] = useState<Priority>('medium')
   const [location, setLocation] = useState('')
   const [hasPayment, setHasPayment] = useState(false)
-  const [amount, setAmount] = useState('')
-  const [recipient, setRecipient] = useState('')
-  const [method, setMethod] = useState<PaymentMethod>('venmo')
+  const pay = usePaymentFields(groupId)
 
   // Reset + auto-fill each time the modal opens for a new message/kind.
   useEffect(() => {
@@ -77,9 +76,7 @@ export default function PromoteModal({
         setTime(parsed.type === 'event' ? '10:00' : '09:00')
       }
       setHasPayment(!!parsed.amount)
-      setAmount(parsed.amount ? String(parsed.amount) : '')
-      setMethod(parsed.method ?? 'venmo')
-      setRecipient('')
+      pay.reset({ amount: parsed.amount ? String(parsed.amount) : '', method: parsed.method })
     } else {
       setKind(defaultKind)
       setTitle(defaultText)
@@ -88,9 +85,7 @@ export default function PromoteModal({
       setPriority('medium')
       setLocation('')
       setHasPayment(false)
-      setAmount('')
-      setMethod('venmo')
-      setRecipient('')
+      pay.reset({ amount: '' })
     }
     setChildId(detectedInGroup ?? (kids.length === 1 ? kids[0] : ''))
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,15 +107,7 @@ export default function PromoteModal({
         done: false,
         priority,
         assigneeIds: [state.currentUserId],
-        payment:
-          hasPayment && amount
-            ? {
-                amount: Number(amount),
-                recipient: recipient.trim() || 'the organizer',
-                method,
-                paid: false,
-              }
-            : undefined,
+        payment: hasPayment ? pay.build() : undefined,
       }
       if (messageId) dispatch({ type: 'PROMOTE_TO_TASK', messageId, task })
       else dispatch({ type: 'ADD_TASK', task })
@@ -259,27 +246,7 @@ export default function PromoteModal({
                   <DollarSign size={16} /> This needs a payment
                 </span>
               </label>
-              {hasPayment && (
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <input
-                    className={inputCls}
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
-                    placeholder="Amount ($)"
-                    inputMode="decimal"
-                  />
-                  <select className={inputCls} value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}>
-                    <option value="venmo">Venmo</option>
-                    <option value="cashapp">Cash App</option>
-                  </select>
-                  <input
-                    className={`${inputCls} col-span-2`}
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="Pay who? (e.g. Coach Dave)"
-                  />
-                </div>
-              )}
+              {hasPayment && <div className="mt-3">{pay.node}</div>}
             </div>
           </>
         ) : (

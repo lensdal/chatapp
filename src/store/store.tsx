@@ -29,7 +29,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v7'
+const STORAGE_KEY = 'village.state.v8'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {

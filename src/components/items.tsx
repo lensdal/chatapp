@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users } from 'lucide-react'
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { EventItem, Task, PaymentMethod } from '../types'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
+import { methodMeta, buildPayLink } from '../lib/pay'
 import { colorClasses, priorityChip, priorityLabel } from '../lib/ui'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
 import { Pill } from './ui'
@@ -37,17 +38,11 @@ export function GroupTag({ groupId, plain = false }: { groupId: string; plain?: 
   return plain ? pill : <Link to={`/chats/${group.id}`}>{pill}</Link>
 }
 
-const methodMeta: Record<PaymentMethod, { label: string; className: string }> = {
-  venmo: { label: 'Venmo', className: 'bg-sky text-white hover:bg-sky/90' },
-  cashapp: { label: 'Cash App', className: 'bg-mint text-white hover:bg-mint/90' },
-  zelle: { label: 'Zelle', className: 'bg-violet text-white hover:bg-violet/90' },
-  other: { label: 'Pay', className: 'bg-ink text-white hover:bg-ink/90' },
-}
-
 export function PaymentButton({ task }: { task: Task }) {
   const { dispatch } = useStore()
+  const toast = useToast()
   if (!task.payment) return null
-  const { amount, recipient, method, paid } = task.payment
+  const { amount, recipient, methods, handles, paid } = task.payment
   if (paid) {
     return (
       <span className="chip bg-mint-soft text-mint">
@@ -55,16 +50,38 @@ export function PaymentButton({ task }: { task: Task }) {
       </span>
     )
   }
-  const meta = methodMeta[method]
+  const list = methods?.length ? methods : (['venmo'] as PaymentMethod[])
+  const pay = (m: PaymentMethod) => {
+    const handle = handles?.[m] ?? ''
+    const meta = methodMeta(m)
+    const link = buildPayLink(m, handle, amount, task.title)
+    if (link) {
+      window.open(link, '_blank', 'noopener')
+      toast(`Opening ${meta.label} to pay ${recipient} $${amount}`, '💸')
+    } else {
+      toast(
+        handle ? `Send $${amount} to ${handle} via ${meta.label}` : `Pay ${recipient} $${amount} via ${meta.label}`,
+        '💸',
+      )
+    }
+    dispatch({ type: 'PAY_TASK', taskId: task.id })
+  }
   return (
-    <button
-      onClick={() => dispatch({ type: 'PAY_TASK', taskId: task.id })}
-      className={`chip ${meta.className} shadow-soft transition`}
-      title={`Simulated — pays ${recipient} $${amount} via ${meta.label}`}
-    >
-      <DollarSign size={13} strokeWidth={2.6} />
-      Pay ${amount} · {meta.label}
-    </button>
+    <div className="flex flex-wrap items-center justify-end gap-1.5">
+      {list.map((m) => {
+        const meta = methodMeta(m)
+        return (
+          <button
+            key={m}
+            onClick={() => pay(m)}
+            className={`chip ${meta.className} shadow-soft transition`}
+            title={handles?.[m] ? `Send to ${handles[m]}` : `Pay ${recipient} via ${meta.label}`}
+          >
+            {meta.hasLink ? <ExternalLink size={12} /> : <DollarSign size={12} strokeWidth={2.6} />}${amount} · {meta.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 

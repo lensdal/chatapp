@@ -53,11 +53,11 @@ export function makeSeed(): AppState {
 
     members: [
       { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: 'violet', phone: '+1 (415) 555-0100', handles: { venmo: '@sam-ortiz', cashapp: '$SamOrtiz', zelle: 'sam@email.com' }, isSelf: true },
-      { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: 'tang', phone: '+1 (415) 555-0142' },
+      { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: 'tang', phone: '+1 (415) 555-0142', handles: { venmo: '@coach-dave', zelle: 'dave.coach@email.com' } },
       { id: 'priya', name: 'Priya Shah', role: 'Homeroom Parent', emoji: '🌻', color: 'sun', phone: '+1 (415) 555-0177' },
       { id: 'ms-chen', name: 'Ms. Chen', role: 'Teacher', emoji: '🍎', color: 'sky', phone: '+1 (415) 555-0110' },
-      { id: 'coach-bri', name: 'Coach Bri', role: 'Swim Coach', emoji: '🏊‍♀️', color: 'mint', phone: '+1 (415) 555-0155' },
-      { id: 'alvarez', name: 'Mr. Alvarez', role: 'Scout Leader', emoji: '🏕️', color: 'violet', phone: '+1 (415) 555-0188' },
+      { id: 'coach-bri', name: 'Coach Bri', role: 'Swim Coach', emoji: '🏊‍♀️', color: 'mint', phone: '+1 (415) 555-0155', handles: { cashapp: '$CoachBri', venmo: '@coachbri' } },
+      { id: 'alvarez', name: 'Mr. Alvarez', role: 'Scout Leader', emoji: '🏕️', color: 'violet', phone: '+1 (415) 555-0188', handles: { venmo: '@troop402' } },
       { id: 'jenna', name: 'Jenna M.', role: 'Parent', emoji: '💐', color: 'blush', phone: '+1 (415) 555-0121' },
       { id: 'marcus', name: 'Marcus T.', role: 'Parent', emoji: '⚽', color: 'sky', phone: '+1 (415) 555-0133' },
       { id: 'lena', name: 'Lena K.', role: 'Parent', emoji: '🎨', color: 'sun', phone: '+1 (415) 555-0166' },
@@ -306,7 +306,7 @@ export function makeSeed(): AppState {
         priority: 'high',
         assigneeIds: ['me'],
         createdById: 'coach-dave',
-        payment: { amount: 45, recipient: 'Coach Dave', method: 'venmo', paid: false },
+        payment: { amount: 45, recipient: 'Coach Dave', methods: ['venmo', 'zelle'], handles: { venmo: '@coach-dave', zelle: 'dave.coach@email.com' }, paid: false },
       },
       {
         id: 't-3',
@@ -330,7 +330,7 @@ export function makeSeed(): AppState {
         priority: 'medium',
         assigneeIds: ['me'],
         createdById: 'coach-bri',
-        payment: { amount: 18, recipient: 'Coach Bri', method: 'cashapp', paid: false },
+        payment: { amount: 18, recipient: 'Coach Bri', methods: ['cashapp', 'venmo'], handles: { cashapp: '$CoachBri', venmo: '@coachbri' }, paid: false },
       },
       {
         id: 't-6',
@@ -353,7 +353,7 @@ export function makeSeed(): AppState {
         priority: 'high',
         assigneeIds: ['me'],
         createdById: 'alvarez',
-        payment: { amount: 30, recipient: 'Mr. Alvarez', method: 'venmo', paid: false },
+        payment: { amount: 30, recipient: 'Mr. Alvarez', methods: ['venmo'], handles: { venmo: '@troop402' }, paid: false },
       },
       {
         id: 't-8',
