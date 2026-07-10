@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { ClipboardList, Check, X, Plus, Trash2, CalendarClock } from 'lucide-react'
+import { ClipboardList, Check, X, Plus, Trash2, CalendarClock, MessageCircle } from 'lucide-react'
 import Modal from './Modal'
 import { Avatar, Pill } from './ui'
 import { KidTag } from './items'
 import { useStore } from '../store/store'
+import { useToast } from './Toast'
 import { memberById, groupById } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
 import { fmtDay } from '../lib/dates'
@@ -12,12 +13,14 @@ import { format } from 'date-fns'
 
 export function SignupCard({ sheet }: { sheet: SignUpSheet }) {
   const { state, dispatch } = useStore()
+  const toast = useToast()
   const me = state.currentUserId
   const creator = memberById(state, sheet.createdById)
   const group = groupById(state, sheet.groupId)
   const accent = group ? colorClasses[group.color] : colorClasses.violet
 
   const filled = sheet.slots.filter((s) => s.claims.length >= s.qty).length
+  const remaining = sheet.slots.reduce((n, s) => n + Math.max(0, s.qty - s.claims.length), 0)
 
   return (
     <div className="mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-card">
@@ -99,8 +102,23 @@ export function SignupCard({ sheet }: { sheet: SignUpSheet }) {
         })}
       </ul>
 
-      <div className="border-t border-black/5 px-5 py-2.5 text-[11px] text-ink/40">
-        Signing up adds it to your Tasks with the due date.
+      <div className="flex items-center justify-between gap-2 border-t border-black/5 px-5 py-2.5">
+        <span className="text-[11px] text-ink/40">Signing up adds it to your Tasks with the due date.</span>
+        {remaining > 0 && (
+          <button
+            onClick={() =>
+              toast(
+                state.whatsappConnected
+                  ? `Nudged the group on WhatsApp about ${remaining} open item${remaining === 1 ? '' : 's'}`
+                  : 'Connect WhatsApp in Settings to send reminders',
+                '💬',
+              )
+            }
+            className="chip shrink-0 bg-[#25D366]/12 text-[#0f9d58] ring-1 ring-[#25D366]/30 transition hover:bg-[#25D366]/20"
+          >
+            <MessageCircle size={13} /> Nudge on WhatsApp
+          </button>
+        )}
       </div>
     </div>
   )

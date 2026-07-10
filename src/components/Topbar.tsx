@@ -2,6 +2,7 @@ import { Bell, Search } from 'lucide-react'
 import { format } from 'date-fns'
 import { useStore } from '../store/store'
 import { overdueTasks, paymentsDue } from '../lib/selectors'
+import { CaptureButton } from './Capture'
 
 export default function Topbar({
   title,
@@ -21,10 +22,11 @@ export default function Topbar({
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        <div className="hidden items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm text-ink/40 shadow-soft md:flex">
+        <div className="hidden items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm text-ink/40 shadow-soft lg:flex">
           <Search size={16} />
           <span>Search groups, tasks…</span>
         </div>
+        <CaptureButton variant="topbar" />
         <button className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink/70 shadow-soft transition hover:text-violet">
           <Bell size={19} />
           {alerts > 0 && (

@@ -1,7 +1,8 @@
-import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign } from 'lucide-react'
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { EventItem, Task } from '../types'
 import { useStore } from '../store/store'
+import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
 import { colorClasses, priorityChip, priorityLabel } from '../lib/ui'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
@@ -127,6 +128,36 @@ export function TaskRow({
   )
 }
 
+export function WhatsAppRemindButton({
+  groupId,
+  what,
+}: {
+  groupId: string
+  what: string
+}) {
+  const { state } = useStore()
+  const toast = useToast()
+  const group = groupById(state, groupId)
+  if (!group) return null
+  const recipients = Math.max(1, group.memberIds.length - 1)
+  const onClick = () => {
+    if (!state.whatsappConnected) {
+      toast('Connect WhatsApp in Settings to send reminders', '💬')
+      return
+    }
+    toast(`WhatsApp reminder sent to ${recipients} in ${group.name}`, '💬')
+  }
+  return (
+    <button
+      onClick={onClick}
+      className="chip shrink-0 bg-[#25D366]/12 text-[#0f9d58] ring-1 ring-[#25D366]/30 transition hover:bg-[#25D366]/20"
+      title={`Send a WhatsApp reminder about "${what}" to the group`}
+    >
+      <MessageCircle size={13} /> Remind
+    </button>
+  )
+}
+
 export function EventRow({
   event,
   showGroup = true,
@@ -136,9 +167,9 @@ export function EventRow({
   showGroup?: boolean
   showKid?: boolean
 }) {
-  const { dispatch } = useStore()
+  const { state, dispatch } = useStore()
   const d = new Date(event.date)
-  const group = groupById(useStore().state, event.groupId)
+  const group = groupById(state, event.groupId)
   return (
     <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
       <div
@@ -168,25 +199,28 @@ export function EventRow({
         </div>
       </div>
 
-      <button
-        onClick={() => dispatch({ type: 'TOGGLE_EVENT_GOOGLE', eventId: event.id })}
-        className={`chip shrink-0 shadow-soft transition ${
-          event.addedToGoogle
-            ? 'bg-mint-soft text-mint'
-            : 'bg-white text-ink/60 ring-1 ring-black/10 hover:text-violet'
-        }`}
-        title={fmtDay(event.date)}
-      >
-        {event.addedToGoogle ? (
-          <>
-            <CalendarCheck size={13} /> On calendar
-          </>
-        ) : (
-          <>
-            <CalendarPlus size={13} /> Add to Google
-          </>
-        )}
-      </button>
+      <div className="flex shrink-0 flex-col items-end gap-1.5">
+        <button
+          onClick={() => dispatch({ type: 'TOGGLE_EVENT_GOOGLE', eventId: event.id })}
+          className={`chip shadow-soft transition ${
+            event.addedToGoogle
+              ? 'bg-mint-soft text-mint'
+              : 'bg-white text-ink/60 ring-1 ring-black/10 hover:text-violet'
+          }`}
+          title={fmtDay(event.date)}
+        >
+          {event.addedToGoogle ? (
+            <>
+              <CalendarCheck size={13} /> On calendar
+            </>
+          ) : (
+            <>
+              <CalendarPlus size={13} /> Add to Google
+            </>
+          )}
+        </button>
+        <WhatsAppRemindButton groupId={event.groupId} what={event.title} />
+      </div>
     </div>
   )
 }

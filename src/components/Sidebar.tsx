@@ -28,11 +28,11 @@ export default function Sidebar() {
     <aside className="flex w-[260px] shrink-0 flex-col gap-6 border-r border-black/5 bg-white/70 px-4 py-6 backdrop-blur">
       <div className="flex items-center gap-2.5 px-2">
         <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-violet text-lg text-white shadow-soft">
-          🤝
+          🏘️
         </span>
         <div>
-          <div className="text-lg font-extrabold leading-none tracking-tight">Huddle</div>
-          <div className="text-[11px] font-medium text-ink/45">Family command center</div>
+          <div className="text-lg font-extrabold leading-none tracking-tight">Village</div>
+          <div className="text-[11px] font-medium text-ink/45">It takes a village</div>
         </div>
       </div>
 

@@ -14,11 +14,12 @@ export function makeSeed(): AppState {
     currentUserId: 'me',
     googleConnected: false,
     venmoConnected: false,
+    whatsappConnected: true,
 
     children: [
       { id: 'isabella', name: 'Isabella', color: 'sky', emoji: '🦄' },
       { id: 'calixta', name: 'Calixta', color: 'blush', emoji: '🌸' },
-      { id: 'mateo', name: 'Mateo', color: 'mint', emoji: '🐢' },
+      { id: 'mateo', name: 'David', color: 'mint', emoji: '🐢' },
     ],
 
     members: [

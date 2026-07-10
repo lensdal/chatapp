@@ -1,10 +1,10 @@
-# Huddle 🤝
+# Village 🏘️
 
-**Every group, every kid, one place.**
+**Every group, every kid, one place. It takes a village.**
 
-Huddle is a family command center for parents who are drowning in scattered
+Village is a family command center for parents who are drowning in scattered
 group chats. Instead of tracking soccer, school, swim, scouts, and the PTA
-across a dozen WhatsApp threads, email chains, and text messages, Huddle puts
+across a dozen WhatsApp threads, email chains, and text messages, Village puts
 every organization your family belongs to in one app — and turns the
 conversation into a shared calendar and to-do list automatically.
 
@@ -22,7 +22,7 @@ accounts, real-time messaging, and live integrations.
   task or a calendar event for the whole group, tagged to the right kid.
 - **Everything, by kid.** The dashboard and Tasks view roll every group up into
   a single list — "here's everything due for Isabella, for Calixta, for
-  Mateo" — so nothing slips through the cracks.
+  David" — so nothing slips through the cracks.
 - **A calendar across all groups.** Every event from every organization on one
   month view, color-coded and filterable by child.
 - **Payments in the flow.** Fees and dues show up as tasks with a **Pay $45 ·

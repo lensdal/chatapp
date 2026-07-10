@@ -108,5 +108,6 @@ export interface AppState {
   signups: SignUpSheet[]
   googleConnected: boolean
   venmoConnected: boolean
+  whatsappConnected: boolean
   currentUserId: string
 }

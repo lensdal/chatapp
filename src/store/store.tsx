@@ -9,7 +9,7 @@ import {
 import type { AppState, EventItem, Task } from '../types'
 import { makeSeed } from './seed'
 
-const STORAGE_KEY = 'huddle.state.v2'
+const STORAGE_KEY = 'village.state.v1'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -45,7 +45,11 @@ type Action =
     }
   | { type: 'CLAIM_SLOT'; sheetId: string; slotId: string }
   | { type: 'UNCLAIM_SLOT'; sheetId: string; slotId: string }
-  | { type: 'SET_INTEGRATION'; key: 'googleConnected' | 'venmoConnected'; value: boolean }
+  | {
+      type: 'SET_INTEGRATION'
+      key: 'googleConnected' | 'venmoConnected' | 'whatsappConnected'
+      value: boolean
+    }
   | { type: 'RESET' }
 
 function reducer(state: AppState, action: Action): AppState {

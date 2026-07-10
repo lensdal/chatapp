@@ -3,6 +3,7 @@ import { CalendarDays, ListChecks, Clock3, AlertTriangle, DollarSign, ArrowRight
 import Topbar from '../components/Topbar'
 import { Card, SectionTitle, Donut, EmptyState, Pill } from '../components/ui'
 import { TaskRow, EventRow, PaymentButton, KidTag } from '../components/items'
+import { CaptureButton } from '../components/Capture'
 import { useStore } from '../store/store'
 import {
   upcomingEvents,
@@ -76,6 +77,20 @@ export default function Dashboard() {
     <>
       <Topbar title={`${greeting()} 👋`} subtitle="Here's everything across all your groups, in one place." />
       <div className="flex-1 overflow-y-auto px-8 pb-10 pt-4">
+        {/* WhatsApp forward banner */}
+        <div className="mb-5 flex flex-wrap items-center gap-4 rounded-3xl bg-gradient-to-r from-mint-soft to-violet-soft px-5 py-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/70 text-xl">
+            📲
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="font-extrabold">Drowning in WhatsApp messages?</div>
+            <div className="text-sm text-ink/55">
+              Forward any message here and Village turns it into a task or event — tagged to the right group and kid.
+            </div>
+          </div>
+          <CaptureButton variant="hero" />
+        </div>
+
         {/* Stat tiles */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatTile

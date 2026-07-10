@@ -1,4 +1,4 @@
-import { CalendarCheck, Wallet, RotateCcw, Info, Check } from 'lucide-react'
+import { CalendarCheck, Wallet, RotateCcw, Info, Check, MessageCircle } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, SectionTitle, Avatar } from '../components/ui'
 import { useStore } from '../store/store'
@@ -66,6 +66,20 @@ export default function Settings() {
               <SectionTitle>Connections</SectionTitle>
             </div>
             <div className="divide-y divide-black/5">
+              <IntegrationRow
+                icon={<MessageCircle size={22} className="text-[#0f9d58]" />}
+                name="WhatsApp"
+                desc={
+                  state.whatsappConnected
+                    ? 'Sending as +1 (555) 019-2733 · forwarding & reminders are simulated'
+                    : 'Forward messages in, and send reminders out to the group.'
+                }
+                connected={state.whatsappConnected}
+                onToggle={() =>
+                  dispatch({ type: 'SET_INTEGRATION', key: 'whatsappConnected', value: !state.whatsappConnected })
+                }
+                accent="bg-[#25D366]/15"
+              />
               <IntegrationRow
                 icon={<CalendarCheck size={22} className="text-sky" />}
                 name="Google Calendar"

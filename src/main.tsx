@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import App from './App'
 import { StoreProvider } from './store/store'
+import { ToastProvider } from './components/Toast'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HashRouter>
       <StoreProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </StoreProvider>
     </HashRouter>
   </React.StrictMode>,
