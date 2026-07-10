@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Send, Plus, Wand2, ListChecks, CalendarDays, CheckCircle2, ChevronRight } from 'lucide-react'
+import { Send, Plus, Wand2, ListChecks, CalendarDays, CheckCircle2, ChevronRight, ClipboardList } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, Avatar, AvatarStack, EmptyState, Pill } from '../components/ui'
 import { EventRow, TaskRow, KidTag } from '../components/items'
 import PromoteModal from '../components/PromoteModal'
+import { SignupCard, CreateSignupModal } from '../components/Signup'
 import { useStore } from '../store/store'
 import {
   groupById,
@@ -13,6 +14,8 @@ import {
   lastMessage,
   eventsForGroup,
   tasksForGroup,
+  signupsForGroup,
+  slotsRemaining,
 } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
 import { fmtMessageTime, fmtAgo } from '../lib/dates'
@@ -139,6 +142,7 @@ function ChatView({ groupId }: { groupId: string }) {
   const [text, setText] = useState('')
   const [modalMsg, setModalMsg] = useState<ChatMessage | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [signupOpen, setSignupOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const msgs = useMemo(() => messagesForGroup(state, groupId), [state, groupId])
@@ -157,6 +161,7 @@ function ChatView({ groupId }: { groupId: string }) {
     (e) => new Date(e.date) >= new Date(new Date().toDateString()),
   )
   const openTasks = tasksForGroup(state, groupId).filter((t) => !t.done)
+  const signups = signupsForGroup(state, groupId)
 
   const send = () => {
     if (!text.trim()) return
@@ -179,18 +184,30 @@ function ChatView({ groupId }: { groupId: string }) {
                 <KidTag key={cid} childId={cid} />
               ))}
             </div>
-            <button
-              onClick={() => setCreateOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-violet px-3.5 py-2 text-xs font-bold text-white shadow-soft transition hover:bg-violet/90"
-            >
-              <Plus size={15} /> New task / event
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSignupOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-bold text-violet ring-1 ring-violet/20 transition hover:bg-violet-soft"
+              >
+                <ClipboardList size={15} /> Sign-up list
+              </button>
+              <button
+                onClick={() => setCreateOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-violet px-3.5 py-2 text-xs font-bold text-white shadow-soft transition hover:bg-violet/90"
+              >
+                <Plus size={15} /> Task / event
+              </button>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto bg-canvas/40 px-5 py-5">
-            {msgs.map((m) => (
-              <MessageBubble key={m.id} msg={m} onPromote={setModalMsg} />
-            ))}
+            {msgs.map((m) => {
+              const sheet = m.linkedSignupId
+                ? state.signups.find((s) => s.id === m.linkedSignupId)
+                : undefined
+              if (sheet) return <SignupCard key={m.id} sheet={sheet} />
+              return <MessageBubble key={m.id} msg={m} onPromote={setModalMsg} />
+            })}
           </div>
 
           <div className="flex items-center gap-2 border-t border-black/5 px-4 py-3">
@@ -243,6 +260,29 @@ function ChatView({ groupId }: { groupId: string }) {
             )}
           </Card>
 
+          {signups.length > 0 && (
+            <Card className="p-3">
+              <div className="flex items-center justify-between px-2 py-1">
+                <h3 className="flex items-center gap-1.5 text-sm font-extrabold">
+                  <ClipboardList size={16} className="text-blush" /> Sign-up lists
+                </h3>
+              </div>
+              <ul className="space-y-1 px-1 pb-1">
+                {signups.map((su) => {
+                  const remaining = slotsRemaining(su)
+                  return (
+                    <li key={su.id} className="flex items-center gap-2 rounded-2xl px-2 py-2">
+                      <span className="min-w-0 flex-1 truncate text-sm font-semibold">{su.title}</span>
+                      <Pill className={remaining > 0 ? 'bg-tang-soft text-tang' : 'bg-mint-soft text-mint'}>
+                        {remaining > 0 ? `${remaining} left` : 'Full'}
+                      </Pill>
+                    </li>
+                  )
+                })}
+              </ul>
+            </Card>
+          )}
+
           <Card className="p-3">
             <div className="flex items-center justify-between px-2 py-1">
               <h3 className="flex items-center gap-1.5 text-sm font-extrabold"><ListChecks size={16} className="text-violet" /> To-dos</h3>
@@ -269,6 +309,7 @@ function ChatView({ groupId }: { groupId: string }) {
         defaultText={modalMsg?.text ?? ''}
       />
       <PromoteModal open={createOpen} onClose={() => setCreateOpen(false)} groupId={groupId} />
+      <CreateSignupModal open={signupOpen} onClose={() => setSignupOpen(false)} groupId={groupId} />
     </>
   )
 }

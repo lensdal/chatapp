@@ -52,6 +52,14 @@ export const overdueTasks = (s: AppState) =>
 export const paymentsDue = (s: AppState) =>
   s.tasks.filter((t) => t.payment && !t.payment.paid).sort(byDueAsc)
 
+export const signupsForGroup = (s: AppState, groupId: string) =>
+  s.signups
+    .filter((su) => su.groupId === groupId)
+    .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+
+export const slotsRemaining = (sheet: { slots: { qty: number; claims: unknown[] }[] }) =>
+  sheet.slots.reduce((n, sl) => n + Math.max(0, sl.qty - sl.claims.length), 0)
+
 export interface TodoCounts {
   all: number
   scheduled: number

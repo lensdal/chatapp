@@ -9,7 +9,7 @@ import {
 import type { AppState, EventItem, Task } from '../types'
 import { makeSeed } from './seed'
 
-const STORAGE_KEY = 'huddle.state.v1'
+const STORAGE_KEY = 'huddle.state.v2'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -34,6 +34,17 @@ type Action =
   | { type: 'TOGGLE_TASK'; taskId: string }
   | { type: 'PAY_TASK'; taskId: string }
   | { type: 'TOGGLE_EVENT_GOOGLE'; eventId: string }
+  | {
+      type: 'ADD_SIGNUP'
+      groupId: string
+      childId?: string
+      title: string
+      note?: string
+      dueDate: string
+      slots: { label: string; qty: number }[]
+    }
+  | { type: 'CLAIM_SLOT'; sheetId: string; slotId: string }
+  | { type: 'UNCLAIM_SLOT'; sheetId: string; slotId: string }
   | { type: 'SET_INTEGRATION'; key: 'googleConnected' | 'venmoConnected'; value: boolean }
   | { type: 'RESET' }
 
@@ -113,6 +124,101 @@ function reducer(state: AppState, action: Action): AppState {
           e.id === action.eventId ? { ...e, addedToGoogle: !e.addedToGoogle } : e,
         ),
       }
+
+    case 'ADD_SIGNUP': {
+      const sheetId = uid('su')
+      const now = new Date().toISOString()
+      const sheet = {
+        id: sheetId,
+        groupId: action.groupId,
+        childId: action.childId,
+        title: action.title,
+        note: action.note,
+        dueDate: action.dueDate,
+        createdById: state.currentUserId,
+        createdAt: now,
+        slots: action.slots.map((s) => ({
+          id: uid('slot'),
+          label: s.label,
+          qty: s.qty,
+          claims: [],
+        })),
+      }
+      return {
+        ...state,
+        signups: [...state.signups, sheet],
+        messages: [
+          ...state.messages,
+          {
+            id: uid('m'),
+            groupId: action.groupId,
+            senderId: state.currentUserId,
+            text: `📋 Started a sign-up list: ${action.title}`,
+            at: now,
+            linkedSignupId: sheetId,
+          },
+        ],
+      }
+    }
+
+    case 'CLAIM_SLOT': {
+      const sheet = state.signups.find((s) => s.id === action.sheetId)
+      const slot = sheet?.slots.find((sl) => sl.id === action.slotId)
+      if (!sheet || !slot) return state
+      if (slot.claims.some((c) => c.memberId === state.currentUserId)) return state
+
+      const taskId = uid('t')
+      const task: Task = {
+        id: taskId,
+        groupId: sheet.groupId,
+        childId: sheet.childId,
+        title: slot.label,
+        dueDate: sheet.dueDate,
+        done: false,
+        priority: 'medium',
+        assigneeIds: [state.currentUserId],
+        fromSignup: { sheetId: sheet.id, slotId: slot.id },
+      }
+      return {
+        ...state,
+        tasks: [...state.tasks, task],
+        signups: state.signups.map((s) =>
+          s.id !== action.sheetId
+            ? s
+            : {
+                ...s,
+                slots: s.slots.map((sl) =>
+                  sl.id !== action.slotId
+                    ? sl
+                    : { ...sl, claims: [...sl.claims, { memberId: state.currentUserId, taskId }] },
+                ),
+              },
+        ),
+      }
+    }
+
+    case 'UNCLAIM_SLOT': {
+      const sheet = state.signups.find((s) => s.id === action.sheetId)
+      const slot = sheet?.slots.find((sl) => sl.id === action.slotId)
+      const claim = slot?.claims.find((c) => c.memberId === state.currentUserId)
+      if (!sheet || !slot) return state
+      return {
+        ...state,
+        tasks: claim?.taskId ? state.tasks.filter((t) => t.id !== claim.taskId) : state.tasks,
+        signups: state.signups.map((s) =>
+          s.id !== action.sheetId
+            ? s
+            : {
+                ...s,
+                slots: s.slots.map((sl) =>
+                  sl.id !== action.slotId
+                    ? sl
+                    : { ...sl, claims: sl.claims.filter((c) => c.memberId !== state.currentUserId) },
+                ),
+              },
+        ),
+      }
+    }
 
     case 'SET_INTEGRATION':
       return { ...state, [action.key]: action.value }

@@ -38,6 +38,31 @@ export interface ChatMessage {
   at: string // ISO
   linkedTaskId?: string
   linkedEventId?: string
+  linkedSignupId?: string
+}
+
+export interface SignUpClaim {
+  memberId: string
+  taskId?: string // task generated on the claimer's list (self only in this prototype)
+}
+
+export interface SignUpSlot {
+  id: string
+  label: string
+  qty: number // how many people are needed for this item
+  claims: SignUpClaim[]
+}
+
+export interface SignUpSheet {
+  id: string
+  groupId: string
+  childId?: string
+  title: string
+  note?: string
+  dueDate: string // ISO — the deadline that lands on claimers' task lists
+  createdById: string
+  createdAt: string
+  slots: SignUpSlot[]
 }
 
 export interface EventItem {
@@ -70,6 +95,7 @@ export interface Task {
   assigneeIds: string[]
   payment?: Payment
   createdFromMessageId?: string
+  fromSignup?: { sheetId: string; slotId: string }
 }
 
 export interface AppState {
@@ -79,6 +105,7 @@ export interface AppState {
   messages: ChatMessage[]
   events: EventItem[]
   tasks: Task[]
+  signups: SignUpSheet[]
   googleConnected: boolean
   venmoConnected: boolean
   currentUserId: string

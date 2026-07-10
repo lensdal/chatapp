@@ -177,16 +177,6 @@ export function makeSeed(): AppState {
         createdFromMessageId: 'm-class-2',
       },
       {
-        id: 't-4',
-        groupId: 'class-isabella',
-        childId: 'isabella',
-        title: 'Send in 12 juice boxes for class party',
-        dueDate: at(8),
-        done: false,
-        priority: 'medium',
-        assigneeIds: ['me'],
-      },
-      {
         id: 't-5',
         groupId: 'swim',
         childId: 'mateo',
@@ -256,6 +246,26 @@ export function makeSeed(): AppState {
         done: true,
         priority: 'low',
         assigneeIds: ['me'],
+      },
+    ],
+
+    signups: [
+      {
+        id: 'su-1',
+        groupId: 'class-isabella',
+        childId: 'isabella',
+        title: "Isabella's class Halloween party",
+        note: 'Party is Friday afternoon 🎃 Grab whatever you can — thank you!',
+        dueDate: at(4, 12, 0),
+        createdById: 'priya',
+        createdAt: at(-2, 11, 12),
+        slots: [
+          { id: 'su1-a', label: '12 juice boxes', qty: 2, claims: [{ memberId: 'lena' }] },
+          { id: 'su1-b', label: 'Napkins + paper plates', qty: 1, claims: [{ memberId: 'jenna' }] },
+          { id: 'su1-c', label: 'Cupcakes (2 dozen)', qty: 2, claims: [] },
+          { id: 'su1-d', label: 'Fruit or veggie tray', qty: 1, claims: [] },
+          { id: 'su1-e', label: 'Halloween decorations', qty: 1, claims: [] },
+        ],
       },
     ],
 
@@ -334,14 +344,15 @@ export function makeSeed(): AppState {
         id: 'm-class-4',
         groupId: 'class-isabella',
         senderId: 'priya',
-        text: 'Sign-up: we still need juice boxes and napkins. Anyone able to grab a pack of 12 juice boxes?',
+        text: "Here's the sign-up for the class party 🎃 — grab whatever you can bring!",
         at: at(-2, 11, 12),
+        linkedSignupId: 'su-1',
       },
       {
         id: 'm-class-5',
         groupId: 'class-isabella',
         senderId: 'me',
-        text: 'I can bring juice boxes! 🧃',
+        text: 'Amazing, thank you for organizing Priya! 🙌',
         at: at(-2, 11, 30),
       },
 
