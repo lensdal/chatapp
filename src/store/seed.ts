@@ -168,6 +168,18 @@ export function makeSeed(): AppState {
 
     polls: [
       {
+        id: 'poll-2',
+        groupId: 'soccer',
+        question: 'Team warm-up jacket color?',
+        multi: false,
+        createdById: 'coach-dave',
+        options: [
+          { id: 'p2a', label: 'Red', votes: ['me', 'jenna'], amount: 28 },
+          { id: 'p2b', label: 'Navy', votes: ['marcus'], amount: 28 },
+          { id: 'p2c', label: 'Black (premium)', votes: [], amount: 32 },
+        ],
+      },
+      {
         id: 'poll-1',
         groupId: 'pta',
         question: 'Fall fundraiser theme?',
@@ -465,6 +477,14 @@ export function makeSeed(): AppState {
         at: at(-1, 11, 30),
         attachment: { name: 'team-photo.jpg', kind: 'image', dataUrl: img('⚽ Team Photo', '#F07E3E') },
         reactions: { '❤️': ['jenna', 'lena', 'marcus'] },
+      },
+      {
+        id: 'm-soccer-jacket',
+        groupId: 'soccer',
+        senderId: 'coach-dave',
+        text: "Let's vote on the team warm-up jacket color — each has a one-time cost, we'll collect once we pick. 🧥",
+        at: at(-1, 11, 45),
+        linkedPollId: 'poll-2',
       },
       {
         id: 'm-soccer-collect',

@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v5'
+const STORAGE_KEY = 'village.state.v6'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -126,7 +126,13 @@ type Action =
   | { type: 'REACT'; messageId: string; emoji: string }
   | { type: 'ACK_MESSAGE'; messageId: string }
   // polls
-  | { type: 'ADD_POLL'; groupId: string; question: string; options: string[]; multi: boolean }
+  | {
+      type: 'ADD_POLL'
+      groupId: string
+      question: string
+      options: { label: string; amount?: number }[]
+      multi: boolean
+    }
   | { type: 'VOTE_POLL'; pollId: string; optionId: string }
   // collections (group payment pooling)
   | {
@@ -553,7 +559,7 @@ function reducer(state: AppState, action: Action): AppState {
         question: action.question,
         multi: action.multi,
         createdById: state.currentUserId,
-        options: action.options.map((label) => ({ id: uid('po'), label, votes: [] })),
+        options: action.options.map((o) => ({ id: uid('po'), label: o.label, amount: o.amount, votes: [] })),
       }
       return {
         ...state,

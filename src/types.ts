@@ -96,6 +96,7 @@ export interface PollOption {
   id: string
   label: string
   votes: string[] // memberIds
+  amount?: number // optional cost, e.g. a uniform choice you can collect for
 }
 
 export interface Poll {

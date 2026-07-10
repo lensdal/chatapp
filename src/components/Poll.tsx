@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, Check, Plus, Trash2 } from 'lucide-react'
+import { BarChart3, Check, Plus, Trash2, PiggyBank } from 'lucide-react'
 import Modal from './Modal'
+import { CreateCollectionModal } from './Collection'
 import { useStore } from '../store/store'
 import { memberById } from '../lib/selectors'
-import type { Poll } from '../types'
+import type { Poll, PollOption } from '../types'
 
 export function PollCard({ poll }: { poll: Poll }) {
   const { state, dispatch } = useStore()
   const me = state.currentUserId
   const creator = memberById(state, poll.createdById)
   const total = poll.options.reduce((n, o) => n + o.votes.length, 0)
+  const [collectFor, setCollectFor] = useState<PollOption | null>(null)
+  const hasCosts = poll.options.some((o) => o.amount != null)
 
   return (
     <div className="mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-card">
@@ -30,30 +33,52 @@ export function PollCard({ poll }: { poll: Poll }) {
           const pct = total ? Math.round((o.votes.length / total) * 100) : 0
           const mine = o.votes.includes(me)
           return (
-            <button
-              key={o.id}
-              onClick={() => dispatch({ type: 'VOTE_POLL', pollId: poll.id, optionId: o.id })}
-              className="relative block w-full overflow-hidden rounded-2xl border border-black/10 px-4 py-2.5 text-left transition hover:border-violet"
-            >
-              <div
-                className={`absolute inset-y-0 left-0 ${mine ? 'bg-violet/20' : 'bg-black/[0.04]'}`}
-                style={{ width: `${pct}%` }}
-              />
-              <div className="relative flex items-center justify-between gap-2 text-sm">
-                <span className="flex items-center gap-2 font-semibold">
-                  {mine && <Check size={14} className="text-violet" strokeWidth={3} />}
-                  {o.label}
-                </span>
-                <span className="font-bold text-ink/50">{pct}%</span>
-              </div>
-            </button>
+            <div key={o.id} className="flex items-center gap-2">
+              <button
+                onClick={() => dispatch({ type: 'VOTE_POLL', pollId: poll.id, optionId: o.id })}
+                className="relative block flex-1 overflow-hidden rounded-2xl border border-black/10 px-4 py-2.5 text-left transition hover:border-violet"
+              >
+                <div
+                  className={`absolute inset-y-0 left-0 ${mine ? 'bg-violet/20' : 'bg-black/[0.04]'}`}
+                  style={{ width: `${pct}%` }}
+                />
+                <div className="relative flex items-center justify-between gap-2 text-sm">
+                  <span className="flex items-center gap-2 font-semibold">
+                    {mine && <Check size={14} className="text-violet" strokeWidth={3} />}
+                    {o.label}
+                    {o.amount != null && (
+                      <span className="rounded-full bg-mint-soft px-2 py-0.5 text-[11px] font-bold text-mint">${o.amount}</span>
+                    )}
+                  </span>
+                  <span className="font-bold text-ink/50">{pct}%</span>
+                </div>
+              </button>
+              {o.amount != null && (
+                <button
+                  onClick={() => setCollectFor(o)}
+                  title={`Collect $${o.amount} for ${o.label}`}
+                  className="chip shrink-0 bg-mint text-white shadow-soft transition hover:bg-mint/90"
+                >
+                  <PiggyBank size={13} /> Collect
+                </button>
+              )}
+            </div>
           )
         })}
       </div>
       <div className="border-t border-black/5 px-5 py-2.5 text-[11px] text-ink/40">
         {total} vote{total === 1 ? '' : 's'}
         {poll.multi ? ' · pick as many as you like' : ' · tap to vote, tap again to remove'}
+        {hasCosts ? ' · tap Collect to gather money for a choice' : ''}
       </div>
+
+      <CreateCollectionModal
+        open={!!collectFor}
+        onClose={() => setCollectFor(null)}
+        groupId={poll.groupId}
+        initialTitle={collectFor ? `${poll.question} — ${collectFor.label}` : ''}
+        initialSuggested={collectFor?.amount}
+      />
     </div>
   )
 }
@@ -72,26 +97,39 @@ export function CreatePollModal({
 }) {
   const { dispatch } = useStore()
   const [question, setQuestion] = useState('')
-  const [options, setOptions] = useState(['', ''])
+  const [options, setOptions] = useState<{ label: string; amount: string }[]>([
+    { label: '', amount: '' },
+    { label: '', amount: '' },
+  ])
   const [multi, setMulti] = useState(false)
+  const [withCost, setWithCost] = useState(false)
 
   useEffect(() => {
     if (open) {
       setQuestion('')
-      setOptions(['', ''])
+      setOptions([
+        { label: '', amount: '' },
+        { label: '', amount: '' },
+      ])
       setMulti(false)
+      setWithCost(false)
     }
   }, [open])
 
-  const clean = options.map((o) => o.trim()).filter(Boolean)
+  const clean = options
+    .map((o) => ({ label: o.label.trim(), amount: withCost && o.amount ? Number(o.amount) : undefined }))
+    .filter((o) => o.label)
   const canSubmit = question.trim() && clean.length >= 2
+
+  const setOpt = (i: number, patch: Partial<{ label: string; amount: string }>) =>
+    setOptions((p) => p.map((x, idx) => (idx === i ? { ...x, ...patch } : x)))
 
   return (
     <Modal open={open} onClose={onClose} title="New poll">
       <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink/40">Question</label>
-          <input className={inputCls} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="e.g. Best day for the team dinner?" autoFocus />
+          <input className={inputCls} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="e.g. Which team jacket color?" autoFocus />
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink/40">Options</label>
@@ -100,10 +138,21 @@ export function CreatePollModal({
               <div key={i} className="flex items-center gap-2">
                 <input
                   className={inputCls}
-                  value={o}
-                  onChange={(e) => setOptions((p) => p.map((x, idx) => (idx === i ? e.target.value : x)))}
+                  value={o.label}
+                  onChange={(e) => setOpt(i, { label: e.target.value })}
                   placeholder={`Option ${i + 1}`}
                 />
+                {withCost && (
+                  <div className="flex items-center gap-1 rounded-2xl bg-canvas px-2 py-1" title="Cost for this option">
+                    <span className="text-sm font-bold text-ink/40">$</span>
+                    <input
+                      className="w-12 bg-transparent text-center text-sm font-bold outline-none"
+                      value={o.amount}
+                      onChange={(e) => setOpt(i, { amount: e.target.value.replace(/[^0-9.]/g, '') })}
+                      inputMode="decimal"
+                    />
+                  </div>
+                )}
                 {options.length > 2 && (
                   <button
                     onClick={() => setOptions((p) => p.filter((_, idx) => idx !== i))}
@@ -116,12 +165,16 @@ export function CreatePollModal({
             ))}
           </div>
           <button
-            onClick={() => setOptions((p) => [...p, ''])}
+            onClick={() => setOptions((p) => [...p, { label: '', amount: '' }])}
             className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-canvas px-3.5 py-2 text-sm font-bold text-violet hover:bg-violet-soft"
           >
             <Plus size={15} /> Add option
           </button>
         </div>
+        <label className="flex cursor-pointer items-center gap-3 text-sm">
+          <input type="checkbox" checked={withCost} onChange={(e) => setWithCost(e.target.checked)} className="h-5 w-5 accent-violet" />
+          <span className="font-medium text-ink/70">Options have a cost (e.g. a uniform) — you can collect money for the pick</span>
+        </label>
         <label className="flex cursor-pointer items-center gap-3 text-sm">
           <input type="checkbox" checked={multi} onChange={(e) => setMulti(e.target.checked)} className="h-5 w-5 accent-violet" />
           <span className="font-medium text-ink/70">Allow multiple selections</span>

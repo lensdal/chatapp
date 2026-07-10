@@ -87,10 +87,14 @@ export function CreateCollectionModal({
   open,
   onClose,
   groupId,
+  initialTitle = '',
+  initialSuggested,
 }: {
   open: boolean
   onClose: () => void
   groupId: string
+  initialTitle?: string
+  initialSuggested?: number
 }) {
   const { dispatch } = useStore()
   const [title, setTitle] = useState('')
@@ -102,13 +106,14 @@ export function CreateCollectionModal({
 
   useEffect(() => {
     if (open) {
-      setTitle('')
+      setTitle(initialTitle)
       setNote('')
-      setSuggested('20')
+      setSuggested(initialSuggested != null ? String(initialSuggested) : '20')
       setGoal('')
       setMethod('venmo')
       setRecipient('')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const canSubmit = title.trim() && recipient.trim()
