@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v3'
+const STORAGE_KEY = 'village.state.v4'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -78,6 +78,8 @@ type Action =
       value: boolean
     }
   | { type: 'SET_TRANSLATE'; to: string }
+  | { type: 'SET_NOTIFY'; groupId: string; key: 'reminders' | 'digest'; value: boolean }
+  | { type: 'SET_NOTIFY_ALL'; groupIds: string[]; key: 'reminders' | 'digest'; value: boolean }
   // groups & membership
   | {
       type: 'CREATE_GROUP'
@@ -88,8 +90,6 @@ type Action =
       childName?: string
       relationship?: string
       announcementsOnly: boolean
-      remindersOn: boolean
-      digestOn: boolean
     }
   | {
       type: 'JOIN_GROUP'
@@ -102,7 +102,7 @@ type Action =
   | {
       type: 'UPDATE_GROUP'
       groupId: string
-      patch: Partial<Pick<Group, 'name' | 'announcementsOnly' | 'remindersOn' | 'digestOn' | 'joinCode'>>
+      patch: Partial<Pick<Group, 'name' | 'announcementsOnly' | 'joinCode'>>
     }
   | { type: 'SET_MEMBER_ROLE'; groupId: string; memberId: string; role: GroupRole }
   | {
@@ -330,6 +330,23 @@ function reducer(state: AppState, action: Action): AppState {
     case 'SET_TRANSLATE':
       return { ...state, translateTo: action.to }
 
+    case 'SET_NOTIFY': {
+      const cur = state.notify[action.groupId] ?? { reminders: true, digest: true }
+      return {
+        ...state,
+        notify: { ...state.notify, [action.groupId]: { ...cur, [action.key]: action.value } },
+      }
+    }
+
+    case 'SET_NOTIFY_ALL': {
+      const next = { ...state.notify }
+      for (const gid of action.groupIds) {
+        const cur = next[gid] ?? { reminders: true, digest: true }
+        next[gid] = { ...cur, [action.key]: action.value }
+      }
+      return { ...state, notify: next }
+    }
+
     // ---- groups & membership ----
     case 'CREATE_GROUP': {
       const id = uid('g')
@@ -349,8 +366,6 @@ function reducer(state: AppState, action: Action): AppState {
         members: [me],
         joinCode: genJoinCode(action.name),
         announcementsOnly: action.announcementsOnly,
-        remindersOn: action.remindersOn,
-        digestOn: action.digestOn,
       }
       return { ...state, groups: [...state.groups, group] }
     }

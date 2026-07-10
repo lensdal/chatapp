@@ -45,6 +45,9 @@ export const myGroups = (s: AppState) =>
 export const amIMember = (g: Group, memberId: string) =>
   g.members.some((m) => m.memberId === memberId)
 
+export const notifyFor = (s: AppState, groupId: string) =>
+  s.notify[groupId] ?? { reminders: true, digest: true }
+
 export const messagesForGroup = (s: AppState, groupId: string): ChatMessage[] =>
   s.messages
     .filter((m) => m.groupId === groupId)

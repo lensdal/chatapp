@@ -22,6 +22,11 @@ export function makeSeed(): AppState {
     venmoConnected: false,
     whatsappConnected: true,
     translateTo: '',
+    // Your own notification prefs per group (unset = on). Swim digest starts off
+    // to show a mixed state.
+    notify: {
+      swim: { reminders: true, digest: false },
+    },
 
     children: [
       { id: 'isabella', name: 'Isabella', color: 'sky', emoji: '🦄' },
@@ -53,8 +58,6 @@ export function makeSeed(): AppState {
         childIds: ['calixta'],
         joinCode: 'SOCCER-4B2',
         announcementsOnly: false,
-        remindersOn: true,
-        digestOn: true,
         members: [
           { memberId: 'coach-dave', role: 'admin', relationship: 'Coach' },
           { memberId: 'me', role: 'admin', childName: 'Calixta', relationship: 'Parent' },
@@ -72,8 +75,6 @@ export function makeSeed(): AppState {
         childIds: ['isabella'],
         joinCode: 'MSCHEN-3G',
         announcementsOnly: false,
-        remindersOn: true,
-        digestOn: true,
         members: [
           { memberId: 'ms-chen', role: 'admin', relationship: 'Teacher' },
           { memberId: 'priya', role: 'admin', childName: 'Aria', relationship: 'Mom' },
@@ -91,8 +92,6 @@ export function makeSeed(): AppState {
         childIds: ['mateo'],
         joinCode: 'SWIM-RIV',
         announcementsOnly: false,
-        remindersOn: true,
-        digestOn: false,
         members: [
           { memberId: 'coach-bri', role: 'admin', relationship: 'Coach' },
           { memberId: 'me', role: 'member', childName: 'David', relationship: 'Parent' },
@@ -109,8 +108,6 @@ export function makeSeed(): AppState {
         childIds: ['mateo'],
         joinCode: 'TROOP-402',
         announcementsOnly: false,
-        remindersOn: true,
-        digestOn: false,
         members: [
           { memberId: 'alvarez', role: 'admin', relationship: 'Leader' },
           { memberId: 'me', role: 'member', childName: 'David', relationship: 'Parent' },
@@ -126,8 +123,6 @@ export function makeSeed(): AppState {
         childIds: ['isabella', 'calixta', 'mateo'],
         joinCode: 'LINCOLN-PTA',
         announcementsOnly: true,
-        remindersOn: true,
-        digestOn: true,
         members: [
           { memberId: 'office', role: 'admin', relationship: 'School' },
           { memberId: 'priya', role: 'admin', childName: 'Aria', relationship: 'Mom' },
@@ -147,8 +142,6 @@ export function makeSeed(): AppState {
         childIds: [],
         joinCode: 'CHESS-42',
         announcementsOnly: false,
-        remindersOn: true,
-        digestOn: false,
         members: [
           { memberId: 'lena', role: 'admin', relationship: 'Coordinator' },
           { memberId: 'jenna', role: 'member', childName: 'Ella', relationship: 'Mom' },

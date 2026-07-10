@@ -46,8 +46,6 @@ export interface Group {
   members: GroupMember[]
   joinCode: string
   announcementsOnly: boolean // roles toggle: only admins can post to everyone
-  remindersOn: boolean // auto-remind before due dates / events
-  digestOn: boolean // weekly digest for this group
   description?: string
 }
 
@@ -182,5 +180,7 @@ export interface AppState {
   venmoConnected: boolean
   whatsappConnected: boolean
   translateTo: string // '' = off, else a language name
+  // Current user's own notification prefs, per group (defaults to on).
+  notify: Record<string, { reminders: boolean; digest: boolean }>
   currentUserId: string
 }

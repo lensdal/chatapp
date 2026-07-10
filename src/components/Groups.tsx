@@ -70,8 +70,6 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
   const [childName, setChildName] = useState('')
   const [relationship, setRelationship] = useState('Parent')
   const [announcementsOnly, setAnnouncementsOnly] = useState(false)
-  const [remindersOn, setRemindersOn] = useState(true)
-  const [digestOn, setDigestOn] = useState(true)
 
   useEffect(() => {
     if (open) {
@@ -82,8 +80,6 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
       setChildName('')
       setRelationship('Parent')
       setAnnouncementsOnly(false)
-      setRemindersOn(true)
-      setDigestOn(true)
     }
   }, [open])
 
@@ -127,8 +123,6 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
 
         <div className="space-y-2">
           <Toggle on={announcementsOnly} onChange={setAnnouncementsOnly} title="Announcements only" desc="Only admins can post to everyone (great for coaches & schools)." />
-          <Toggle on={remindersOn} onChange={setRemindersOn} title="Auto-reminders" desc="Nudge members before events and due dates." />
-          <Toggle on={digestOn} onChange={setDigestOn} title="Weekly digest" desc="A weekly summary of what's coming up." />
         </div>
       </div>
       <div className="mt-6 flex gap-3">
@@ -145,8 +139,6 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
               childName: childName.trim() || undefined,
               relationship,
               announcementsOnly,
-              remindersOn,
-              digestOn,
             })
             toast('Group created — share the join code to invite people', '🎉')
             onClose()
@@ -313,9 +305,11 @@ export function GroupSettingsModal({ group, open, onClose }: { group: Group; ope
             </div>
             <div className="space-y-2">
               <Toggle on={group.announcementsOnly} onChange={(v) => dispatch({ type: 'UPDATE_GROUP', groupId: group.id, patch: { announcementsOnly: v } })} title="Announcements only" desc="Only admins can post to everyone." />
-              <Toggle on={group.remindersOn} onChange={(v) => dispatch({ type: 'UPDATE_GROUP', groupId: group.id, patch: { remindersOn: v } })} title="Auto-reminders" desc="Nudge members before events and due dates." />
-              <Toggle on={group.digestOn} onChange={(v) => dispatch({ type: 'UPDATE_GROUP', groupId: group.id, patch: { digestOn: v } })} title="Weekly digest" desc="A weekly summary of what's coming up." />
             </div>
+            <p className="rounded-2xl bg-canvas px-4 py-3 text-xs text-ink/50">
+              Reminders and the weekly digest are each member’s own choice — everyone sets those in
+              their own Settings.
+            </p>
             <div>
               <div className={labelCls}>Members & roles</div>
               <ul className="divide-y divide-black/5">

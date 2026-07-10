@@ -3,8 +3,21 @@ import Topbar from '../components/Topbar'
 import { Card, SectionTitle, Avatar } from '../components/ui'
 import { useStore } from '../store/store'
 import { useToast } from '../components/Toast'
+import { myGroups, notifyFor } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
 import type { EventItem } from '../types'
+
+function Switch({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!on)}
+      className={`relative h-6 w-11 shrink-0 rounded-full transition ${on ? 'bg-violet' : 'bg-black/15'}`}
+    >
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`} />
+    </button>
+  )
+}
 
 const LANGUAGES = ['', 'Spanish', 'Mandarin', 'Vietnamese', 'Arabic', 'French', 'Tagalog']
 
@@ -188,33 +201,76 @@ export default function Settings() {
           </Card>
 
           <Card className="p-5">
-            <SectionTitle>Calendar & reminders</SectionTitle>
-            <div className="space-y-3 text-sm text-ink/55">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-soft">
-                  <Bell size={18} className="text-sky" />
-                </span>
-                <p>
-                  Auto-reminders and the weekly digest are toggles on <strong>each group</strong> — open a group’s
-                  settings (⚙️) to turn them on or off there.
-                </p>
-              </div>
-              <div className="flex items-center justify-between gap-3 rounded-2xl bg-canvas px-4 py-3">
-                <div>
-                  <div className="font-bold text-ink">Export all events</div>
-                  <div className="text-xs text-ink/50">Download a .ics file to import into any calendar app.</div>
-                </div>
-                <button
-                  onClick={() => {
-                    downloadICS(state.events)
-                    toast('Calendar exported (.ics)', '📅')
-                  }}
-                  className="inline-flex items-center gap-2 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft hover:bg-violet/90"
-                >
-                  <Download size={16} /> Export .ics
-                </button>
-              </div>
+            <SectionTitle>Notifications</SectionTitle>
+            <p className="-mt-1 mb-3 text-sm text-ink/50">
+              Your own choice — get a reminder before things are due and a weekly summary. Set it for
+              all groups at once, then fine-tune any group below.
+            </p>
+            {(() => {
+              const groups = myGroups(state)
+              const ids = groups.map((g) => g.id)
+              const allRemind = groups.length > 0 && groups.every((g) => notifyFor(state, g.id).reminders)
+              const allDigest = groups.length > 0 && groups.every((g) => notifyFor(state, g.id).digest)
+              return (
+                <>
+                  <div className="space-y-1 rounded-2xl bg-canvas p-2">
+                    <div className="flex items-center gap-3 px-3 py-2">
+                      <Bell size={18} className="text-sky" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold">Auto-reminders — all groups</div>
+                        <div className="text-xs text-ink/50">A nudge before events and due dates.</div>
+                      </div>
+                      <Switch on={allRemind} onChange={(v) => dispatch({ type: 'SET_NOTIFY_ALL', groupIds: ids, key: 'reminders', value: v })} />
+                    </div>
+                    <div className="flex items-center gap-3 px-3 py-2">
+                      <CalendarCheck size={18} className="text-blush" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold">Weekly digest — all groups</div>
+                        <div className="text-xs text-ink/50">A Sunday summary of the week ahead.</div>
+                      </div>
+                      <Switch on={allDigest} onChange={(v) => dispatch({ type: 'SET_NOTIFY_ALL', groupIds: ids, key: 'digest', value: v })} />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">Per group</div>
+                  <div className="divide-y divide-black/5">
+                    {groups.map((g) => {
+                      const n = notifyFor(state, g.id)
+                      return (
+                        <div key={g.id} className="flex items-center gap-3 py-2.5">
+                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorClasses[g.color].soft}`}>{g.emoji}</span>
+                          <span className="min-w-0 flex-1 truncate text-sm font-semibold">{g.name}</span>
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold text-ink/45">
+                            Reminders
+                            <Switch on={n.reminders} onChange={(v) => dispatch({ type: 'SET_NOTIFY', groupId: g.id, key: 'reminders', value: v })} />
+                          </label>
+                          <label className="flex items-center gap-1.5 text-[11px] font-bold text-ink/45">
+                            Digest
+                            <Switch on={n.digest} onChange={(v) => dispatch({ type: 'SET_NOTIFY', groupId: g.id, key: 'digest', value: v })} />
+                          </label>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              )
+            })()}
+          </Card>
+
+          <Card className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <div className="font-bold">Export all events</div>
+              <div className="text-sm text-ink/50">Download a .ics file to import into any calendar app.</div>
             </div>
+            <button
+              onClick={() => {
+                downloadICS(state.events)
+                toast('Calendar exported (.ics)', '📅')
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft hover:bg-violet/90"
+            >
+              <Download size={16} /> Export .ics
+            </button>
           </Card>
 
           <Card className="flex items-center justify-between gap-4 p-5">
