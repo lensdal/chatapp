@@ -63,10 +63,11 @@ export interface ChatMessage {
   linkedPollId?: string
   linkedCollectionId?: string
   pinned?: boolean
+  replyToId?: string // message this one is replying to
   reactions?: Record<string, string[]> // emoji -> memberIds
   requireAck?: boolean
   acks?: string[] // memberIds who tapped "Got it"
-  attachment?: { name: string; kind: 'pdf' | 'image' | 'doc' | 'sheet' }
+  attachment?: { name: string; kind: 'pdf' | 'image' | 'doc' | 'sheet'; dataUrl?: string }
 }
 
 export interface SignUpClaim {

@@ -9,6 +9,12 @@ function at(dayOffset: number, hour = 9, minute = 0): string {
   return d.toISOString()
 }
 
+// Tiny inline SVG "photos" so the Files gallery has sample images.
+function img(label: string, bg: string): string {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='400' height='300' fill='${bg}'/><text x='200' y='160' font-family='sans-serif' font-size='30' font-weight='bold' fill='white' text-anchor='middle'>${label}</text></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+
 export function makeSeed(): AppState {
   return {
     currentUserId: 'me',
@@ -442,6 +448,15 @@ export function makeSeed(): AppState {
         linkedTaskId: 't-2',
       },
       {
+        id: 'm-soccer-photo',
+        groupId: 'soccer',
+        senderId: 'coach-dave',
+        text: 'Team photo from last week — look at these champs! 📸',
+        at: at(-1, 11, 30),
+        attachment: { name: 'team-photo.jpg', kind: 'image', dataUrl: img('⚽ Team Photo', '#F07E3E') },
+        reactions: { '❤️': ['jenna', 'lena', 'marcus'] },
+      },
+      {
         id: 'm-soccer-collect',
         groupId: 'soccer',
         senderId: 'jenna',
@@ -468,6 +483,14 @@ export function makeSeed(): AppState {
         requireAck: true,
         acks: ['jenna', 'lena'],
         attachment: { name: 'Museum Permission Slip.pdf', kind: 'pdf' },
+      },
+      {
+        id: 'm-class-6',
+        groupId: 'class-isabella',
+        senderId: 'ms-chen',
+        text: 'Field trip supply list is attached — please review before Friday.',
+        at: at(-3, 14, 6),
+        attachment: { name: 'Field trip supply list.pdf', kind: 'pdf' },
       },
       {
         id: 'm-class-3',
@@ -553,6 +576,14 @@ export function makeSeed(): AppState {
         text: "Let's vote on this year's fundraiser theme 🎉",
         at: at(-1, 10, 5),
         linkedPollId: 'poll-1',
+      },
+      {
+        id: 'm-pta-flyer',
+        groupId: 'pta',
+        senderId: 'office',
+        text: 'Fundraiser flyer — please print & share with your networks!',
+        at: at(-1, 10, 10),
+        attachment: { name: 'fundraiser-flyer.png', kind: 'image', dataUrl: img('🎉 Fundraiser', '#E45FCF') },
       },
       {
         id: 'm-pta-2',

@@ -23,6 +23,8 @@ import {
   FileText,
   Lock,
   Pencil,
+  FolderOpen,
+  Reply,
 } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, Avatar, AvatarStack, EmptyState, Pill } from '../components/ui'
@@ -39,6 +41,7 @@ import {
   EditMembershipModal,
 } from '../components/Groups'
 import { GroupDirectory } from '../components/Directory'
+import { GroupFiles, AttachButton } from '../components/Files'
 import { useStore } from '../store/store'
 import {
   groupById,
@@ -186,9 +189,11 @@ function ReactionBar({ msg }: { msg: ChatMessage }) {
 function MessageBubble({
   msg,
   onPromote,
+  onReply,
 }: {
   msg: ChatMessage
   onPromote: (m: ChatMessage) => void
+  onReply: (m: ChatMessage) => void
 }) {
   const { state, dispatch } = useStore()
   const toast = useToast()
@@ -196,6 +201,8 @@ function MessageBubble({
   const mine = msg.senderId === state.currentUserId
   const linkedTask = state.tasks.find((t) => t.id === msg.linkedTaskId)
   const linkedEvent = state.events.find((e) => e.id === msg.linkedEventId)
+  const repliedTo = msg.replyToId ? state.messages.find((m) => m.id === msg.replyToId) : undefined
+  const repliedSender = repliedTo ? memberById(state, repliedTo.senderId) : undefined
   const acks = msg.acks ?? []
   const iAcked = acks.includes(state.currentUserId)
 
@@ -213,6 +220,20 @@ function MessageBubble({
             mine ? 'rounded-tr-md bg-violet text-white' : 'rounded-tl-md bg-white text-ink'
           }`}
         >
+          {repliedTo && (
+            <div
+              className={`mb-1.5 border-l-2 pl-2 text-xs ${
+                mine ? 'border-white/50 text-white/75' : 'border-violet/40 text-ink/50'
+              }`}
+            >
+              <span className="font-bold">
+                {repliedSender?.isSelf ? 'You' : repliedSender?.name.split(' ')[0]}
+              </span>
+              <div className="line-clamp-2 opacity-90">
+                {repliedTo.attachment && !repliedTo.text.trim() ? '📎 Attachment' : repliedTo.text}
+              </div>
+            </div>
+          )}
           {msg.text}
           {!mine && state.translateTo && (
             <span className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold text-ink/35">
@@ -221,16 +242,23 @@ function MessageBubble({
           )}
         </div>
 
-        {msg.attachment && (
-          <button
-            onClick={() => toast(`Downloading ${msg.attachment!.name}`, '📎')}
-            className={`mt-1.5 flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-semibold shadow-soft ${
-              mine ? 'bg-violet/80 text-white' : 'bg-white text-ink/70'
-            }`}
-          >
-            <FileText size={16} /> {msg.attachment.name}
-          </button>
-        )}
+        {msg.attachment &&
+          (msg.attachment.kind === 'image' && msg.attachment.dataUrl ? (
+            <img
+              src={msg.attachment.dataUrl}
+              alt={msg.attachment.name}
+              className="mt-1.5 max-h-60 rounded-2xl object-cover shadow-soft"
+            />
+          ) : (
+            <button
+              onClick={() => toast(`Downloading ${msg.attachment!.name}`, '📎')}
+              className={`mt-1.5 flex items-center gap-2 rounded-2xl px-3 py-2 text-xs font-semibold shadow-soft ${
+                mine ? 'bg-violet/80 text-white' : 'bg-white text-ink/70'
+              }`}
+            >
+              <FileText size={16} /> {msg.attachment.name}
+            </button>
+          ))}
 
         {(linkedTask || linkedEvent) && (
           <div
@@ -265,6 +293,12 @@ function MessageBubble({
 
         <div className={`mt-0.5 flex items-center gap-2 px-1 ${mine ? 'flex-row-reverse' : ''}`}>
           <span className="text-[10px] text-ink/35">{fmtMessageTime(msg.at)}</span>
+          <button
+            onClick={() => onReply(msg)}
+            className="inline-flex items-center gap-1 rounded-full bg-black/[0.04] px-2 py-0.5 text-[10px] font-bold text-ink/50 opacity-0 transition hover:text-violet group-hover:opacity-100"
+          >
+            <Reply size={11} /> Reply
+          </button>
           {!linkedTask && !linkedEvent && (
             <button
               onClick={() => onPromote(msg)}
@@ -311,7 +345,6 @@ function ComposerAction({
 function ChatView({ groupId }: { groupId: string }) {
   const { state, dispatch } = useStore()
   const navigate = useNavigate()
-  const toast = useToast()
   const group = groupById(state, groupId)
   const [text, setText] = useState('')
   const [modalMsg, setModalMsg] = useState<ChatMessage | null>(null)
@@ -323,6 +356,8 @@ function ChatView({ groupId }: { groupId: string }) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [dirOpen, setDirOpen] = useState(false)
   const [meOpen, setMeOpen] = useState(false)
+  const [filesOpen, setFilesOpen] = useState(false)
+  const [replyTo, setReplyTo] = useState<ChatMessage | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const msgs = useMemo(() => messagesForGroup(state, groupId), [state, groupId])
@@ -349,8 +384,9 @@ function ChatView({ groupId }: { groupId: string }) {
 
   const send = () => {
     if (!text.trim()) return
-    dispatch({ type: 'SEND_MESSAGE', groupId, text: text.trim() })
+    dispatch({ type: 'SEND_MESSAGE', groupId, text: text.trim(), replyToId: replyTo?.id })
     setText('')
+    setReplyTo(null)
   }
 
   return (
@@ -372,6 +408,9 @@ function ChatView({ groupId }: { groupId: string }) {
               )}
             </div>
             <div className="flex items-center gap-1">
+              <button onClick={() => setFilesOpen(true)} title="Files" className="flex h-9 w-9 items-center justify-center rounded-full text-ink/50 transition hover:bg-violet-soft hover:text-violet">
+                <FolderOpen size={17} />
+              </button>
               <button onClick={() => setDirOpen(true)} title="Directory" className="flex h-9 w-9 items-center justify-center rounded-full text-ink/50 transition hover:bg-violet-soft hover:text-violet">
                 <BookUser size={17} />
               </button>
@@ -423,7 +462,7 @@ function ChatView({ groupId }: { groupId: string }) {
                   const col = state.collections.find((c) => c.id === m.linkedCollectionId)
                   if (col) return <CollectionCard key={m.id} collection={col} />
                 }
-                return <MessageBubble key={m.id} msg={m} onPromote={setModalMsg} />
+                return <MessageBubble key={m.id} msg={m} onPromote={setModalMsg} onReply={setReplyTo} />
               })}
             </div>
           </div>
@@ -435,20 +474,33 @@ function ChatView({ groupId }: { groupId: string }) {
                 <ComposerAction icon={<ClipboardList size={13} />} label="Sign-up" onClick={() => setSignupOpen(true)} />
                 <ComposerAction icon={<BarChart3 size={13} />} label="Poll" onClick={() => setPollOpen(true)} />
                 <ComposerAction icon={<PiggyBank size={13} />} label="Collect" onClick={() => setCollectOpen(true)} />
-                <ComposerAction
-                  icon={<Paperclip size={13} />}
-                  label="Attach"
-                  onClick={() => {
+                <AttachButton
+                  onAdd={(att) =>
                     dispatch({
                       type: 'SEND_MESSAGE',
                       groupId,
-                      text: 'Shared a file 📎',
-                      attachment: { name: 'Team roster.pdf', kind: 'pdf' },
+                      text: att.kind === 'image' ? 'Shared a photo 📷' : 'Shared a file 📎',
+                      attachment: att,
                     })
-                    toast('File shared to the group', '📎')
-                  }}
+                  }
                 />
               </div>
+              {replyTo && (
+                <div className="mx-4 mt-2 flex items-center gap-2 rounded-2xl border-l-2 border-violet bg-canvas px-3 py-2">
+                  <Reply size={14} className="shrink-0 text-violet" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[11px] font-bold text-violet">
+                      Replying to {memberById(state, replyTo.senderId)?.isSelf ? 'yourself' : memberById(state, replyTo.senderId)?.name.split(' ')[0]}
+                    </div>
+                    <div className="truncate text-xs text-ink/55">
+                      {replyTo.attachment && !replyTo.text.trim() ? '📎 Attachment' : replyTo.text}
+                    </div>
+                  </div>
+                  <button onClick={() => setReplyTo(null)} className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-ink/40 hover:bg-black/10">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
               <div className="flex items-center gap-2 px-4 py-3">
                 <input
                   value={text}
@@ -561,17 +613,22 @@ function ChatView({ groupId }: { groupId: string }) {
 
           {files.length > 0 && (
             <Card className="p-3">
-              <div className="flex items-center gap-1.5 px-2 py-1">
+              <div className="flex items-center justify-between px-2 py-1">
                 <h3 className="flex items-center gap-1.5 text-sm font-extrabold"><Paperclip size={16} className="text-ink/50" /> Files</h3>
+                <button onClick={() => setFilesOpen(true)} className="text-xs font-bold text-violet">See all</button>
               </div>
               <ul className="space-y-1 px-1 pb-1">
-                {files.map((m) => (
+                {files.slice(-4).reverse().map((m) => (
                   <li key={m.id}>
                     <button
-                      onClick={() => toast(`Downloading ${m.attachment!.name}`, '📎')}
-                      className="flex w-full items-center gap-2 rounded-2xl px-2 py-2 text-left text-sm hover:bg-black/[0.03]"
+                      onClick={() => setFilesOpen(true)}
+                      className="flex w-full items-center gap-2 rounded-2xl px-2 py-1.5 text-left text-sm hover:bg-black/[0.03]"
                     >
-                      <FileText size={16} className="shrink-0 text-ink/40" />
+                      {m.attachment!.kind === 'image' && m.attachment!.dataUrl ? (
+                        <img src={m.attachment!.dataUrl} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />
+                      ) : (
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-soft text-sky"><FileText size={15} /></span>
+                      )}
                       <span className="truncate font-semibold">{m.attachment!.name}</span>
                     </button>
                   </li>
@@ -590,6 +647,7 @@ function ChatView({ groupId }: { groupId: string }) {
       <InviteModal group={group} open={inviteOpen} onClose={() => setInviteOpen(false)} />
       <GroupSettingsModal group={group} open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GroupDirectory group={group} open={dirOpen} onClose={() => setDirOpen(false)} />
+      <GroupFiles group={group} open={filesOpen} onClose={() => setFilesOpen(false)} />
       <EditMembershipModal group={group} open={meOpen} onClose={() => setMeOpen(false)} />
     </>
   )

@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v2'
+const STORAGE_KEY = 'village.state.v3'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -41,8 +41,9 @@ type Action =
       type: 'SEND_MESSAGE'
       groupId: string
       text: string
-      attachment?: { name: string; kind: 'pdf' | 'image' | 'doc' | 'sheet' }
+      attachment?: { name: string; kind: 'pdf' | 'image' | 'doc' | 'sheet'; dataUrl?: string }
       requireAck?: boolean
+      replyToId?: string
     }
   | { type: 'ADD_TASK'; task: Omit<Task, 'id'> }
   | { type: 'ADD_EVENT'; event: Omit<EventItem, 'id'> }
@@ -155,6 +156,7 @@ function reducer(state: AppState, action: Action): AppState {
             attachment: action.attachment,
             requireAck: action.requireAck,
             acks: action.requireAck ? [] : undefined,
+            replyToId: action.replyToId,
           },
         ],
       }
