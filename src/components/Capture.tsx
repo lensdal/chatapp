@@ -6,7 +6,7 @@ import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { colorClasses } from '../lib/ui'
-import { parseForward } from '../lib/parse'
+import { parseForward, detectChild } from '../lib/parse'
 import type { PaymentMethod, Priority } from '../types'
 
 const inputCls =
@@ -86,8 +86,9 @@ export function ForwardCaptureModal({
   const group = state.groups.find((g) => g.id === groupId)
   const onPickGroup = (id: string) => {
     setGroupId(id)
-    const g = state.groups.find((x) => x.id === id)
-    setChildId(g?.childIds[0] ?? '')
+    const kids = state.groups.find((x) => x.id === id)?.childIds ?? []
+    const detected = detectChild(text, state.children)
+    setChildId(detected && kids.includes(detected) ? detected : kids.length === 1 ? kids[0] : '')
   }
 
   const canSubmit = text.trim() && title.trim() && groupId

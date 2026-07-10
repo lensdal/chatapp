@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
-import { ListChecks, CalendarDays, DollarSign } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { ListChecks, CalendarDays, DollarSign, Sparkles } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
+import { parseForward, detectChild } from '../lib/parse'
 import type { PaymentMethod, Priority } from '../types'
 import { format } from 'date-fns'
 
@@ -36,6 +37,12 @@ export default function PromoteModal({
   const { state, dispatch } = useStore()
   const group = groupById(state, groupId)
 
+  // Auto-detect task/event details from the message being promoted.
+  const parsed = useMemo(
+    () => (defaultText.trim() ? parseForward(defaultText) : null),
+    [defaultText],
+  )
+
   const [kind, setKind] = useState<Kind>(defaultKind)
   const [title, setTitle] = useState(defaultText)
   const [childId, setChildId] = useState<string>(group?.childIds[0] ?? '')
@@ -48,21 +55,44 @@ export default function PromoteModal({
   const [recipient, setRecipient] = useState('')
   const [method, setMethod] = useState<PaymentMethod>('venmo')
 
-  // Reset the form each time the modal opens for a new message/kind.
+  // Reset + auto-fill each time the modal opens for a new message/kind.
   useEffect(() => {
-    if (open) {
+    if (!open) return
+    const kids = group?.childIds ?? []
+    // Auto-pick the kid if the message names one; otherwise default sensibly.
+    const detected = parsed ? detectChild(defaultText, state.children) : undefined
+    const detectedInGroup = detected && kids.includes(detected) ? detected : undefined
+
+    if (parsed) {
+      setKind(parsed.type)
+      setTitle(parsed.title)
+      setPriority(parsed.priority)
+      setLocation(parsed.location ?? '')
+      if (parsed.dateISO) {
+        const d = new Date(parsed.dateISO)
+        setDate(format(d, 'yyyy-MM-dd'))
+        setTime(parsed.hasTime ? format(d, 'HH:mm') : parsed.type === 'event' ? '10:00' : '09:00')
+      } else {
+        setDate(format(new Date(), 'yyyy-MM-dd'))
+        setTime(parsed.type === 'event' ? '10:00' : '09:00')
+      }
+      setHasPayment(!!parsed.amount)
+      setAmount(parsed.amount ? String(parsed.amount) : '')
+      setMethod(parsed.method ?? 'venmo')
+      setRecipient('')
+    } else {
       setKind(defaultKind)
       setTitle(defaultText)
-      setChildId(group?.childIds[0] ?? '')
       setDate(format(new Date(), 'yyyy-MM-dd'))
       setTime(defaultKind === 'event' ? '10:00' : '09:00')
       setPriority('medium')
       setLocation('')
       setHasPayment(false)
       setAmount('')
-      setRecipient('')
       setMethod('venmo')
+      setRecipient('')
     }
+    setChildId(detectedInGroup ?? (kids.length === 1 ? kids[0] : ''))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
@@ -114,6 +144,19 @@ export default function PromoteModal({
       {messageId && defaultText && (
         <div className="mb-4 rounded-2xl bg-canvas px-4 py-3 text-sm italic text-ink/55">
           “{defaultText}”
+        </div>
+      )}
+
+      {parsed && (
+        <div className="mb-4 flex flex-wrap items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-violet">
+            <Sparkles size={13} /> Auto-filled
+          </span>
+          {parsed.cues.map((c, i) => (
+            <span key={i} className="chip bg-violet-soft text-violet">
+              {c}
+            </span>
+          ))}
         </div>
       )}
 

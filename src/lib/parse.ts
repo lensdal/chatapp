@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import type { PaymentMethod } from '../types'
+import type { PaymentMethod, Priority } from '../types'
 
 export interface ParseResult {
   type: 'task' | 'event'
@@ -8,6 +8,8 @@ export interface ParseResult {
   hasTime: boolean
   amount?: number
   method?: PaymentMethod
+  location?: string
+  priority: Priority
   cues: string[]
 }
 
@@ -116,6 +118,30 @@ export function parseForward(raw: string): ParseResult {
     cues.push(`📅 ${format(withTime, hasTime ? 'EEE, MMM d · h:mm a' : 'EEE, MMM d')}`)
   }
 
+  // --- location (mainly for events): "at <Place>" starting with a capital ---
+  let location: string | undefined
+  const loc = text.match(/\bat\s+((?:the\s+)?[A-Z][^,.!?\n]{1,48})/)
+  if (loc) {
+    const firstWord = loc[1].trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z]/g, '')
+    const isDateWord =
+      firstWord in MONTHS ||
+      firstWord.slice(0, 3) in WEEKDAYS ||
+      ['today', 'tomorrow'].includes(firstWord)
+    if (!isDateWord) {
+      location = loc[1].trim()
+      cues.push(`📍 ${location}`)
+    }
+  }
+
+  // --- priority ---
+  let priority: Priority = 'medium'
+  if (/\b(urgent|asap|important|right away|by eod|by end of day|deadline|last chance)\b/i.test(text)) {
+    priority = 'high'
+    cues.push('🔴 High priority')
+  } else if (/\b(no rush|whenever|eventually|no hurry|when you can|optional)\b/i.test(text)) {
+    priority = 'low'
+  }
+
   // --- type ---
   let type: 'task' | 'event'
   if (amount) type = 'task'
@@ -147,5 +173,14 @@ export function parseForward(raw: string): ParseResult {
   if (title.length > 72) title = title.slice(0, 70).trim() + '…'
   if (title) title = title.charAt(0).toUpperCase() + title.slice(1)
 
-  return { type, title, dateISO, hasTime, amount, method, cues }
+  return { type, title, dateISO, hasTime, amount, method, location, priority, cues }
+}
+
+// Find the first child (by id) whose name appears in the text.
+export function detectChild(
+  text: string,
+  children: { id: string; name: string }[],
+): string | undefined {
+  const lower = text.toLowerCase()
+  return children.find((c) => new RegExp(`\\b${c.name.toLowerCase()}\\b`).test(lower))?.id
 }
