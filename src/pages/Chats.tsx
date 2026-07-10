@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Send, Plus, Wand2, ListChecks, CalendarDays, CheckCircle2, ChevronRight, ClipboardList } from 'lucide-react'
+import { Send, Plus, Wand2, ListChecks, CalendarDays, CheckCircle2, ChevronRight, ClipboardList, Pin, X } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, Avatar, AvatarStack, EmptyState, Pill } from '../components/ui'
 import { EventRow, TaskRow, KidTag } from '../components/items'
@@ -81,9 +81,11 @@ function GroupGrid() {
 function MessageBubble({
   msg,
   onPromote,
+  onPin,
 }: {
   msg: ChatMessage
   onPromote: (m: ChatMessage) => void
+  onPin: (m: ChatMessage) => void
 }) {
   const { state } = useStore()
   const sender = memberById(state, msg.senderId)!
@@ -129,6 +131,16 @@ function MessageBubble({
               <Wand2 size={11} /> Make task / event
             </button>
           )}
+          <button
+            onClick={() => onPin(msg)}
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold transition ${
+              msg.pinned
+                ? 'bg-tang-soft text-tang'
+                : 'bg-black/[0.04] text-ink/50 opacity-0 group-hover:opacity-100'
+            }`}
+          >
+            <Pin size={11} /> {msg.pinned ? 'Unpin' : 'Pin'}
+          </button>
         </div>
       </div>
     </div>
@@ -162,6 +174,7 @@ function ChatView({ groupId }: { groupId: string }) {
   )
   const openTasks = tasksForGroup(state, groupId).filter((t) => !t.done)
   const signups = signupsForGroup(state, groupId)
+  const pinned = msgs.filter((m) => m.pinned)
 
   const send = () => {
     if (!text.trim()) return
@@ -200,14 +213,47 @@ function ChatView({ groupId }: { groupId: string }) {
             </div>
           </div>
 
-          <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto bg-canvas/40 px-5 py-5">
-            {msgs.map((m) => {
-              const sheet = m.linkedSignupId
-                ? state.signups.find((s) => s.id === m.linkedSignupId)
-                : undefined
-              if (sheet) return <SignupCard key={m.id} sheet={sheet} />
-              return <MessageBubble key={m.id} msg={m} onPromote={setModalMsg} />
-            })}
+          <div ref={scrollRef} className="relative flex-1 overflow-y-auto bg-canvas/40">
+            {pinned.length > 0 && (
+              <div className="sticky top-0 z-10 space-y-1.5 border-b border-black/5 bg-canvas/90 px-5 py-2.5 backdrop-blur">
+                {pinned.map((pm) => {
+                  const s = memberById(state, pm.senderId)
+                  return (
+                    <div key={pm.id} className="flex items-center gap-2">
+                      <Pin size={13} className="shrink-0 text-tang" strokeWidth={2.4} />
+                      <span className="text-[11px] font-bold uppercase tracking-wide text-tang">Pinned</span>
+                      <span className="min-w-0 flex-1 truncate text-xs text-ink/70">
+                        <span className="font-semibold">{s?.isSelf ? 'You' : s?.name.split(' ')[0]}: </span>
+                        {pm.text}
+                      </span>
+                      <button
+                        onClick={() => dispatch({ type: 'TOGGLE_PIN', messageId: pm.id })}
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-ink/35 transition hover:bg-black/10 hover:text-tang"
+                        title="Unpin"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            <div className="space-y-4 px-5 py-5">
+              {msgs.map((m) => {
+                const sheet = m.linkedSignupId
+                  ? state.signups.find((s) => s.id === m.linkedSignupId)
+                  : undefined
+                if (sheet) return <SignupCard key={m.id} sheet={sheet} />
+                return (
+                  <MessageBubble
+                    key={m.id}
+                    msg={m}
+                    onPromote={setModalMsg}
+                    onPin={(pm) => dispatch({ type: 'TOGGLE_PIN', messageId: pm.id })}
+                  />
+                )
+              })}
+            </div>
           </div>
 
           <div className="flex items-center gap-2 border-t border-black/5 px-4 py-3">

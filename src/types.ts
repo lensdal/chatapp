@@ -39,6 +39,7 @@ export interface ChatMessage {
   linkedTaskId?: string
   linkedEventId?: string
   linkedSignupId?: string
+  pinned?: boolean
 }
 
 export interface SignUpClaim {

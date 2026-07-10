@@ -293,6 +293,7 @@ export function makeSeed(): AppState {
         text: 'Yes — practice tomorrow 5pm at Field 2. And our home game vs Northgate is Saturday 10am, Field 4. Please arrive 30 min early.',
         at: at(-2, 16, 22),
         linkedEventId: 'ev-1',
+        pinned: true,
       },
       {
         id: 'm-soccer-4',

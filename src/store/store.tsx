@@ -34,6 +34,7 @@ type Action =
   | { type: 'TOGGLE_TASK'; taskId: string }
   | { type: 'PAY_TASK'; taskId: string }
   | { type: 'TOGGLE_EVENT_GOOGLE'; eventId: string }
+  | { type: 'TOGGLE_PIN'; messageId: string }
   | {
       type: 'ADD_SIGNUP'
       groupId: string
@@ -126,6 +127,14 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         events: state.events.map((e) =>
           e.id === action.eventId ? { ...e, addedToGoogle: !e.addedToGoogle } : e,
+        ),
+      }
+
+    case 'TOGGLE_PIN':
+      return {
+        ...state,
+        messages: state.messages.map((m) =>
+          m.id === action.messageId ? { ...m, pinned: !m.pinned } : m,
         ),
       }
 
