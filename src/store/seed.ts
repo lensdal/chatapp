@@ -15,6 +15,7 @@ export function makeSeed(): AppState {
     googleConnected: false,
     venmoConnected: false,
     whatsappConnected: true,
+    translateTo: '',
 
     children: [
       { id: 'isabella', name: 'Isabella', color: 'sky', emoji: '🦄' },
@@ -23,16 +24,17 @@ export function makeSeed(): AppState {
     ],
 
     members: [
-      { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: 'violet', isSelf: true },
-      { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: 'tang' },
-      { id: 'priya', name: 'Priya Shah', role: 'Homeroom Parent', emoji: '🌻', color: 'sun' },
-      { id: 'ms-chen', name: 'Ms. Chen', role: 'Teacher', emoji: '🍎', color: 'sky' },
-      { id: 'coach-bri', name: 'Coach Bri', role: 'Swim Coach', emoji: '🏊‍♀️', color: 'mint' },
-      { id: 'alvarez', name: 'Mr. Alvarez', role: 'Scout Leader', emoji: '🏕️', color: 'violet' },
-      { id: 'jenna', name: 'Jenna M.', role: 'Parent', emoji: '💐', color: 'blush' },
-      { id: 'marcus', name: 'Marcus T.', role: 'Parent', emoji: '⚽', color: 'sky' },
-      { id: 'lena', name: 'Lena K.', role: 'Parent', emoji: '🎨', color: 'sun' },
-      { id: 'office', name: 'Lincoln Office', role: 'School', emoji: '🏫', color: 'blush' },
+      { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: 'violet', phone: '+1 (415) 555-0100', isSelf: true },
+      { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: 'tang', phone: '+1 (415) 555-0142' },
+      { id: 'priya', name: 'Priya Shah', role: 'Homeroom Parent', emoji: '🌻', color: 'sun', phone: '+1 (415) 555-0177' },
+      { id: 'ms-chen', name: 'Ms. Chen', role: 'Teacher', emoji: '🍎', color: 'sky', phone: '+1 (415) 555-0110' },
+      { id: 'coach-bri', name: 'Coach Bri', role: 'Swim Coach', emoji: '🏊‍♀️', color: 'mint', phone: '+1 (415) 555-0155' },
+      { id: 'alvarez', name: 'Mr. Alvarez', role: 'Scout Leader', emoji: '🏕️', color: 'violet', phone: '+1 (415) 555-0188' },
+      { id: 'jenna', name: 'Jenna M.', role: 'Parent', emoji: '💐', color: 'blush', phone: '+1 (415) 555-0121' },
+      { id: 'marcus', name: 'Marcus T.', role: 'Parent', emoji: '⚽', color: 'sky', phone: '+1 (415) 555-0133' },
+      { id: 'lena', name: 'Lena K.', role: 'Parent', emoji: '🎨', color: 'sun', phone: '+1 (415) 555-0166' },
+      { id: 'rosa', name: 'Grandma Rosa', role: 'Caregiver', emoji: '👵', color: 'tang', phone: '+1 (415) 555-0190' },
+      { id: 'office', name: 'Lincoln Office', role: 'School', emoji: '🏫', color: 'blush', phone: '+1 (415) 555-0101' },
     ],
 
     groups: [
@@ -43,7 +45,17 @@ export function makeSeed(): AppState {
         color: 'tang',
         emoji: '⚽',
         childIds: ['calixta'],
-        memberIds: ['me', 'coach-dave', 'jenna', 'marcus', 'lena'],
+        joinCode: 'SOCCER-4B2',
+        announcementsOnly: false,
+        remindersOn: true,
+        digestOn: true,
+        members: [
+          { memberId: 'coach-dave', role: 'admin', relationship: 'Coach' },
+          { memberId: 'me', role: 'admin', childName: 'Calixta', relationship: 'Parent' },
+          { memberId: 'jenna', role: 'member', childName: 'Ella', relationship: 'Mom' },
+          { memberId: 'marcus', role: 'member', childName: 'Liam', relationship: 'Dad' },
+          { memberId: 'lena', role: 'member', childName: 'Mia', relationship: 'Mom' },
+        ],
       },
       {
         id: 'class-isabella',
@@ -52,7 +64,17 @@ export function makeSeed(): AppState {
         color: 'sky',
         emoji: '📚',
         childIds: ['isabella'],
-        memberIds: ['me', 'ms-chen', 'priya', 'jenna', 'lena'],
+        joinCode: 'MSCHEN-3G',
+        announcementsOnly: false,
+        remindersOn: true,
+        digestOn: true,
+        members: [
+          { memberId: 'ms-chen', role: 'admin', relationship: 'Teacher' },
+          { memberId: 'priya', role: 'admin', childName: 'Aria', relationship: 'Mom' },
+          { memberId: 'me', role: 'member', childName: 'Isabella', relationship: 'Parent' },
+          { memberId: 'jenna', role: 'member', childName: 'Ella', relationship: 'Mom' },
+          { memberId: 'lena', role: 'member', childName: 'Mia', relationship: 'Mom' },
+        ],
       },
       {
         id: 'swim',
@@ -61,7 +83,16 @@ export function makeSeed(): AppState {
         color: 'mint',
         emoji: '🏊',
         childIds: ['mateo'],
-        memberIds: ['me', 'coach-bri', 'marcus'],
+        joinCode: 'SWIM-RIV',
+        announcementsOnly: false,
+        remindersOn: true,
+        digestOn: false,
+        members: [
+          { memberId: 'coach-bri', role: 'admin', relationship: 'Coach' },
+          { memberId: 'me', role: 'member', childName: 'David', relationship: 'Parent' },
+          { memberId: 'rosa', role: 'member', childName: 'David', relationship: 'Grandma' },
+          { memberId: 'marcus', role: 'member', childName: 'Liam', relationship: 'Dad' },
+        ],
       },
       {
         id: 'scouts',
@@ -70,7 +101,15 @@ export function makeSeed(): AppState {
         color: 'violet',
         emoji: '🏕️',
         childIds: ['mateo'],
-        memberIds: ['me', 'alvarez', 'lena'],
+        joinCode: 'TROOP-402',
+        announcementsOnly: false,
+        remindersOn: true,
+        digestOn: false,
+        members: [
+          { memberId: 'alvarez', role: 'admin', relationship: 'Leader' },
+          { memberId: 'me', role: 'member', childName: 'David', relationship: 'Parent' },
+          { memberId: 'lena', role: 'member', childName: 'Mia', relationship: 'Mom' },
+        ],
       },
       {
         id: 'pta',
@@ -79,7 +118,68 @@ export function makeSeed(): AppState {
         color: 'blush',
         emoji: '🏫',
         childIds: ['isabella', 'calixta', 'mateo'],
-        memberIds: ['me', 'office', 'priya', 'jenna', 'marcus', 'lena'],
+        joinCode: 'LINCOLN-PTA',
+        announcementsOnly: true,
+        remindersOn: true,
+        digestOn: true,
+        members: [
+          { memberId: 'office', role: 'admin', relationship: 'School' },
+          { memberId: 'priya', role: 'admin', childName: 'Aria', relationship: 'Mom' },
+          { memberId: 'me', role: 'member', childName: 'Isabella', relationship: 'Parent' },
+          { memberId: 'jenna', role: 'member', childName: 'Ella', relationship: 'Mom' },
+          { memberId: 'marcus', role: 'member', childName: 'Liam', relationship: 'Dad' },
+          { memberId: 'lena', role: 'member', childName: 'Mia', relationship: 'Mom' },
+        ],
+      },
+      // Discoverable group the current user has NOT joined yet — try code CHESS-42.
+      {
+        id: 'chess',
+        name: 'Lincoln Chess Club',
+        category: 'Club',
+        color: 'sun',
+        emoji: '♟️',
+        childIds: [],
+        joinCode: 'CHESS-42',
+        announcementsOnly: false,
+        remindersOn: true,
+        digestOn: false,
+        members: [
+          { memberId: 'lena', role: 'admin', relationship: 'Coordinator' },
+          { memberId: 'jenna', role: 'member', childName: 'Ella', relationship: 'Mom' },
+        ],
+      },
+    ],
+
+    polls: [
+      {
+        id: 'poll-1',
+        groupId: 'pta',
+        question: 'Fall fundraiser theme?',
+        multi: false,
+        createdById: 'office',
+        options: [
+          { id: 'po-a', label: 'Fall Carnival', votes: ['priya', 'jenna'] },
+          { id: 'po-b', label: 'Movie Night', votes: ['marcus'] },
+          { id: 'po-c', label: 'Family Fun Run', votes: ['lena'] },
+        ],
+      },
+    ],
+
+    collections: [
+      {
+        id: 'col-1',
+        groupId: 'soccer',
+        childName: 'the team',
+        title: 'End-of-season coach gift 🎁',
+        note: 'Chipping in for Coach Dave — suggested $20, no pressure!',
+        suggested: 20,
+        method: 'venmo',
+        recipient: 'Jenna (team parent)',
+        createdById: 'jenna',
+        contributions: [
+          { memberId: 'jenna', amount: 20 },
+          { memberId: 'lena', amount: 25 },
+        ],
       },
     ],
 
@@ -93,7 +193,11 @@ export function makeSeed(): AppState {
         location: 'Field 4, Westside Park',
         note: 'Arrive 30 min early for warm-ups.',
         addedToGoogle: false,
+        createdById: 'coach-dave',
         createdFromMessageId: 'm-soccer-3',
+        rsvps: { me: 'going', jenna: 'going', marcus: 'maybe', lena: 'going' },
+        carpoolOffers: [{ memberId: 'marcus', seats: 2 }],
+        carpoolRequests: ['jenna'],
       },
       {
         id: 'ev-2',
@@ -104,6 +208,7 @@ export function makeSeed(): AppState {
         location: 'Meet at school drop-off',
         note: 'Signed permission slip required.',
         addedToGoogle: false,
+        createdById: 'ms-chen',
       },
       {
         id: 'ev-3',
@@ -113,6 +218,8 @@ export function makeSeed(): AppState {
         date: at(9, 9, 0),
         location: 'Riverside Aquatic Center',
         addedToGoogle: false,
+        createdById: 'coach-bri',
+        rsvps: { me: 'going', marcus: 'going' },
       },
       {
         id: 'ev-4',
@@ -123,6 +230,7 @@ export function makeSeed(): AppState {
         location: 'Cedar Ridge Campground',
         note: 'Packing list in the group.',
         addedToGoogle: false,
+        createdById: 'alvarez',
       },
       {
         id: 'ev-5',
@@ -131,6 +239,7 @@ export function makeSeed(): AppState {
         date: at(4, 18, 30),
         location: 'Lincoln cafeteria',
         addedToGoogle: false,
+        createdById: 'office',
       },
       {
         id: 'ev-6',
@@ -140,6 +249,8 @@ export function makeSeed(): AppState {
         date: at(1, 17, 0),
         location: 'Field 2, Westside Park',
         addedToGoogle: false,
+        createdById: 'coach-dave',
+        recurrence: 'weekly',
       },
     ],
 
@@ -153,6 +264,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'high',
         assigneeIds: ['me'],
+        createdById: 'coach-dave',
         createdFromMessageId: 'm-soccer-5',
       },
       {
@@ -164,6 +276,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'high',
         assigneeIds: ['me'],
+        createdById: 'coach-dave',
         payment: { amount: 45, recipient: 'Coach Dave', method: 'venmo', paid: false },
       },
       {
@@ -175,6 +288,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'high',
         assigneeIds: ['me'],
+        createdById: 'ms-chen',
         createdFromMessageId: 'm-class-2',
       },
       {
@@ -186,6 +300,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'medium',
         assigneeIds: ['me'],
+        createdById: 'coach-bri',
         payment: { amount: 18, recipient: 'Coach Bri', method: 'cashapp', paid: false },
       },
       {
@@ -196,7 +311,8 @@ export function makeSeed(): AppState {
         dueDate: at(12),
         done: false,
         priority: 'medium',
-        assigneeIds: ['me'],
+        assigneeIds: ['me', 'rosa'],
+        createdById: 'alvarez',
       },
       {
         id: 't-7',
@@ -207,6 +323,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'high',
         assigneeIds: ['me'],
+        createdById: 'alvarez',
         payment: { amount: 30, recipient: 'Mr. Alvarez', method: 'venmo', paid: false },
       },
       {
@@ -217,6 +334,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'low',
         assigneeIds: ['me'],
+        createdById: 'priya',
       },
       {
         id: 't-9',
@@ -227,6 +345,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'medium',
         assigneeIds: ['me'],
+        createdById: 'coach-dave',
       },
       {
         id: 't-10',
@@ -237,6 +356,7 @@ export function makeSeed(): AppState {
         done: false,
         priority: 'low',
         assigneeIds: ['me'],
+        createdById: 'ms-chen',
       },
       {
         id: 't-11',
@@ -247,6 +367,7 @@ export function makeSeed(): AppState {
         done: true,
         priority: 'low',
         assigneeIds: ['me'],
+        createdById: 'coach-bri',
       },
     ],
 
@@ -301,6 +422,7 @@ export function makeSeed(): AppState {
         senderId: 'marcus',
         text: 'Got it, see everyone there!',
         at: at(-2, 16, 40),
+        reactions: { '👍': ['coach-dave', 'jenna'] },
       },
       {
         id: 'm-soccer-5',
@@ -309,6 +431,7 @@ export function makeSeed(): AppState {
         text: 'One more — team photos before the game. Everyone please bring a RED shirt by Saturday. 📸',
         at: at(-1, 9, 5),
         linkedTaskId: 't-1',
+        reactions: { '👍': ['jenna', 'marcus'], '❤️': ['lena'] },
       },
       {
         id: 'm-soccer-6',
@@ -317,6 +440,14 @@ export function makeSeed(): AppState {
         text: 'And jersey fees ($45) are due this week — you can Venmo me. Thanks all!',
         at: at(-1, 9, 7),
         linkedTaskId: 't-2',
+      },
+      {
+        id: 'm-soccer-collect',
+        groupId: 'soccer',
+        senderId: 'jenna',
+        text: "Parents — let's chip in for an end-of-season gift for Coach Dave! 🎁",
+        at: at(-1, 12, 0),
+        linkedCollectionId: 'col-1',
       },
 
       // Class
@@ -331,15 +462,18 @@ export function makeSeed(): AppState {
         id: 'm-class-2',
         groupId: 'class-isabella',
         senderId: 'ms-chen',
-        text: 'Permission slips went home in backpacks today. Please sign and return by this Friday so your child can attend. 🙏',
+        text: 'Permission slips went home in backpacks today. Please sign and return by Friday so your child can attend. 🙏 Please tap "Got it" so I know you saw this.',
         at: at(-3, 14, 3),
         linkedTaskId: 't-3',
+        requireAck: true,
+        acks: ['jenna', 'lena'],
+        attachment: { name: 'Museum Permission Slip.pdf', kind: 'pdf' },
       },
       {
         id: 'm-class-3',
         groupId: 'class-isabella',
         senderId: 'priya',
-        text: "I'm organizing the class party! I'll post a sign-up for snacks shortly.",
+        text: "I'm organizing the class party! Sign-up and a quick poll below.",
         at: at(-2, 11, 0),
       },
       {
@@ -356,6 +490,7 @@ export function makeSeed(): AppState {
         senderId: 'me',
         text: 'Amazing, thank you for organizing Priya! 🙌',
         at: at(-2, 11, 30),
+        reactions: { '❤️': ['priya'] },
       },
 
       // Swim
@@ -374,6 +509,14 @@ export function makeSeed(): AppState {
         text: 'New team caps are in — $18 each, Cash App works. Let me know sizes.',
         at: at(-1, 8, 3),
         linkedTaskId: 't-5',
+      },
+      {
+        id: 'm-swim-3',
+        groupId: 'swim',
+        senderId: 'rosa',
+        text: "I'll take David to the meet if you're working that morning! 💙",
+        at: at(-1, 8, 20),
+        reactions: { '🙏': ['me'] },
       },
 
       // Scouts
@@ -402,6 +545,14 @@ export function makeSeed(): AppState {
         text: 'Reminder: PTA meeting Thursday 6:30pm in the cafeteria. We kick off the fall fundraiser!',
         at: at(-1, 10, 0),
         linkedEventId: 'ev-5',
+      },
+      {
+        id: 'm-pta-poll',
+        groupId: 'pta',
+        senderId: 'office',
+        text: "Let's vote on this year's fundraiser theme 🎉",
+        at: at(-1, 10, 5),
+        linkedPollId: 'poll-1',
       },
       {
         id: 'm-pta-2',

@@ -1,4 +1,5 @@
-import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle } from 'lucide-react'
+import { useState } from 'react'
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { EventItem, Task } from '../types'
 import { useStore } from '../store/store'
@@ -8,6 +9,7 @@ import { colorClasses, priorityChip, priorityLabel } from '../lib/ui'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
 import { Pill } from './ui'
 import { format } from 'date-fns'
+import { EventDetailModal, TaskDetailModal } from './details'
 
 export function KidTag({ childId, plain = false }: { childId?: string; plain?: boolean }) {
   const { state } = useStore()
@@ -73,7 +75,8 @@ export function TaskRow({
   showGroup?: boolean
   showKid?: boolean
 }) {
-  const { dispatch } = useStore()
+  const { state, dispatch } = useStore()
+  const [detail, setDetail] = useState(false)
   const due = task.dueDate ? fmtRelativeDue(task.dueDate) : null
   const dueTone =
     due?.tone === 'overdue'
@@ -81,6 +84,7 @@ export function TaskRow({
       : due?.tone === 'soon'
         ? 'text-[#B7841A]'
         : 'text-ink/45'
+  const others = task.assigneeIds.filter((id) => id !== state.currentUserId)
 
   return (
     <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
@@ -97,19 +101,26 @@ export function TaskRow({
       </button>
 
       <div className="min-w-0 flex-1">
-        <div
-          className={`text-sm font-semibold leading-snug ${
+        <button
+          onClick={() => setDetail(true)}
+          className={`block text-left text-sm font-semibold leading-snug hover:text-violet ${
             task.done ? 'text-ink/35 line-through' : 'text-ink'
           }`}
         >
           {task.title}
-        </div>
+        </button>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {due && !task.done && (
             <span className={`text-xs font-semibold ${dueTone}`}>{due.label}</span>
           )}
           {showKid && <KidTag childId={task.childId} />}
           {showGroup && <GroupTag groupId={task.groupId} />}
+          {task.recurrence === 'weekly' && (
+            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> Weekly</Pill>
+          )}
+          {others.length > 0 && (
+            <Pill className="bg-black/[0.04] text-ink/55"><Users size={11} /> +{others.length}</Pill>
+          )}
         </div>
       </div>
 
@@ -124,6 +135,7 @@ export function TaskRow({
           )
         )}
       </div>
+      <TaskDetailModal task={task} open={detail} onClose={() => setDetail(false)} />
     </div>
   )
 }
@@ -139,7 +151,7 @@ export function WhatsAppRemindButton({
   const toast = useToast()
   const group = groupById(state, groupId)
   if (!group) return null
-  const recipients = Math.max(1, group.memberIds.length - 1)
+  const recipients = Math.max(1, group.members.length - 1)
   const onClick = () => {
     if (!state.whatsappConnected) {
       toast('Connect WhatsApp in Settings to send reminders', '💬')
@@ -168,11 +180,14 @@ export function EventRow({
   showKid?: boolean
 }) {
   const { state, dispatch } = useStore()
+  const [detail, setDetail] = useState(false)
   const d = new Date(event.date)
   const group = groupById(state, event.groupId)
+  const goingCount = event.rsvps ? Object.values(event.rsvps).filter((s) => s === 'going').length : 0
   return (
     <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
-      <div
+      <button
+        onClick={() => setDetail(true)}
         className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${
           group ? colorClasses[group.color].soft : 'bg-canvas'
         }`}
@@ -181,10 +196,12 @@ export function EventRow({
           {format(d, 'MMM')}
         </span>
         <span className="text-xl font-extrabold leading-none">{format(d, 'd')}</span>
-      </div>
+      </button>
 
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-bold leading-snug">{event.title}</div>
+        <button onClick={() => setDetail(true)} className="block text-left text-sm font-bold leading-snug hover:text-violet">
+          {event.title}
+        </button>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/50">
           <span className="font-semibold">{fmtTime(event.date)}</span>
           {event.location && (
@@ -192,12 +209,17 @@ export function EventRow({
               <MapPin size={12} /> {event.location}
             </span>
           )}
+          {goingCount > 0 && <span className="font-semibold text-mint">{goingCount} going</span>}
         </div>
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {showKid && <KidTag childId={event.childId} />}
           {showGroup && <GroupTag groupId={event.groupId} />}
+          {event.recurrence === 'weekly' && (
+            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> Weekly</Pill>
+          )}
         </div>
       </div>
+      <EventDetailModal event={event} open={detail} onClose={() => setDetail(false)} />
 
       <div className="flex shrink-0 flex-col items-end gap-1.5">
         <button

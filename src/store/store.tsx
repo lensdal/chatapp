@@ -6,10 +6,29 @@ import {
   useReducer,
   type ReactNode,
 } from 'react'
-import type { AppState, EventItem, Task } from '../types'
+import type {
+  AppState,
+  ColorKey,
+  Collection,
+  EventItem,
+  Group,
+  GroupMember,
+  GroupRole,
+  PaymentMethod,
+  Poll,
+  RSVPStatus,
+  Task,
+} from '../types'
 import { makeSeed } from './seed'
 
-const STORAGE_KEY = 'village.state.v1'
+function genJoinCode(name: string): string {
+  const base = name.replace(/[^a-zA-Z]/g, '').slice(0, 6).toUpperCase() || 'GROUP'
+  let n = 0
+  for (const ch of name) n = (n * 31 + ch.charCodeAt(0)) % 1000
+  return `${base}-${n.toString().padStart(2, '0')}`
+}
+
+const STORAGE_KEY = 'village.state.v2'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -18,7 +37,13 @@ export function uid(prefix = 'id'): string {
 }
 
 type Action =
-  | { type: 'SEND_MESSAGE'; groupId: string; text: string }
+  | {
+      type: 'SEND_MESSAGE'
+      groupId: string
+      text: string
+      attachment?: { name: string; kind: 'pdf' | 'image' | 'doc' | 'sheet' }
+      requireAck?: boolean
+    }
   | { type: 'ADD_TASK'; task: Omit<Task, 'id'> }
   | { type: 'ADD_EVENT'; event: Omit<EventItem, 'id'> }
   | {
@@ -51,6 +76,67 @@ type Action =
       key: 'googleConnected' | 'venmoConnected' | 'whatsappConnected'
       value: boolean
     }
+  | { type: 'SET_TRANSLATE'; to: string }
+  // groups & membership
+  | {
+      type: 'CREATE_GROUP'
+      name: string
+      category: string
+      emoji: string
+      color: ColorKey
+      childName?: string
+      relationship?: string
+      announcementsOnly: boolean
+      remindersOn: boolean
+      digestOn: boolean
+    }
+  | {
+      type: 'JOIN_GROUP'
+      groupId: string
+      childName?: string
+      relationship?: string
+      displayName?: string
+    }
+  | { type: 'LEAVE_GROUP'; groupId: string }
+  | {
+      type: 'UPDATE_GROUP'
+      groupId: string
+      patch: Partial<Pick<Group, 'name' | 'announcementsOnly' | 'remindersOn' | 'digestOn' | 'joinCode'>>
+    }
+  | { type: 'SET_MEMBER_ROLE'; groupId: string; memberId: string; role: GroupRole }
+  | {
+      type: 'UPDATE_MEMBERSHIP'
+      groupId: string
+      memberId: string
+      patch: Partial<Pick<GroupMember, 'childName' | 'relationship' | 'displayName'>>
+    }
+  // events
+  | { type: 'UPDATE_EVENT'; eventId: string; patch: Partial<EventItem> }
+  | { type: 'SET_RSVP'; eventId: string; status: RSVPStatus }
+  | { type: 'CARPOOL_OFFER'; eventId: string; seats: number }
+  | { type: 'CARPOOL_CANCEL'; eventId: string }
+  | { type: 'CARPOOL_TOGGLE_REQUEST'; eventId: string }
+  // tasks
+  | { type: 'UPDATE_TASK'; taskId: string; patch: Partial<Task> }
+  // chat extras
+  | { type: 'REACT'; messageId: string; emoji: string }
+  | { type: 'ACK_MESSAGE'; messageId: string }
+  // polls
+  | { type: 'ADD_POLL'; groupId: string; question: string; options: string[]; multi: boolean }
+  | { type: 'VOTE_POLL'; pollId: string; optionId: string }
+  // collections (group payment pooling)
+  | {
+      type: 'ADD_COLLECTION'
+      groupId: string
+      title: string
+      note?: string
+      suggested?: number
+      goal?: number
+      method: PaymentMethod
+      recipient: string
+      childName?: string
+    }
+  | { type: 'CONTRIBUTE'; collectionId: string; amount: number }
   | { type: 'RESET' }
 
 function reducer(state: AppState, action: Action): AppState {
@@ -66,6 +152,9 @@ function reducer(state: AppState, action: Action): AppState {
             senderId: state.currentUserId,
             text: action.text,
             at: new Date().toISOString(),
+            attachment: action.attachment,
+            requireAck: action.requireAck,
+            acks: action.requireAck ? [] : undefined,
           },
         ],
       }
@@ -235,6 +324,278 @@ function reducer(state: AppState, action: Action): AppState {
 
     case 'SET_INTEGRATION':
       return { ...state, [action.key]: action.value }
+
+    case 'SET_TRANSLATE':
+      return { ...state, translateTo: action.to }
+
+    // ---- groups & membership ----
+    case 'CREATE_GROUP': {
+      const id = uid('g')
+      const me: GroupMember = {
+        memberId: state.currentUserId,
+        role: 'admin',
+        childName: action.childName || undefined,
+        relationship: action.relationship || undefined,
+      }
+      const group: Group = {
+        id,
+        name: action.name,
+        category: action.category,
+        emoji: action.emoji,
+        color: action.color,
+        childIds: [],
+        members: [me],
+        joinCode: genJoinCode(action.name),
+        announcementsOnly: action.announcementsOnly,
+        remindersOn: action.remindersOn,
+        digestOn: action.digestOn,
+      }
+      return { ...state, groups: [...state.groups, group] }
+    }
+
+    case 'JOIN_GROUP':
+      return {
+        ...state,
+        groups: state.groups.map((g) =>
+          g.id !== action.groupId || g.members.some((m) => m.memberId === state.currentUserId)
+            ? g
+            : {
+                ...g,
+                members: [
+                  ...g.members,
+                  {
+                    memberId: state.currentUserId,
+                    role: 'member',
+                    childName: action.childName || undefined,
+                    relationship: action.relationship || undefined,
+                    displayName: action.displayName || undefined,
+                  },
+                ],
+              },
+        ),
+      }
+
+    case 'LEAVE_GROUP':
+      return {
+        ...state,
+        groups: state.groups.map((g) =>
+          g.id !== action.groupId
+            ? g
+            : { ...g, members: g.members.filter((m) => m.memberId !== state.currentUserId) },
+        ),
+      }
+
+    case 'UPDATE_GROUP':
+      return {
+        ...state,
+        groups: state.groups.map((g) => (g.id === action.groupId ? { ...g, ...action.patch } : g)),
+      }
+
+    case 'SET_MEMBER_ROLE':
+      return {
+        ...state,
+        groups: state.groups.map((g) =>
+          g.id !== action.groupId
+            ? g
+            : {
+                ...g,
+                members: g.members.map((m) =>
+                  m.memberId === action.memberId ? { ...m, role: action.role } : m,
+                ),
+              },
+        ),
+      }
+
+    case 'UPDATE_MEMBERSHIP':
+      return {
+        ...state,
+        groups: state.groups.map((g) =>
+          g.id !== action.groupId
+            ? g
+            : {
+                ...g,
+                members: g.members.map((m) =>
+                  m.memberId === action.memberId ? { ...m, ...action.patch } : m,
+                ),
+              },
+        ),
+      }
+
+    // ---- events ----
+    case 'UPDATE_EVENT':
+      return {
+        ...state,
+        events: state.events.map((e) => (e.id === action.eventId ? { ...e, ...action.patch } : e)),
+      }
+
+    case 'SET_RSVP':
+      return {
+        ...state,
+        events: state.events.map((e) =>
+          e.id !== action.eventId
+            ? e
+            : { ...e, rsvps: { ...(e.rsvps ?? {}), [state.currentUserId]: action.status } },
+        ),
+      }
+
+    case 'CARPOOL_OFFER':
+      return {
+        ...state,
+        events: state.events.map((e) => {
+          if (e.id !== action.eventId) return e
+          const offers = (e.carpoolOffers ?? []).filter((o) => o.memberId !== state.currentUserId)
+          return { ...e, carpoolOffers: [...offers, { memberId: state.currentUserId, seats: action.seats }] }
+        }),
+      }
+
+    case 'CARPOOL_CANCEL':
+      return {
+        ...state,
+        events: state.events.map((e) =>
+          e.id !== action.eventId
+            ? e
+            : { ...e, carpoolOffers: (e.carpoolOffers ?? []).filter((o) => o.memberId !== state.currentUserId) },
+        ),
+      }
+
+    case 'CARPOOL_TOGGLE_REQUEST':
+      return {
+        ...state,
+        events: state.events.map((e) => {
+          if (e.id !== action.eventId) return e
+          const reqs = e.carpoolRequests ?? []
+          return {
+            ...e,
+            carpoolRequests: reqs.includes(state.currentUserId)
+              ? reqs.filter((r) => r !== state.currentUserId)
+              : [...reqs, state.currentUserId],
+          }
+        }),
+      }
+
+    // ---- tasks ----
+    case 'UPDATE_TASK':
+      return {
+        ...state,
+        tasks: state.tasks.map((t) => (t.id === action.taskId ? { ...t, ...action.patch } : t)),
+      }
+
+    // ---- chat extras ----
+    case 'REACT':
+      return {
+        ...state,
+        messages: state.messages.map((m) => {
+          if (m.id !== action.messageId) return m
+          const reactions = { ...(m.reactions ?? {}) }
+          const who = reactions[action.emoji] ?? []
+          reactions[action.emoji] = who.includes(state.currentUserId)
+            ? who.filter((x) => x !== state.currentUserId)
+            : [...who, state.currentUserId]
+          if (reactions[action.emoji].length === 0) delete reactions[action.emoji]
+          return { ...m, reactions }
+        }),
+      }
+
+    case 'ACK_MESSAGE':
+      return {
+        ...state,
+        messages: state.messages.map((m) =>
+          m.id !== action.messageId || (m.acks ?? []).includes(state.currentUserId)
+            ? m
+            : { ...m, acks: [...(m.acks ?? []), state.currentUserId] },
+        ),
+      }
+
+    // ---- polls ----
+    case 'ADD_POLL': {
+      const pollId = uid('poll')
+      const poll: Poll = {
+        id: pollId,
+        groupId: action.groupId,
+        question: action.question,
+        multi: action.multi,
+        createdById: state.currentUserId,
+        options: action.options.map((label) => ({ id: uid('po'), label, votes: [] })),
+      }
+      return {
+        ...state,
+        polls: [...state.polls, poll],
+        messages: [
+          ...state.messages,
+          {
+            id: uid('m'),
+            groupId: action.groupId,
+            senderId: state.currentUserId,
+            text: `📊 New poll: ${action.question}`,
+            at: new Date().toISOString(),
+            linkedPollId: pollId,
+          },
+        ],
+      }
+    }
+
+    case 'VOTE_POLL':
+      return {
+        ...state,
+        polls: state.polls.map((p) => {
+          if (p.id !== action.pollId) return p
+          const me = state.currentUserId
+          return {
+            ...p,
+            options: p.options.map((o) => {
+              const has = o.votes.includes(me)
+              if (o.id === action.optionId) {
+                return { ...o, votes: has ? o.votes.filter((v) => v !== me) : [...o.votes, me] }
+              }
+              // single-choice: clear my vote from other options
+              return p.multi ? o : { ...o, votes: o.votes.filter((v) => v !== me) }
+            }),
+          }
+        }),
+      }
+
+    // ---- collections ----
+    case 'ADD_COLLECTION': {
+      const colId = uid('col')
+      const col: Collection = {
+        id: colId,
+        groupId: action.groupId,
+        title: action.title,
+        note: action.note,
+        suggested: action.suggested,
+        goal: action.goal,
+        method: action.method,
+        recipient: action.recipient,
+        childName: action.childName,
+        createdById: state.currentUserId,
+        contributions: [],
+      }
+      return {
+        ...state,
+        collections: [...state.collections, col],
+        messages: [
+          ...state.messages,
+          {
+            id: uid('m'),
+            groupId: action.groupId,
+            senderId: state.currentUserId,
+            text: `💰 Collecting money: ${action.title}`,
+            at: new Date().toISOString(),
+            linkedCollectionId: colId,
+          },
+        ],
+      }
+    }
+
+    case 'CONTRIBUTE':
+      return {
+        ...state,
+        collections: state.collections.map((c) => {
+          if (c.id !== action.collectionId) return c
+          const rest = c.contributions.filter((x) => x.memberId !== state.currentUserId)
+          return { ...c, contributions: [...rest, { memberId: state.currentUserId, amount: action.amount }] }
+        }),
+      }
 
     case 'RESET':
       return makeSeed()

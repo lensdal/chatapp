@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { useStore } from '../store/store'
 import { colorClasses } from '../lib/ui'
-import { memberById, tasksForGroup, openTasks } from '../lib/selectors'
+import { memberById, tasksForGroup, openTasks, myGroups } from '../lib/selectors'
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -66,7 +66,7 @@ export default function Sidebar() {
           Your groups
         </div>
         <div className="flex flex-col gap-0.5">
-          {state.groups.map((g) => {
+          {myGroups(state).map((g) => {
             const open = tasksForGroup(state, g.id).filter((t) => !t.done).length
             return (
               <NavLink
