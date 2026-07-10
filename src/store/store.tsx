@@ -14,6 +14,7 @@ import type {
   Group,
   GroupMember,
   GroupRole,
+  PaymentHandles,
   PaymentMethod,
   Poll,
   RSVPStatus,
@@ -28,7 +29,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v6'
+const STORAGE_KEY = 'village.state.v7'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -142,11 +143,13 @@ type Action =
       note?: string
       suggested?: number
       goal?: number
-      method: PaymentMethod
+      acceptedMethods: PaymentMethod[]
+      handles: PaymentHandles
       recipient: string
       childName?: string
     }
   | { type: 'CONTRIBUTE'; collectionId: string; amount: number }
+  | { type: 'SET_HANDLES'; handles: PaymentHandles }
   | { type: 'RESET' }
 
 function reducer(state: AppState, action: Action): AppState {
@@ -608,7 +611,8 @@ function reducer(state: AppState, action: Action): AppState {
         note: action.note,
         suggested: action.suggested,
         goal: action.goal,
-        method: action.method,
+        acceptedMethods: action.acceptedMethods,
+        handles: action.handles,
         recipient: action.recipient,
         childName: action.childName,
         createdById: state.currentUserId,
@@ -616,6 +620,12 @@ function reducer(state: AppState, action: Action): AppState {
       }
       return {
         ...state,
+        // Remember the creator's handles on their own profile for next time.
+        members: state.members.map((m) =>
+          m.id === state.currentUserId
+            ? { ...m, handles: { ...m.handles, ...action.handles } }
+            : m,
+        ),
         collections: [...state.collections, col],
         messages: [
           ...state.messages,
@@ -639,6 +649,16 @@ function reducer(state: AppState, action: Action): AppState {
           const rest = c.contributions.filter((x) => x.memberId !== state.currentUserId)
           return { ...c, contributions: [...rest, { memberId: state.currentUserId, amount: action.amount }] }
         }),
+      }
+
+    case 'SET_HANDLES':
+      return {
+        ...state,
+        members: state.members.map((m) =>
+          m.id === state.currentUserId
+            ? { ...m, handles: { ...m.handles, ...action.handles } }
+            : m,
+        ),
       }
 
     case 'RESET':

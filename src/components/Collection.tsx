@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { PiggyBank, Check } from 'lucide-react'
+import { PiggyBank, Check, ExternalLink } from 'lucide-react'
 import Modal from './Modal'
 import { Avatar } from './ui'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById } from '../lib/selectors'
-import type { Collection, PaymentMethod } from '../types'
+import { PAY_METHODS, methodMeta, buildPayLink } from '../lib/pay'
+import type { Collection, PaymentHandles, PaymentMethod } from '../types'
 
 export function CollectionCard({ collection }: { collection: Collection }) {
   const { state, dispatch } = useStore()
@@ -16,10 +17,23 @@ export function CollectionCard({ collection }: { collection: Collection }) {
   const goal = collection.goal
   const pct = goal ? Math.min(100, Math.round((total / goal) * 100)) : 0
   const suggested = collection.suggested ?? 20
+  const methods = collection.acceptedMethods?.length
+    ? collection.acceptedMethods
+    : (['venmo'] as PaymentMethod[])
 
-  const chipIn = () => {
+  const pay = (method: PaymentMethod) => {
+    const handle = collection.handles?.[method] ?? ''
+    const meta = methodMeta(method)
+    const link = buildPayLink(method, handle, suggested, collection.title)
+    if (link) {
+      // Opens the platform prefilled with amount + note; the payer confirms there.
+      window.open(link, '_blank', 'noopener')
+      toast(`Opening ${meta.label} to pay ${collection.recipient} $${suggested}`, '💸')
+    } else {
+      // Zelle / Other have no universal link — show where to send it.
+      toast(`Send $${suggested} to ${handle || collection.recipient} via ${meta.label}`, '💸')
+    }
     dispatch({ type: 'CONTRIBUTE', collectionId: collection.id, amount: suggested })
-    toast(`Chipped in $${suggested} via ${collection.method === 'venmo' ? 'Venmo' : 'Cash App'}`, '💰')
   }
 
   return (
@@ -59,21 +73,45 @@ export function CollectionCard({ collection }: { collection: Collection }) {
           })}
         </div>
 
-        <div className="mt-4">
-          {mine ? (
+        {mine ? (
+          <div className="mt-4">
             <span className="chip bg-mint-soft text-mint">
               <Check size={13} strokeWidth={3} /> You chipped in ${mine.amount}
             </span>
-          ) : (
-            <button
-              onClick={chipIn}
-              className="chip bg-mint text-white shadow-soft transition hover:bg-mint/90"
-            >
-              Chip in ${suggested} · {collection.method === 'venmo' ? 'Venmo' : 'Cash App'}
-            </button>
-          )}
-          <span className="ml-2 text-[11px] text-ink/40">to {collection.recipient}</span>
-        </div>
+            <span className="ml-2 text-[11px] text-ink/40">to {collection.recipient}</span>
+          </div>
+        ) : (
+          <div className="mt-4">
+            <div className="mb-1.5 text-xs font-semibold text-ink/45">
+              Chip in ${suggested} to {collection.recipient} via:
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {methods.map((m) => {
+                const meta = methodMeta(m)
+                const handle = collection.handles?.[m]
+                return (
+                  <button
+                    key={m}
+                    onClick={() => pay(m)}
+                    className={`chip ${meta.className} shadow-soft transition`}
+                    title={handle ? `Send to ${handle}` : meta.label}
+                  >
+                    {meta.hasLink && <ExternalLink size={12} />}
+                    {meta.label}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="mt-2 text-[11px] text-ink/40">
+              {methods.map((m) => {
+                const handle = collection.handles?.[m]
+                return handle ? `${methodMeta(m).label}: ${handle}` : null
+              })
+                .filter(Boolean)
+                .join('  ·  ')}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -96,13 +134,22 @@ export function CreateCollectionModal({
   initialTitle?: string
   initialSuggested?: number
 }) {
-  const { dispatch } = useStore()
+  const { state, dispatch } = useStore()
+  const myHandles = memberById(state, state.currentUserId)?.handles ?? {}
+
   const [title, setTitle] = useState('')
   const [note, setNote] = useState('')
   const [suggested, setSuggested] = useState('20')
   const [goal, setGoal] = useState('')
-  const [method, setMethod] = useState<PaymentMethod>('venmo')
   const [recipient, setRecipient] = useState('')
+  // Which methods are accepted, and the handle entered for each.
+  const [accepted, setAccepted] = useState<Record<PaymentMethod, boolean>>({
+    venmo: false,
+    cashapp: false,
+    zelle: false,
+    other: false,
+  })
+  const [handles, setHandles] = useState<PaymentHandles>({})
 
   useEffect(() => {
     if (open) {
@@ -110,13 +157,42 @@ export function CreateCollectionModal({
       setNote('')
       setSuggested(initialSuggested != null ? String(initialSuggested) : '20')
       setGoal('')
-      setMethod('venmo')
       setRecipient('')
+      // Pre-select methods the user already has a handle for.
+      setAccepted({
+        venmo: !!myHandles.venmo,
+        cashapp: !!myHandles.cashapp,
+        zelle: !!myHandles.zelle,
+        other: !!myHandles.other,
+      })
+      setHandles({ ...myHandles })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const canSubmit = title.trim() && recipient.trim()
+  const chosen = PAY_METHODS.filter((m) => accepted[m.id])
+  const chosenWithHandles = chosen.filter((m) => (handles[m.id] ?? '').trim())
+  const canSubmit =
+    title.trim() && recipient.trim() && chosen.length > 0 && chosenWithHandles.length === chosen.length
+
+  const submit = () => {
+    if (!canSubmit) return
+    const acceptedMethods = chosen.map((m) => m.id)
+    const finalHandles: PaymentHandles = {}
+    for (const m of chosen) finalHandles[m.id] = (handles[m.id] ?? '').trim()
+    dispatch({
+      type: 'ADD_COLLECTION',
+      groupId,
+      title: title.trim(),
+      note: note.trim() || undefined,
+      suggested: suggested ? Number(suggested) : undefined,
+      goal: goal ? Number(goal) : undefined,
+      acceptedMethods,
+      handles: finalHandles,
+      recipient: recipient.trim(),
+    })
+    onClose()
+  }
 
   return (
     <Modal open={open} onClose={onClose} title="Collect money">
@@ -135,19 +211,48 @@ export function CreateCollectionModal({
             <input className={inputCls} value={goal} onChange={(e) => setGoal(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" placeholder="e.g. 200" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelCls}>Method</label>
-            <select className={inputCls} value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}>
-              <option value="venmo">Venmo</option>
-              <option value="cashapp">Cash App</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Collected by</label>
-            <input className={inputCls} value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="e.g. Jenna" />
-          </div>
+        <div>
+          <label className={labelCls}>Collected by</label>
+          <input className={inputCls} value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="e.g. Jenna" />
         </div>
+
+        <div>
+          <label className={labelCls}>How can people pay you? (pick any)</label>
+          <div className="space-y-2">
+            {PAY_METHODS.map((m) => {
+              const on = accepted[m.id]
+              return (
+                <div key={m.id} className="rounded-2xl bg-canvas px-3 py-2.5">
+                  <label className="flex cursor-pointer items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={(e) => setAccepted((a) => ({ ...a, [m.id]: e.target.checked }))}
+                      className="h-5 w-5 accent-violet"
+                    />
+                    <span className="text-sm font-bold">{m.label}</span>
+                    {!m.hasLink && (
+                      <span className="text-[10px] font-semibold text-ink/35">(manual — no auto-open)</span>
+                    )}
+                  </label>
+                  {on && (
+                    <input
+                      className={`${inputCls} mt-2`}
+                      value={handles[m.id] ?? ''}
+                      onChange={(e) => setHandles((h) => ({ ...h, [m.id]: e.target.value }))}
+                      placeholder={m.placeholder}
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <p className="mt-2 text-[11px] text-ink/40">
+            Your usernames are saved to your profile so you don't have to re-enter them. Venmo & Cash App
+            open prefilled when someone pays; Zelle/Other just show your handle to send to.
+          </p>
+        </div>
+
         <div>
           <label className={labelCls}>Note (optional)</label>
           <input className={inputCls} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Anything else" />
@@ -156,20 +261,7 @@ export function CreateCollectionModal({
       <div className="mt-6 flex gap-3">
         <button onClick={onClose} className="flex-1 rounded-2xl bg-canvas py-3 text-sm font-bold text-ink/55 hover:bg-black/[0.05]">Cancel</button>
         <button
-          onClick={() => {
-            if (!canSubmit) return
-            dispatch({
-              type: 'ADD_COLLECTION',
-              groupId,
-              title: title.trim(),
-              note: note.trim() || undefined,
-              suggested: suggested ? Number(suggested) : undefined,
-              goal: goal ? Number(goal) : undefined,
-              method,
-              recipient: recipient.trim(),
-            })
-            onClose()
-          }}
+          onClick={submit}
           disabled={!canSubmit}
           className="flex-1 rounded-2xl bg-violet py-3 text-sm font-bold text-white shadow-soft hover:bg-violet/90 disabled:opacity-40"
         >

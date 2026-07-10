@@ -2,7 +2,10 @@ export type ColorKey = 'violet' | 'sky' | 'blush' | 'sun' | 'tang' | 'mint'
 
 export type Priority = 'high' | 'medium' | 'low'
 
-export type PaymentMethod = 'venmo' | 'cashapp'
+export type PaymentMethod = 'venmo' | 'cashapp' | 'zelle' | 'other'
+
+// A creator's payment usernames/handles, keyed by method.
+export type PaymentHandles = Partial<Record<PaymentMethod, string>>
 
 export type GroupRole = 'admin' | 'member'
 
@@ -24,6 +27,7 @@ export interface Member {
   emoji: string
   color: ColorKey
   phone?: string
+  handles?: PaymentHandles
   isSelf?: boolean
 }
 
@@ -121,7 +125,8 @@ export interface Collection {
   note?: string
   goal?: number
   suggested?: number
-  method: PaymentMethod
+  acceptedMethods: PaymentMethod[]
+  handles: PaymentHandles
   recipient: string
   createdById: string
   contributions: Contribution[]

@@ -52,7 +52,7 @@ export function makeSeed(): AppState {
     ],
 
     members: [
-      { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: 'violet', phone: '+1 (415) 555-0100', isSelf: true },
+      { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: 'violet', phone: '+1 (415) 555-0100', handles: { venmo: '@sam-ortiz', cashapp: '$SamOrtiz', zelle: 'sam@email.com' }, isSelf: true },
       { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: 'tang', phone: '+1 (415) 555-0142' },
       { id: 'priya', name: 'Priya Shah', role: 'Homeroom Parent', emoji: '🌻', color: 'sun', phone: '+1 (415) 555-0177' },
       { id: 'ms-chen', name: 'Ms. Chen', role: 'Teacher', emoji: '🍎', color: 'sky', phone: '+1 (415) 555-0110' },
@@ -201,7 +201,8 @@ export function makeSeed(): AppState {
         title: 'End-of-season coach gift 🎁',
         note: 'Chipping in for Coach Dave — suggested $20, no pressure!',
         suggested: 20,
-        method: 'venmo',
+        acceptedMethods: ['venmo', 'zelle'],
+        handles: { venmo: '@jenna-m', zelle: 'jenna.m@email.com' },
         recipient: 'Jenna (team parent)',
         createdById: 'jenna',
         contributions: [

@@ -2,6 +2,7 @@ import { CalendarCheck, Wallet, RotateCcw, Info, Check, MessageCircle, Download,
 import Topbar from '../components/Topbar'
 import { Card, SectionTitle, Avatar } from '../components/ui'
 import { useStore } from '../store/store'
+import { PAY_METHODS } from '../lib/pay'
 import { useToast } from '../components/Toast'
 import { myGroups, notifyFor } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
@@ -90,6 +91,7 @@ export default function Settings() {
   const { state, dispatch } = useStore()
   const toast = useToast()
   const caregivers = state.members.filter((m) => m.role === 'Caregiver')
+  const meHandles = state.members.find((m) => m.id === state.currentUserId)?.handles ?? {}
 
   return (
     <>
@@ -174,6 +176,29 @@ export default function Settings() {
                 </div>
               </div>
             )}
+          </Card>
+
+          <Card className="p-5">
+            <SectionTitle>Your payment handles</SectionTitle>
+            <p className="mb-3 text-sm text-ink/50">
+              Saved once and reused whenever you collect money. When someone pays, Venmo & Cash App open
+              prefilled; Zelle & Other just show people where to send it.
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {PAY_METHODS.map((m) => (
+                <div key={m.id}>
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink/40">
+                    {m.label}
+                  </label>
+                  <input
+                    className="w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white"
+                    value={meHandles[m.id] ?? ''}
+                    onChange={(e) => dispatch({ type: 'SET_HANDLES', handles: { [m.id]: e.target.value } })}
+                    placeholder={m.placeholder}
+                  />
+                </div>
+              ))}
+            </div>
           </Card>
 
           <Card className="p-5">
