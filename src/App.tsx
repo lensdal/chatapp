@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import Chats from './pages/Chats'
+import Inbox from './pages/Inbox'
 import CalendarPage from './pages/Calendar'
 import Tasks from './pages/Tasks'
 import Kids from './pages/Kids'
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:groupId" element={<Chats />} />
+          <Route path="/inbox" element={<Inbox />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/kids" element={<Kids />} />

@@ -28,6 +28,23 @@ export function makeSeed(): AppState {
       swim: { reminders: true, digest: false },
     },
 
+    // Messages "forwarded" to your Village number/email, waiting to be turned
+    // into tasks or events. (In the real app these arrive from WhatsApp/SMS/email.)
+    forwards: [
+      {
+        id: 'fwd-1',
+        source: 'whatsapp',
+        text: "Hi everyone! Don't forget it's Spirit Day this Friday — kids should wear school colors. 💙💛",
+        at: at(0, 8, 15),
+      },
+      {
+        id: 'fwd-2',
+        source: 'sms',
+        text: 'Reminder from Riverside Swim: goggles order forms + $12 due Monday.',
+        at: at(-1, 17, 40),
+      },
+    ],
+
     children: [
       { id: 'isabella', name: 'Isabella', color: 'sky', emoji: '🦄' },
       { id: 'calixta', name: 'Calixta', color: 'blush', emoji: '🌸' },

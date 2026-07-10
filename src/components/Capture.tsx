@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Forward, ListChecks, CalendarDays, Sparkles } from 'lucide-react'
 import { format } from 'date-fns'
 import Modal from './Modal'
@@ -15,7 +16,17 @@ const labelCls = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-in
 const SAMPLE =
   'Hi all! Jersey fees are due — $45, Venmo Coach Dave by this Friday please. 🙏'
 
-function CaptureModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ForwardCaptureModal({
+  open,
+  onClose,
+  initialText = '',
+  onDone,
+}: {
+  open: boolean
+  onClose: () => void
+  initialText?: string
+  onDone?: () => void
+}) {
   const { state, dispatch } = useStore()
   const toast = useToast()
 
@@ -37,7 +48,7 @@ function CaptureModal({ open, onClose }: { open: boolean; onClose: () => void })
   // Reset everything when the modal opens.
   useEffect(() => {
     if (open) {
-      setText('')
+      setText(initialText)
       setType('task')
       setTitle('')
       setGroupId('')
@@ -125,6 +136,7 @@ function CaptureModal({ open, onClose }: { open: boolean; onClose: () => void })
       })
     }
     toast(`Added to ${group?.name ?? 'your list'}`, type === 'task' ? '✅' : '📅')
+    onDone?.()
     onClose()
   }
 
@@ -305,25 +317,29 @@ function CaptureModal({ open, onClose }: { open: boolean; onClose: () => void })
 }
 
 export function CaptureButton({ variant = 'topbar' }: { variant?: 'topbar' | 'hero' }) {
-  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+  const { state } = useStore()
+  const count = state.forwards.filter((f) => !f.handled).length
+  const go = () => navigate('/inbox')
+  if (variant === 'topbar') {
+    return (
+      <button
+        onClick={go}
+        className="inline-flex items-center gap-2 rounded-full bg-mint px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-mint/90"
+      >
+        <Forward size={16} /> Forwarding inbox
+        {count > 0 && (
+          <span className="rounded-full bg-white/25 px-1.5 text-xs font-bold">{count}</span>
+        )}
+      </button>
+    )
+  }
   return (
-    <>
-      {variant === 'topbar' ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-2 rounded-full bg-mint px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-mint/90"
-        >
-          <Forward size={16} /> Forward a message
-        </button>
-      ) : (
-        <button
-          onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-mint shadow-soft ring-1 ring-mint/30 transition hover:bg-mint-soft"
-        >
-          <Forward size={16} /> Forward a message
-        </button>
-      )}
-      <CaptureModal open={open} onClose={() => setOpen(false)} />
-    </>
+    <button
+      onClick={go}
+      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-bold text-mint shadow-soft ring-1 ring-mint/30 transition hover:bg-mint-soft"
+    >
+      <Forward size={16} /> Open forwarding inbox
+    </button>
   )
 }

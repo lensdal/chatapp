@@ -85,7 +85,7 @@ export default function Dashboard() {
           <div className="min-w-0 flex-1">
             <div className="font-extrabold">Drowning in WhatsApp messages?</div>
             <div className="text-sm text-ink/55">
-              Forward any message here and Village turns it into a task or event — tagged to the right group and kid.
+              Forward the ones that matter to your Village number or email — they land in your inbox, ready to become tasks & events.
             </div>
           </div>
           <CaptureButton variant="hero" />

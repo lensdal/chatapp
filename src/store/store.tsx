@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v4'
+const STORAGE_KEY = 'village.state.v5'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -78,6 +78,9 @@ type Action =
       value: boolean
     }
   | { type: 'SET_TRANSLATE'; to: string }
+  | { type: 'ADD_FORWARD'; text: string; source?: 'whatsapp' | 'sms' | 'email' }
+  | { type: 'HANDLE_FORWARD'; id: string }
+  | { type: 'DISMISS_FORWARD'; id: string }
   | { type: 'SET_NOTIFY'; groupId: string; key: 'reminders' | 'digest'; value: boolean }
   | { type: 'SET_NOTIFY_ALL'; groupIds: string[]; key: 'reminders' | 'digest'; value: boolean }
   // groups & membership
@@ -329,6 +332,24 @@ function reducer(state: AppState, action: Action): AppState {
 
     case 'SET_TRANSLATE':
       return { ...state, translateTo: action.to }
+
+    case 'ADD_FORWARD':
+      return {
+        ...state,
+        forwards: [
+          { id: uid('fwd'), text: action.text, source: action.source ?? 'whatsapp', at: new Date().toISOString() },
+          ...state.forwards,
+        ],
+      }
+
+    case 'HANDLE_FORWARD':
+      return {
+        ...state,
+        forwards: state.forwards.map((f) => (f.id === action.id ? { ...f, handled: true } : f)),
+      }
+
+    case 'DISMISS_FORWARD':
+      return { ...state, forwards: state.forwards.filter((f) => f.id !== action.id) }
 
     case 'SET_NOTIFY': {
       const cur = state.notify[action.groupId] ?? { reminders: true, digest: true }

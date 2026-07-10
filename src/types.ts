@@ -166,10 +166,19 @@ export interface Task {
   recurrence?: Recurrence
 }
 
+export interface ForwardItem {
+  id: string
+  text: string
+  source: 'whatsapp' | 'sms' | 'email'
+  at: string // ISO
+  handled?: boolean
+}
+
 export interface AppState {
   children: Child[]
   members: Member[]
   groups: Group[]
+  forwards: ForwardItem[]
   messages: ChatMessage[]
   events: EventItem[]
   tasks: Task[]

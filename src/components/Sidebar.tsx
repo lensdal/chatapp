@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
   MessagesSquare,
+  Inbox as InboxIcon,
   CalendarDays,
   ListChecks,
   Users,
@@ -14,6 +15,7 @@ import { memberById, tasksForGroup, openTasks, myGroups } from '../lib/selectors
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/chats', label: 'Chats', icon: MessagesSquare },
+  { to: '/inbox', label: 'Inbox', icon: InboxIcon },
   { to: '/calendar', label: 'Calendar', icon: CalendarDays },
   { to: '/tasks', label: 'Tasks', icon: ListChecks },
   { to: '/kids', label: 'My Kids', icon: Users },
@@ -23,6 +25,7 @@ export default function Sidebar() {
   const { state } = useStore()
   const me = memberById(state, state.currentUserId)!
   const openCount = openTasks(state).length
+  const inboxCount = state.forwards.filter((f) => !f.handled).length
 
   return (
     <aside className="flex w-[260px] shrink-0 flex-col gap-6 border-r border-black/5 bg-white/70 px-4 py-6 backdrop-blur">
@@ -55,6 +58,11 @@ export default function Sidebar() {
             {n.label === 'Tasks' && openCount > 0 && (
               <span className="ml-auto rounded-full bg-tang px-2 py-0.5 text-[11px] font-bold text-white">
                 {openCount}
+              </span>
+            )}
+            {n.label === 'Inbox' && inboxCount > 0 && (
+              <span className="ml-auto rounded-full bg-mint px-2 py-0.5 text-[11px] font-bold text-white">
+                {inboxCount}
               </span>
             )}
           </NavLink>
