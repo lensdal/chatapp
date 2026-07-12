@@ -7,11 +7,13 @@ export function Avatar({
   color,
   size = 'md',
   ring = false,
+  image,
 }: {
   emoji: string
   color: ColorKey
   size?: 'xs' | 'sm' | 'md' | 'lg'
   ring?: boolean
+  image?: string
 }) {
   const dims = {
     xs: 'h-7 w-7 text-sm',
@@ -21,11 +23,15 @@ export function Avatar({
   }[size]
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full ${colorClasses[color].soft} ${dims} ${
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${colorClasses[color].soft} ${dims} ${
         ring ? 'ring-2 ring-white' : ''
       }`}
     >
-      {emoji}
+      {image ? (
+        <img src={image} alt="" className="h-full w-full object-cover" />
+      ) : (
+        emoji
+      )}
     </span>
   )
 }
@@ -34,7 +40,7 @@ export function AvatarStack({
   people,
   max = 4,
 }: {
-  people: { emoji: string; color: ColorKey }[]
+  people: { emoji: string; color: ColorKey; image?: string }[]
   max?: number
 }) {
   const shown = people.slice(0, max)
@@ -43,7 +49,7 @@ export function AvatarStack({
     <div className="flex items-center">
       <div className="flex -space-x-2.5">
         {shown.map((p, i) => (
-          <Avatar key={i} emoji={p.emoji} color={p.color} size="sm" ring />
+          <Avatar key={i} emoji={p.emoji} color={p.color} image={p.image} size="sm" ring />
         ))}
       </div>
       {extra > 0 && (

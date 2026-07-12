@@ -116,7 +116,10 @@ function GroupGrid() {
                     </p>
                   )}
                   <div className="mt-4 flex items-center justify-between">
-                    <AvatarStack people={members.map((m) => ({ emoji: m.emoji, color: m.color }))} max={4} />
+                    <AvatarStack
+                      people={members.map((m) => ({ emoji: m.emoji, color: m.color, image: m.avatarImage }))}
+                      max={4}
+                    />
                     <div className="flex items-center gap-2">
                       {openTasks > 0 && (
                         <Pill className={colorClasses[g.color].softText}>
@@ -208,7 +211,7 @@ function MessageBubble({
 
   return (
     <div className={`group flex gap-2.5 ${mine ? 'flex-row-reverse' : ''}`}>
-      {!mine && <Avatar emoji={sender.emoji} color={sender.color} size="sm" />}
+      {!mine && <Avatar emoji={sender.emoji} color={sender.color} image={sender.avatarImage} size="sm" />}
       <div className={`flex max-w-[76%] flex-col ${mine ? 'items-end' : 'items-start'}`}>
         {!mine && (
           <span className="mb-1 px-1 text-xs font-bold text-ink/60">
@@ -537,7 +540,7 @@ function ChatView({ groupId }: { groupId: string }) {
                 const { name, sub } = displayLabel(state, group, gm.memberId)
                 return (
                   <li key={gm.memberId} className="flex items-center gap-3">
-                    <Avatar emoji={m.emoji} color={m.color} size="sm" />
+                    <Avatar emoji={m.emoji} color={m.color} image={m.avatarImage} size="sm" />
                     <div className="min-w-0 leading-tight">
                       <div className="flex items-center gap-1 text-sm font-bold">
                         {name}

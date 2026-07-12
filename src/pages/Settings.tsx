@@ -1,12 +1,14 @@
-import { CalendarCheck, Wallet, RotateCcw, Info, Check, MessageCircle, Download, Languages, Bell } from 'lucide-react'
+import { useState } from 'react'
+import { CalendarCheck, Wallet, RotateCcw, Info, Check, MessageCircle, Download, Languages, Bell, Pencil } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, SectionTitle, Avatar } from '../components/ui'
 import { useStore } from '../store/store'
 import { PAY_METHODS } from '../lib/pay'
 import { useToast } from '../components/Toast'
-import { myGroups, notifyFor } from '../lib/selectors'
+import { myGroups, notifyFor, memberById } from '../lib/selectors'
 import { colorClasses } from '../lib/ui'
 import type { EventItem } from '../types'
+import AvatarPicker from '../components/AvatarPicker'
 
 function Switch({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -92,12 +94,31 @@ export default function Settings() {
   const toast = useToast()
   const caregivers = state.members.filter((m) => m.role === 'Caregiver')
   const meHandles = state.members.find((m) => m.id === state.currentUserId)?.handles ?? {}
+  const me = memberById(state, state.currentUserId)!
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   return (
     <>
       <Topbar title="Settings" subtitle="Connections, family, and prototype controls." />
       <div className="flex-1 overflow-y-auto px-8 pb-10 pt-4">
         <div className="mx-auto max-w-2xl space-y-6">
+          {/* Your profile */}
+          <Card className="flex items-center gap-4 p-5">
+            <Avatar emoji={me.emoji} color={me.color} image={me.avatarImage} size="lg" />
+            <div className="min-w-0 flex-1">
+              <div className="text-lg font-extrabold leading-tight">
+                {me.name === 'You' ? 'You' : me.name}
+              </div>
+              <div className="text-sm text-ink/45">Your Village profile · pick an avatar or upload a photo</div>
+            </div>
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
+            >
+              <Pencil size={15} /> Edit avatar
+            </button>
+          </Card>
+
           <div className="flex items-start gap-3 rounded-3xl bg-violet-soft px-5 py-4 text-sm text-violet">
             <Info size={18} className="mt-0.5 shrink-0" />
             <p>
@@ -314,6 +335,7 @@ export default function Settings() {
           </Card>
         </div>
       </div>
+      <AvatarPicker open={pickerOpen} onClose={() => setPickerOpen(false)} />
     </>
   )
 }

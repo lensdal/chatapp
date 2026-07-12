@@ -63,6 +63,13 @@ type Action =
   | { type: 'TOGGLE_EVENT_GOOGLE'; eventId: string }
   | { type: 'TOGGLE_PIN'; messageId: string }
   | {
+      type: 'SET_PROFILE'
+      name?: string
+      emoji: string
+      color: import('../types').ColorKey
+      avatarImage?: string
+    }
+  | {
       type: 'ADD_SIGNUP'
       groupId: string
       childId?: string
@@ -238,6 +245,22 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         messages: state.messages.map((m) =>
           m.id === action.messageId ? { ...m, pinned: !m.pinned } : m,
+        ),
+      }
+
+    case 'SET_PROFILE':
+      return {
+        ...state,
+        members: state.members.map((m) =>
+          m.id === state.currentUserId
+            ? {
+                ...m,
+                name: action.name?.trim() ? action.name.trim() : m.name,
+                emoji: action.emoji,
+                color: action.color,
+                avatarImage: action.avatarImage,
+              }
+            : m,
         ),
       }
 

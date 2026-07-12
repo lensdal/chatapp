@@ -28,6 +28,7 @@ export interface Member {
   color: ColorKey
   phone?: string
   handles?: PaymentHandles
+  avatarImage?: string // data URL when the member uploaded a photo
   isSelf?: boolean
 }
 

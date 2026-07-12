@@ -11,6 +11,7 @@ import {
 import { useStore } from '../store/store'
 import { colorClasses } from '../lib/ui'
 import { memberById, tasksForGroup, openTasks, myGroups } from '../lib/selectors'
+import { Avatar } from './ui'
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -113,17 +114,13 @@ export default function Sidebar() {
           <Settings size={19} strokeWidth={2.2} />
           Settings
         </NavLink>
-        <div className="mt-1 flex items-center gap-2.5 rounded-2xl bg-canvas px-3 py-2">
-          <span
-            className={`flex h-9 w-9 items-center justify-center rounded-full text-base ${colorClasses[me.color].soft}`}
-          >
-            {me.emoji}
-          </span>
+        <NavLink to="/settings" className="mt-1 flex items-center gap-2.5 rounded-2xl bg-canvas px-3 py-2 transition hover:bg-black/[0.04]">
+          <Avatar emoji={me.emoji} color={me.color} image={me.avatarImage} size="sm" />
           <div className="leading-tight">
             <div className="text-sm font-bold">{me.name === 'You' ? 'You' : me.name}</div>
             <div className="text-[11px] text-ink/45">{state.children.length} kids · {state.groups.length} groups</div>
           </div>
-        </div>
+        </NavLink>
       </div>
     </aside>
   )

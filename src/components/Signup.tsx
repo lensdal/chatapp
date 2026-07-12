@@ -67,7 +67,7 @@ export function SignupCard({ sheet }: { sheet: SignUpSheet }) {
                   {claimants.length > 0 && (
                     <div className="flex -space-x-1.5">
                       {claimants.map((m, i) => (
-                        <Avatar key={i} emoji={m.emoji} color={m.color} size="xs" ring />
+                        <Avatar key={i} emoji={m.emoji} color={m.color} image={m.avatarImage} size="xs" ring />
                       ))}
                     </div>
                   )}
