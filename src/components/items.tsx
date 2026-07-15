@@ -25,7 +25,7 @@ export function KidTag({ childId, plain = false }: { childId?: string; plain?: b
   return plain ? pill : <Link to={`/kids/${child.id}`}>{pill}</Link>
 }
 
-export function GroupTag({ groupId, plain = false }: { groupId: string; plain?: boolean }) {
+export function GroupTag({ groupId, plain = false }: { groupId?: string; plain?: boolean }) {
   const { state } = useStore()
   const group = groupById(state, groupId)
   if (!group) return null

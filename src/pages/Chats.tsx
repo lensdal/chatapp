@@ -25,6 +25,7 @@ import {
   Pencil,
   FolderOpen,
   Reply,
+  PenLine,
 } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, Avatar, AvatarStack, EmptyState, Pill } from '../components/ui'
@@ -33,6 +34,7 @@ import PromoteModal from '../components/PromoteModal'
 import { SignupCard, CreateSignupModal } from '../components/Signup'
 import { PollCard, CreatePollModal } from '../components/Poll'
 import { CollectionCard, CreateCollectionModal } from '../components/Collection'
+import { SignatureCard, CreateSignatureModal } from '../components/Signature'
 import {
   CreateGroupModal,
   JoinGroupModal,
@@ -355,6 +357,7 @@ function ChatView({ groupId }: { groupId: string }) {
   const [signupOpen, setSignupOpen] = useState(false)
   const [pollOpen, setPollOpen] = useState(false)
   const [collectOpen, setCollectOpen] = useState(false)
+  const [signOpen, setSignOpen] = useState(false)
   const [inviteOpen, setInviteOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [dirOpen, setDirOpen] = useState(false)
@@ -465,6 +468,10 @@ function ChatView({ groupId }: { groupId: string }) {
                   const col = state.collections.find((c) => c.id === m.linkedCollectionId)
                   if (col) return <CollectionCard key={m.id} collection={col} />
                 }
+                if (m.linkedSignatureId) {
+                  const sig = state.signatureDocs.find((s) => s.id === m.linkedSignatureId)
+                  if (sig) return <SignatureCard key={m.id} doc={sig} />
+                }
                 return <MessageBubble key={m.id} msg={m} onPromote={setModalMsg} onReply={setReplyTo} />
               })}
             </div>
@@ -477,6 +484,7 @@ function ChatView({ groupId }: { groupId: string }) {
                 <ComposerAction icon={<ClipboardList size={13} />} label="Sign-up" onClick={() => setSignupOpen(true)} />
                 <ComposerAction icon={<BarChart3 size={13} />} label="Poll" onClick={() => setPollOpen(true)} />
                 <ComposerAction icon={<PiggyBank size={13} />} label="Collect" onClick={() => setCollectOpen(true)} />
+                <ComposerAction icon={<PenLine size={13} />} label="Signature" onClick={() => setSignOpen(true)} />
                 <AttachButton
                   onAdd={(att) =>
                     dispatch({
@@ -647,6 +655,7 @@ function ChatView({ groupId }: { groupId: string }) {
       <CreateSignupModal open={signupOpen} onClose={() => setSignupOpen(false)} groupId={groupId} />
       <CreatePollModal open={pollOpen} onClose={() => setPollOpen(false)} groupId={groupId} />
       <CreateCollectionModal open={collectOpen} onClose={() => setCollectOpen(false)} groupId={groupId} />
+      <CreateSignatureModal open={signOpen} onClose={() => setSignOpen(false)} groupId={groupId} />
       <InviteModal group={group} open={inviteOpen} onClose={() => setInviteOpen(false)} />
       <GroupSettingsModal group={group} open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GroupDirectory group={group} open={dirOpen} onClose={() => setDirOpen(false)} />

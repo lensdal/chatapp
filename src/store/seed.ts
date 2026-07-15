@@ -312,13 +312,13 @@ export function makeSeed(): AppState {
         id: 't-3',
         groupId: 'class-isabella',
         childId: 'isabella',
-        title: 'Sign & return museum permission slip',
-        dueDate: at(5),
+        title: 'Sign: Science Museum field trip permission slip',
+        dueDate: at(3),
         done: false,
         priority: 'high',
         assigneeIds: ['me'],
         createdById: 'ms-chen',
-        createdFromMessageId: 'm-class-2',
+        fromSignature: { docId: 'sig-1' },
       },
       {
         id: 't-5',
@@ -420,6 +420,22 @@ export function makeSeed(): AppState {
       },
     ],
 
+    signatureDocs: [
+      {
+        id: 'sig-1',
+        groupId: 'class-isabella',
+        childId: 'isabella',
+        title: 'Science Museum field trip permission slip',
+        fileName: 'Field-Trip-Permission-Slip.pdf',
+        fileKind: 'pdf',
+        note: 'Please review and sign so Isabella can attend the trip.',
+        dueDate: at(3, 12, 0),
+        requestedById: 'ms-chen',
+        createdAt: at(-1, 9, 0),
+        signatures: [],
+      },
+    ],
+
     messages: [
       // Soccer
       {
@@ -514,6 +530,14 @@ export function makeSeed(): AppState {
         requireAck: true,
         acks: ['jenna', 'lena'],
         attachment: { name: 'Museum Permission Slip.pdf', kind: 'pdf' },
+      },
+      {
+        id: 'm-class-sig',
+        groupId: 'class-isabella',
+        senderId: 'ms-chen',
+        text: '✍️ Please sign: Science Museum field trip permission slip',
+        at: at(-1, 9, 0),
+        linkedSignatureId: 'sig-1',
       },
       {
         id: 'm-class-6',

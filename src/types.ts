@@ -65,6 +65,7 @@ export interface ChatMessage {
   linkedSignupId?: string
   linkedPollId?: string
   linkedCollectionId?: string
+  linkedSignatureId?: string
   pinned?: boolean
   replyToId?: string // message this one is replying to
   reactions?: Record<string, string[]> // emoji -> memberIds
@@ -160,7 +161,7 @@ export interface Payment {
 
 export interface Task {
   id: string
-  groupId: string
+  groupId?: string // optional — personal tasks aren't tied to a group
   childId?: string
   title: string
   dueDate?: string // ISO
@@ -170,8 +171,32 @@ export interface Task {
   payment?: Payment
   createdFromMessageId?: string
   fromSignup?: { sheetId: string; slotId: string }
+  fromSignature?: { docId: string }
   createdById?: string
   recurrence?: Recurrence
+}
+
+// A document sent out to collect signatures (e.g. a permission slip).
+export interface Signature {
+  memberId: string
+  dataUrl: string // the drawn/typed signature image
+  name?: string
+  signedAt: string
+}
+
+export interface SignatureDoc {
+  id: string
+  groupId?: string
+  childId?: string
+  title: string
+  fileName: string
+  fileKind: 'pdf' | 'image' | 'doc' | 'sheet'
+  fileDataUrl?: string
+  note?: string
+  dueDate?: string
+  requestedById: string
+  createdAt: string
+  signatures: Signature[]
 }
 
 export interface ForwardItem {
@@ -193,6 +218,7 @@ export interface AppState {
   signups: SignUpSheet[]
   polls: Poll[]
   collections: Collection[]
+  signatureDocs: SignatureDoc[]
   googleConnected: boolean
   venmoConnected: boolean
   whatsappConnected: boolean

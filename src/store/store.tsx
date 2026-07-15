@@ -29,7 +29,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v8'
+const STORAGE_KEY = 'village.state.v9'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -156,6 +156,19 @@ type Action =
       childName?: string
     }
   | { type: 'CONTRIBUTE'; collectionId: string; amount: number }
+  // document signatures (e-sign)
+  | {
+      type: 'ADD_SIGNATURE_DOC'
+      groupId?: string
+      childId?: string
+      title: string
+      note?: string
+      dueDate?: string
+      fileName: string
+      fileKind: 'pdf' | 'image' | 'doc' | 'sheet'
+      fileDataUrl?: string
+    }
+  | { type: 'SIGN_DOC'; docId: string; dataUrl: string; name?: string }
   | { type: 'SET_HANDLES'; handles: PaymentHandles }
   | { type: 'RESET' }
 
@@ -673,6 +686,80 @@ function reducer(state: AppState, action: Action): AppState {
           return { ...c, contributions: [...rest, { memberId: state.currentUserId, amount: action.amount }] }
         }),
       }
+
+    case 'ADD_SIGNATURE_DOC': {
+      const docId = uid('sig')
+      const now = new Date().toISOString()
+      const doc = {
+        id: docId,
+        groupId: action.groupId,
+        childId: action.childId,
+        title: action.title,
+        fileName: action.fileName,
+        fileKind: action.fileKind,
+        fileDataUrl: action.fileDataUrl,
+        note: action.note,
+        dueDate: action.dueDate,
+        requestedById: state.currentUserId,
+        createdAt: now,
+        signatures: [],
+      }
+      // Drop a "Sign this" to-do on the current user's task list.
+      const task: Task = {
+        id: uid('t'),
+        groupId: action.groupId,
+        childId: action.childId,
+        title: `Sign: ${action.title}`,
+        dueDate: action.dueDate,
+        done: false,
+        priority: 'high',
+        assigneeIds: [state.currentUserId],
+        createdById: state.currentUserId,
+        fromSignature: { docId },
+      }
+      return {
+        ...state,
+        signatureDocs: [...state.signatureDocs, doc],
+        tasks: [...state.tasks, task],
+        messages: action.groupId
+          ? [
+              ...state.messages,
+              {
+                id: uid('m'),
+                groupId: action.groupId,
+                senderId: state.currentUserId,
+                text: `✍️ Please sign: ${action.title}`,
+                at: now,
+                linkedSignatureId: docId,
+              },
+            ]
+          : state.messages,
+      }
+    }
+
+    case 'SIGN_DOC': {
+      const now = new Date().toISOString()
+      return {
+        ...state,
+        signatureDocs: state.signatureDocs.map((d) => {
+          if (d.id !== action.docId) return d
+          const rest = d.signatures.filter((s) => s.memberId !== state.currentUserId)
+          return {
+            ...d,
+            signatures: [
+              ...rest,
+              { memberId: state.currentUserId, dataUrl: action.dataUrl, name: action.name, signedAt: now },
+            ],
+          }
+        }),
+        // Check off the matching "Sign this" task.
+        tasks: state.tasks.map((t) =>
+          t.fromSignature?.docId === action.docId && t.assigneeIds.includes(state.currentUserId)
+            ? { ...t, done: true }
+            : t,
+        ),
+      }
+    }
 
     case 'SET_HANDLES':
       return {

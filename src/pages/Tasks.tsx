@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
+import { Plus } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, EmptyState } from '../components/ui'
 import { TaskRow } from '../components/items'
+import CreateTaskModal from '../components/CreateTask'
 import { useStore } from '../store/store'
 import { colorClasses } from '../lib/ui'
 import type { Task } from '../types'
@@ -13,6 +15,7 @@ export default function Tasks() {
   const { state } = useStore()
   const [status, setStatus] = useState<Status>('open')
   const [groupBy, setGroupBy] = useState<GroupBy>('kid')
+  const [newOpen, setNewOpen] = useState(false)
 
   const filtered = useMemo(() => {
     let list = [...state.tasks]
@@ -44,14 +47,20 @@ export default function Tasks() {
         },
       ].filter((s) => s.tasks.length > 0)
     }
-    return state.groups
-      .map((g) => ({
+    return [
+      ...state.groups.map((g) => ({
         id: g.id,
         label: `${g.emoji} ${g.name}`,
         color: g.color,
         tasks: filtered.filter((t) => t.groupId === g.id),
-      }))
-      .filter((s) => s.tasks.length > 0)
+      })),
+      {
+        id: 'personal',
+        label: '🏠 Personal',
+        color: 'violet' as const,
+        tasks: filtered.filter((t) => !t.groupId),
+      },
+    ].filter((s) => s.tasks.length > 0)
   }, [filtered, groupBy, state.children, state.groups])
 
   const segBtn = (s: Status, label: string) => (
@@ -75,21 +84,29 @@ export default function Tasks() {
             {segBtn('payments', 'Payments')}
             {segBtn('done', 'Completed')}
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-ink/40">Group by</span>
-            <div className="flex items-center gap-1 rounded-full bg-white p-1 shadow-soft">
-              {(['kid', 'group'] as GroupBy[]).map((gb) => (
-                <button
-                  key={gb}
-                  onClick={() => setGroupBy(gb)}
-                  className={`rounded-full px-3.5 py-1.5 text-sm font-bold capitalize transition ${
-                    groupBy === gb ? 'bg-violet text-white' : 'text-ink/55 hover:text-violet'
-                  }`}
-                >
-                  {gb}
-                </button>
-              ))}
+          <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-ink/40">Group by</span>
+              <div className="flex items-center gap-1 rounded-full bg-white p-1 shadow-soft">
+                {(['kid', 'group'] as GroupBy[]).map((gb) => (
+                  <button
+                    key={gb}
+                    onClick={() => setGroupBy(gb)}
+                    className={`rounded-full px-3.5 py-1.5 text-sm font-bold capitalize transition ${
+                      groupBy === gb ? 'bg-violet text-white' : 'text-ink/55 hover:text-violet'
+                    }`}
+                  >
+                    {gb}
+                  </button>
+                ))}
+              </div>
             </div>
+            <button
+              onClick={() => setNewOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
+            >
+              <Plus size={16} /> New task
+            </button>
           </div>
         </div>
 
@@ -120,6 +137,7 @@ export default function Tasks() {
           </div>
         )}
       </div>
+      <CreateTaskModal open={newOpen} onClose={() => setNewOpen(false)} />
     </>
   )
 }
