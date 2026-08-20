@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import Topbar from '../components/Topbar'
-import { Card, SectionTitle, EmptyState } from '../components/ui'
+import { Card, SectionTitle, EmptyState, GroupIcon } from '../components/ui'
 import { EventRow, TaskRow } from '../components/items'
 import { useStore } from '../store/store'
 import { childById, tasksForChild, eventsForChild } from '../lib/selectors'
@@ -109,12 +109,10 @@ function KidDetail({ childId }: { childId: string }) {
                 return (
                   <Link key={g.id} to={`/chats/${g.id}`}>
                     <Card className="flex items-center gap-3 p-4 transition hover:shadow-soft">
-                      <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-xl ${colorClasses[g.color].soft}`}>
-                        {g.emoji}
-                      </span>
+                      <GroupIcon emoji={g.emoji} color={g.color} image={g.image} size="md" />
                       <div className="min-w-0 flex-1">
                         <div className="truncate font-bold">{g.name}</div>
-                        <div className="text-xs text-ink/45">{g.category}</div>
+                        <div className="truncate text-xs text-ink/45">{g.description || g.category}</div>
                       </div>
                       {open > 0 && <span className={`chip ${cc.softText}`}>{open}</span>}
                     </Card>

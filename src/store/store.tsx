@@ -8,7 +8,6 @@ import {
 } from 'react'
 import type {
   AppState,
-  ColorKey,
   Collection,
   EventItem,
   Group,
@@ -29,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v9'
+const STORAGE_KEY = 'village.state.v10'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -95,12 +94,14 @@ type Action =
   | {
       type: 'CREATE_GROUP'
       name: string
-      category: string
+      description?: string
       emoji: string
-      color: ColorKey
-      childName?: string
+      image?: string
+      color: string
+      childNames?: string[]
       relationship?: string
       announcementsOnly: boolean
+      joinPrivacy?: 'open' | 'approval'
     }
   | {
       type: 'JOIN_GROUP'
@@ -416,22 +417,26 @@ function reducer(state: AppState, action: Action): AppState {
     // ---- groups & membership ----
     case 'CREATE_GROUP': {
       const id = uid('g')
+      const kids = (action.childNames ?? []).map((n) => n.trim()).filter(Boolean)
       const me: GroupMember = {
         memberId: state.currentUserId,
         role: 'admin',
-        childName: action.childName || undefined,
+        childName: kids.length ? kids.join(' & ') : undefined,
         relationship: action.relationship || undefined,
       }
       const group: Group = {
         id,
         name: action.name,
-        category: action.category,
+        category: 'Group',
+        description: action.description || undefined,
         emoji: action.emoji,
+        image: action.image || undefined,
         color: action.color,
         childIds: [],
         members: [me],
         joinCode: genJoinCode(action.name),
         announcementsOnly: action.announcementsOnly,
+        joinPrivacy: action.joinPrivacy ?? 'open',
       }
       return { ...state, groups: [...state.groups, group] }
     }

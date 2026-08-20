@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { CalendarCheck, Wallet, RotateCcw, Info, Check, MessageCircle, Download, Languages, Bell, Pencil } from 'lucide-react'
 import Topbar from '../components/Topbar'
-import { Card, SectionTitle, Avatar } from '../components/ui'
+import { Card, SectionTitle, Avatar, GroupIcon } from '../components/ui'
 import { useStore } from '../store/store'
 import { PAY_METHODS } from '../lib/pay'
 import { useToast } from '../components/Toast'
@@ -284,7 +284,7 @@ export default function Settings() {
                       const n = notifyFor(state, g.id)
                       return (
                         <div key={g.id} className="flex items-center gap-3 py-2.5">
-                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${colorClasses[g.color].soft}`}>{g.emoji}</span>
+                          <GroupIcon emoji={g.emoji} color={g.color} image={g.image} size="sm" />
                           <span className="min-w-0 flex-1 truncate text-sm font-semibold">{g.name}</span>
                           <label className="flex items-center gap-1.5 text-[11px] font-bold text-ink/45">
                             Reminders

@@ -6,7 +6,7 @@ import { KidTag } from './items'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById, groupById } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { colorClasses, groupStyles } from '../lib/ui'
 import { fmtDay } from '../lib/dates'
 import { readAsAttachment } from '../lib/files'
 import type { SignatureDoc } from '../types'
@@ -150,14 +150,14 @@ export function SignatureCard({ doc }: { doc: SignatureDoc }) {
   const [preview, setPreview] = useState(false)
   const requester = memberById(state, doc.requestedById)
   const group = groupById(state, doc.groupId)
-  const accent = group ? colorClasses[group.color] : colorClasses.violet
+  const accentHex = group ? group.color : '#7C5CFC'
   const mine = doc.signatures.find((s) => s.memberId === state.currentUserId)
 
   return (
     <div className="mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-card">
-      <div className={`flex items-start gap-3 px-5 py-4 ${accent.soft}`}>
+      <div className="flex items-start gap-3 px-5 py-4" style={groupStyles.softBg(accentHex)}>
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/70">
-          <PenLine size={20} className={accent.text} />
+          <PenLine size={20} style={groupStyles.text(accentHex)} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">

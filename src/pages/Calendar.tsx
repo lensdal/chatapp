@@ -17,7 +17,7 @@ import { Card, EmptyState } from '../components/ui'
 import { EventRow } from '../components/items'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { colorClasses, groupStyles } from '../lib/ui'
 
 export default function CalendarPage() {
   const { state } = useStore()
@@ -121,7 +121,8 @@ export default function CalendarPage() {
                       return (
                         <div
                           key={e.id}
-                          className={`truncate rounded-lg px-1.5 py-0.5 text-[10px] font-semibold ${colorClasses[g.color].softText}`}
+                          className="truncate rounded-lg px-1.5 py-0.5 text-[10px] font-semibold"
+                          style={groupStyles.soft(g.color)}
                           title={e.title}
                         >
                           {e.title}

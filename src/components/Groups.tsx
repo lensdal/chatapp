@@ -1,20 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Copy, RefreshCw, Shield, LogOut, Users } from 'lucide-react'
+import { Copy, RefreshCw, Shield, LogOut, Users, Upload, Trash2, Plus, X, Globe, Lock } from 'lucide-react'
 import Modal from './Modal'
-import { Avatar } from './ui'
+import { Avatar, GroupIcon } from './ui'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { groupByCode, memberById, displayLabel, isAdmin } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
-import type { ColorKey, Group } from '../types'
+import { GROUP_COLORS } from '../lib/ui'
+import { fileToSquareDataUrl } from '../lib/image'
+import type { Group } from '../types'
 
 const inputCls =
   'w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white'
 const labelCls = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink/40'
 const EMOJIS = ['⚽', '🏀', '⚾', '🏊', '🏕️', '📚', '🎨', '🎭', '🎵', '♟️', '🏫', '🎉', '🐝', '🚌', '🩰', '🥋']
-const COLORS: ColorKey[] = ['violet', 'sky', 'blush', 'sun', 'tang', 'mint']
 const RELATIONSHIPS = ['Mom', 'Dad', 'Parent', 'Guardian', 'Grandparent', 'Coach', 'Teacher']
+
+const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length
 
 function Toggle({
   on,
@@ -63,87 +65,244 @@ function RelationshipPicker({ value, onChange }: { value: string; onChange: (v: 
 export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { dispatch } = useStore()
   const toast = useToast()
+  const fileRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
-  const [category, setCategory] = useState('')
+  const [description, setDescription] = useState('')
   const [emoji, setEmoji] = useState('🎉')
-  const [color, setColor] = useState<ColorKey>('violet')
-  const [childName, setChildName] = useState('')
+  const [image, setImage] = useState<string | undefined>(undefined)
+  const [color, setColor] = useState('#7C5CFC')
+  const [childNames, setChildNames] = useState<string[]>([''])
   const [relationship, setRelationship] = useState('Parent')
+  const [relationshipOther, setRelationshipOther] = useState('')
   const [announcementsOnly, setAnnouncementsOnly] = useState(false)
+  const [joinPrivacy, setJoinPrivacy] = useState<'open' | 'approval'>('open')
 
   useEffect(() => {
     if (open) {
       setName('')
-      setCategory('')
+      setDescription('')
       setEmoji('🎉')
-      setColor('violet')
-      setChildName('')
+      setImage(undefined)
+      setColor('#7C5CFC')
+      setChildNames([''])
       setRelationship('Parent')
+      setRelationshipOther('')
       setAnnouncementsOnly(false)
+      setJoinPrivacy('open')
     }
   }, [open])
 
+  const words = countWords(description)
+  const canCreate = name.trim().length > 0 && words >= 50
+  const roleOptions = [...RELATIONSHIPS, 'Other']
+  const finalRelationship = relationship === 'Other' ? relationshipOther.trim() || 'Other' : relationship
+
+  const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setImage(await fileToSquareDataUrl(file))
+    } catch {
+      toast('Could not read that image', '⚠️')
+    }
+    e.target.value = ''
+  }
+
+  const submit = () => {
+    if (!canCreate) return
+    dispatch({
+      type: 'CREATE_GROUP',
+      name: name.trim(),
+      description: description.trim(),
+      emoji,
+      image,
+      color,
+      childNames: childNames.map((c) => c.trim()).filter(Boolean),
+      relationship: finalRelationship,
+      announcementsOnly,
+      joinPrivacy,
+    })
+    toast('Group created — share the join code to invite people', '🎉')
+    onClose()
+  }
+
   return (
     <Modal open={open} onClose={onClose} title="Start a new group">
-      <div className="space-y-4">
-        <div className="grid grid-cols-[auto_1fr] gap-3">
-          <div className={`flex h-[46px] w-[46px] items-center justify-center rounded-2xl text-2xl ${colorClasses[color].soft}`}>{emoji}</div>
-          <div>
-            <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Group name — e.g. Calixta's Ballet" autoFocus />
-          </div>
-        </div>
-        <div>
-          <label className={labelCls}>Category</label>
-          <input className={inputCls} value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Dance, School, Sports" />
-        </div>
-        <div>
-          <label className={labelCls}>Icon</label>
-          <div className="flex flex-wrap gap-1.5">
-            {EMOJIS.map((e) => (
-              <button key={e} onClick={() => setEmoji(e)} className={`flex h-9 w-9 items-center justify-center rounded-xl text-lg ${emoji === e ? 'bg-violet-soft ring-2 ring-violet' : 'bg-canvas'}`}>{e}</button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label className={labelCls}>Color</label>
-          <div className="flex gap-2">
-            {COLORS.map((c) => (
-              <button key={c} onClick={() => setColor(c)} className={`h-8 w-8 rounded-full ${colorClasses[c].dot} ${color === c ? 'ring-2 ring-offset-2 ring-ink/40' : ''}`} />
-            ))}
-          </div>
-        </div>
-        <div className="rounded-2xl bg-canvas p-4">
-          <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">How should you show up here?</div>
-          <div className="grid grid-cols-2 gap-3">
-            <input className={inputCls} value={childName} onChange={(e) => setChildName(e.target.value)} placeholder="Your child (optional)" />
-            <div />
-          </div>
-          <div className="mt-2"><RelationshipPicker value={relationship} onChange={setRelationship} /></div>
+      <div className="space-y-5">
+        {/* Name + live icon preview */}
+        <div className="grid grid-cols-[auto_1fr] items-center gap-3">
+          <GroupIcon emoji={emoji} color={color} image={image} size="lg" />
+          <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Group name — e.g. Calixta's Ballet" autoFocus />
         </div>
 
-        <div className="space-y-2">
-          <Toggle on={announcementsOnly} onChange={setAnnouncementsOnly} title="Announcements only" desc="Only admins can post to everyone (great for coaches & schools)." />
+        {/* Icon: emoji or uploaded photo */}
+        <div>
+          <div className="mb-1.5 flex items-center justify-between">
+            <label className={`${labelCls} mb-0`}>Icon</label>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onUpload} />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-full bg-violet-soft px-3 py-1.5 text-xs font-bold text-violet transition hover:bg-violet/20"
+            >
+              <Upload size={14} /> Upload a photo
+            </button>
+          </div>
+          {image ? (
+            <button
+              onClick={() => setImage(undefined)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink/45 transition hover:text-tang"
+            >
+              <Trash2 size={13} /> Remove photo &amp; use an emoji
+            </button>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {EMOJIS.map((e) => (
+                <button
+                  key={e}
+                  onClick={() => setEmoji(e)}
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl text-lg ${emoji === e ? 'bg-violet-soft ring-2 ring-violet' : 'bg-canvas'}`}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Color: swatches + full color wheel */}
+        <div>
+          <label className={labelCls}>Color</label>
+          <div className="flex flex-wrap items-center gap-2">
+            {GROUP_COLORS.map((c) => (
+              <button
+                key={c}
+                onClick={() => setColor(c)}
+                className={`h-8 w-8 rounded-full transition ${
+                  color.toLowerCase() === c.toLowerCase() ? 'ring-2 ring-offset-2 ring-ink/40' : 'hover:scale-105'
+                }`}
+                style={{ backgroundColor: c }}
+                aria-label={`Use ${c}`}
+              />
+            ))}
+            <label
+              className="relative inline-flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full ring-1 ring-black/10"
+              title="Pick any color"
+            >
+              <span className="pointer-events-none absolute inset-0" style={{ background: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)' }} />
+              <Plus size={14} className="relative text-white drop-shadow" />
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Description with a 50-word minimum */}
+        <div>
+          <div className="mb-1.5 flex items-center justify-between">
+            <label className={`${labelCls} mb-0`}>Description</label>
+            <span className={`text-xs font-bold ${words >= 50 ? 'text-mint' : 'text-ink/40'}`}>{words} / 50 words</span>
+          </div>
+          <textarea
+            className={`${inputCls} min-h-[110px] resize-y`}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Tell members what this group is for — who it's for, what you'll use it for, when you meet, and anything new joiners should know. (50 words minimum.)"
+          />
+          {name.trim() && words < 50 && (
+            <p className="mt-1 text-xs font-semibold text-tang">
+              Add {50 - words} more word{50 - words === 1 ? '' : 's'} to continue.
+            </p>
+          )}
+        </div>
+
+        {/* How you show up + kids */}
+        <div className="rounded-2xl bg-canvas p-4">
+          <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">How should you show up here?</div>
+          <div className="space-y-2">
+            {childNames.map((cn, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  className={inputCls}
+                  value={cn}
+                  onChange={(e) => setChildNames((arr) => arr.map((v, j) => (j === i ? e.target.value : v)))}
+                  placeholder={i === 0 ? 'Your child (optional)' : 'Another child'}
+                />
+                {childNames.length > 1 && (
+                  <button
+                    onClick={() => setChildNames((arr) => arr.filter((_, j) => j !== i))}
+                    className="shrink-0 rounded-xl bg-white p-2 text-ink/40 ring-1 ring-black/10 transition hover:text-tang"
+                    title="Remove"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button onClick={() => setChildNames((arr) => [...arr, ''])} className="inline-flex items-center gap-1.5 text-xs font-bold text-violet">
+              <Plus size={14} /> Add another child
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {roleOptions.map((r) => (
+              <button key={r} onClick={() => setRelationship(r)} className={`chip ${relationship === r ? 'bg-ink text-white' : 'bg-white text-ink/55'}`}>
+                {r}
+              </button>
+            ))}
+          </div>
+          {relationship === 'Other' && (
+            <input
+              className={`${inputCls} mt-2`}
+              value={relationshipOther}
+              onChange={(e) => setRelationshipOther(e.target.value)}
+              placeholder="Describe your role — e.g. Nanny, Neighbor, Team manager"
+              autoFocus
+            />
+          )}
+        </div>
+
+        {/* Join privacy */}
+        <div>
+          <label className={labelCls}>Who can join?</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setJoinPrivacy('open')}
+              className={`flex items-start gap-2 rounded-2xl border p-3 text-left transition ${
+                joinPrivacy === 'open' ? 'border-violet bg-violet-soft' : 'border-black/10 bg-canvas'
+              }`}
+            >
+              <Globe size={18} className={joinPrivacy === 'open' ? 'text-violet' : 'text-ink/40'} />
+              <span>
+                <span className="block text-sm font-bold">Anyone with the code</span>
+                <span className="block text-xs text-ink/50">People join instantly with the link or code.</span>
+              </span>
+            </button>
+            <button
+              onClick={() => setJoinPrivacy('approval')}
+              className={`flex items-start gap-2 rounded-2xl border p-3 text-left transition ${
+                joinPrivacy === 'approval' ? 'border-violet bg-violet-soft' : 'border-black/10 bg-canvas'
+              }`}
+            >
+              <Lock size={18} className={joinPrivacy === 'approval' ? 'text-violet' : 'text-ink/40'} />
+              <span>
+                <span className="block text-sm font-bold">Approval required</span>
+                <span className="block text-xs text-ink/50">An admin approves each new member.</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <Toggle on={announcementsOnly} onChange={setAnnouncementsOnly} title="Announcements only" desc="Only admins can post to everyone (great for coaches & schools)." />
       </div>
+
       <div className="mt-6 flex gap-3">
         <button onClick={onClose} className="flex-1 rounded-2xl bg-canvas py-3 text-sm font-bold text-ink/55 hover:bg-black/[0.05]">Cancel</button>
         <button
-          onClick={() => {
-            if (!name.trim()) return
-            dispatch({
-              type: 'CREATE_GROUP',
-              name: name.trim(),
-              category: category.trim() || 'Group',
-              emoji,
-              color,
-              childName: childName.trim() || undefined,
-              relationship,
-              announcementsOnly,
-            })
-            toast('Group created — share the join code to invite people', '🎉')
-            onClose()
-          }}
-          disabled={!name.trim()}
+          onClick={submit}
+          disabled={!canCreate}
           className="flex-1 rounded-2xl bg-violet py-3 text-sm font-bold text-white shadow-soft hover:bg-violet/90 disabled:opacity-40"
         >
           Create group
@@ -196,7 +355,7 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
         {found && (
           <>
             <div className="flex items-center gap-3 rounded-2xl bg-canvas px-4 py-3">
-              <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-xl ${colorClasses[found.color].soft}`}>{found.emoji}</span>
+              <GroupIcon emoji={found.emoji} color={found.color} image={found.image} size="md" />
               <div>
                 <div className="font-extrabold">{found.name}</div>
                 <div className="text-xs text-ink/50">{found.category} · {found.members.length} members</div>

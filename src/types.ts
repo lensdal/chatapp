@@ -45,13 +45,15 @@ export interface Group {
   id: string
   name: string
   category: string
-  color: ColorKey
+  color: string // hex color chosen from the wheel
   emoji: string
+  image?: string // data URL when the creator uploaded a photo icon
   childIds: string[]
   members: GroupMember[]
   joinCode: string
   announcementsOnly: boolean // roles toggle: only admins can post to everyone
   description?: string
+  joinPrivacy?: 'open' | 'approval' // open link vs admin approval for new members
 }
 
 export interface ChatMessage {

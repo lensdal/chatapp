@@ -1,6 +1,34 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { ColorKey } from '../types'
-import { colorClasses } from '../lib/ui'
+import { colorClasses, hexWithAlpha } from '../lib/ui'
+
+// A group's icon: an uploaded photo, or its emoji on a soft tint of its color.
+export function GroupIcon({
+  emoji,
+  color,
+  image,
+  size = 'md',
+}: {
+  emoji: string
+  color: string
+  image?: string
+  size?: 'xs' | 'sm' | 'md' | 'lg'
+}) {
+  const dims = {
+    xs: 'h-7 w-7 text-sm rounded-lg',
+    sm: 'h-9 w-9 text-base rounded-xl',
+    md: 'h-11 w-11 text-xl rounded-2xl',
+    lg: 'h-12 w-12 text-xl rounded-2xl',
+  }[size]
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden ${dims}`}
+      style={image ? undefined : { backgroundColor: hexWithAlpha(color, 0.16) }}
+    >
+      {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : emoji}
+    </span>
+  )
+}
 
 export function Avatar({
   emoji,
@@ -64,11 +92,13 @@ export function AvatarStack({
 export function Pill({
   children,
   className = '',
+  style,
 }: {
   children: ReactNode
   className?: string
+  style?: CSSProperties
 }) {
-  return <span className={`chip ${className}`}>{children}</span>
+  return <span className={`chip ${className}`} style={style}>{children}</span>
 }
 
 export function Card({

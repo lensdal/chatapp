@@ -5,7 +5,7 @@ import { Card, EmptyState } from '../components/ui'
 import { TaskRow } from '../components/items'
 import CreateTaskModal from '../components/CreateTask'
 import { useStore } from '../store/store'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import type { Task } from '../types'
 
 type Status = 'open' | 'payments' | 'done'
@@ -121,9 +121,9 @@ export default function Tasks() {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {sections.map((sec) => (
               <Card key={sec.id} className="overflow-hidden">
-                <div className={`flex items-center justify-between px-5 py-3 ${colorClasses[sec.color].soft}`}>
+                <div className="flex items-center justify-between px-5 py-3" style={groupStyles.softBg(sec.color)}>
                   <span className="font-extrabold">{sec.label}</span>
-                  <span className={`chip bg-white/70 ${colorClasses[sec.color].text}`}>
+                  <span className="chip bg-white/70" style={groupStyles.text(sec.color)}>
                     {sec.tasks.length}
                   </span>
                 </div>

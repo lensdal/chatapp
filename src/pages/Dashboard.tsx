@@ -14,7 +14,7 @@ import {
   tasksForChild,
   eventsForChild,
 } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { colorClasses, toHex } from '../lib/ui'
 import { format } from 'date-fns'
 import { fmtDayShort, fmtTime } from '../lib/dates'
 import type { ReactNode } from 'react'
@@ -59,14 +59,7 @@ export default function Dashboard() {
   // Task breakdown by group for the donut.
   const donutSegs = state.groups
     .map((g) => ({
-      color: {
-        violet: '#7C5CFC',
-        sky: '#5B8DEF',
-        blush: '#E45FCF',
-        sun: '#F5B93E',
-        tang: '#F07E3E',
-        mint: '#3FB984',
-      }[g.color],
+      color: toHex(g.color),
       value: open.filter((t) => t.groupId === g.id).length,
       label: g.name,
       key: g.id,

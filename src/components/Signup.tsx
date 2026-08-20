@@ -6,7 +6,7 @@ import { KidTag } from './items'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById, groupById } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { colorClasses, groupStyles } from '../lib/ui'
 import { fmtDay } from '../lib/dates'
 import type { SignUpSheet } from '../types'
 import { format } from 'date-fns'
@@ -17,16 +17,16 @@ export function SignupCard({ sheet }: { sheet: SignUpSheet }) {
   const me = state.currentUserId
   const creator = memberById(state, sheet.createdById)
   const group = groupById(state, sheet.groupId)
-  const accent = group ? colorClasses[group.color] : colorClasses.violet
+  const accentHex = group ? group.color : '#7C5CFC'
 
   const filled = sheet.slots.filter((s) => s.claims.length >= s.qty).length
   const remaining = sheet.slots.reduce((n, s) => n + Math.max(0, s.qty - s.claims.length), 0)
 
   return (
     <div className="mx-auto w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-card">
-      <div className={`flex items-start gap-3 px-5 py-4 ${accent.soft}`}>
+      <div className="flex items-start gap-3 px-5 py-4" style={groupStyles.softBg(accentHex)}>
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/70">
-          <ClipboardList size={20} className={accent.text} />
+          <ClipboardList size={20} style={groupStyles.text(accentHex)} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">

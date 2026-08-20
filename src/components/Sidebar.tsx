@@ -9,9 +9,9 @@ import {
   Settings,
 } from 'lucide-react'
 import { useStore } from '../store/store'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { memberById, tasksForGroup, openTasks, myGroups } from '../lib/selectors'
-import { Avatar } from './ui'
+import { Avatar, GroupIcon } from './ui'
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -87,14 +87,10 @@ export default function Sidebar() {
                   }`
                 }
               >
-                <span
-                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm ${colorClasses[g.color].soft}`}
-                >
-                  {g.emoji}
-                </span>
+                <GroupIcon emoji={g.emoji} color={g.color} image={g.image} size="xs" />
                 <span className="truncate font-medium">{g.name}</span>
                 {open > 0 && (
-                  <span className={`ml-auto h-2 w-2 rounded-full ${colorClasses[g.color].dot}`} />
+                  <span className="ml-auto h-2 w-2 rounded-full" style={groupStyles.dot(g.color)} />
                 )}
               </NavLink>
             )

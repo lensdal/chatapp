@@ -28,7 +28,7 @@ import {
   PenLine,
 } from 'lucide-react'
 import Topbar from '../components/Topbar'
-import { Card, Avatar, AvatarStack, EmptyState, Pill } from '../components/ui'
+import { Card, Avatar, AvatarStack, EmptyState, Pill, GroupIcon } from '../components/ui'
 import { EventRow, TaskRow, KidTag } from '../components/items'
 import PromoteModal from '../components/PromoteModal'
 import { SignupCard, CreateSignupModal } from '../components/Signup'
@@ -58,7 +58,7 @@ import {
   displayLabel,
   isAdmin,
 } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { fmtMessageTime, fmtAgo } from '../lib/dates'
 import { useToast } from '../components/Toast'
 import type { ChatMessage } from '../types'
@@ -99,9 +99,7 @@ function GroupGrid() {
               <Link key={g.id} to={`/chats/${g.id}`}>
                 <Card className="h-full p-5 transition hover:shadow-soft">
                   <div className="flex items-center gap-3">
-                    <span className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl ${colorClasses[g.color].soft}`}>
-                      {g.emoji}
-                    </span>
+                    <GroupIcon emoji={g.emoji} color={g.color} image={g.image} size="lg" />
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-extrabold leading-tight">{g.name}</div>
                       <div className="flex flex-wrap items-center gap-1 pt-1">
@@ -124,7 +122,7 @@ function GroupGrid() {
                     />
                     <div className="flex items-center gap-2">
                       {openTasks > 0 && (
-                        <Pill className={colorClasses[g.color].softText}>
+                        <Pill style={groupStyles.soft(g.color)}>
                           <ListChecks size={12} /> {openTasks}
                         </Pill>
                       )}

@@ -6,7 +6,7 @@ import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
 import { methodMeta, buildPayLink } from '../lib/pay'
-import { colorClasses, priorityChip, priorityLabel } from '../lib/ui'
+import { colorClasses, groupStyles, priorityChip, priorityLabel } from '../lib/ui'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
 import { Pill } from './ui'
 import { format } from 'date-fns'
@@ -207,9 +207,8 @@ export function EventRow({
     <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
       <button
         onClick={() => setDetail(true)}
-        className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${
-          group ? colorClasses[group.color].soft : 'bg-canvas'
-        }`}
+        className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl ${group ? '' : 'bg-canvas'}`}
+        style={group ? groupStyles.softBg(group.color) : undefined}
       >
         <span className="text-[11px] font-bold uppercase tracking-wide text-ink/50">
           {format(d, 'MMM')}
