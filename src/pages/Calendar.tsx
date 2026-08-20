@@ -18,6 +18,7 @@ import { EventRow, ReminderRow } from '../components/items'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
 import { groupStyles } from '../lib/ui'
+import { expandOccurrences } from '../lib/recurrence'
 
 export default function CalendarPage() {
   const { state } = useStore()
@@ -38,8 +39,17 @@ export default function CalendarPage() {
     end: endOfWeek(endOfMonth(cursor)),
   })
 
-  const monthEvents = events.filter((e) => isSameMonth(new Date(e.date), cursor))
-  const monthReminders = reminders.filter((r) => isSameMonth(new Date(r.date), cursor))
+  // Expand recurring events/reminders into concrete occurrences across the
+  // whole visible grid, so a weekly item lands on every matching day.
+  const gridStart = new Date(days[0]); gridStart.setHours(0, 0, 0, 0)
+  const gridEnd = new Date(days[days.length - 1]); gridEnd.setHours(23, 59, 59, 999)
+  const eventOccs = expandOccurrences(events, gridStart.toISOString(), gridEnd.toISOString())
+  const reminderOccs = expandOccurrences(reminders, gridStart.toISOString(), gridEnd.toISOString())
+
+  const mStart = new Date(startOfMonth(cursor)); mStart.setHours(0, 0, 0, 0)
+  const mEnd = new Date(endOfMonth(cursor)); mEnd.setHours(23, 59, 59, 999)
+  const monthEvents = expandOccurrences(events, mStart.toISOString(), mEnd.toISOString())
+  const monthReminders = expandOccurrences(reminders, mStart.toISOString(), mEnd.toISOString())
 
   return (
     <>
@@ -101,7 +111,8 @@ export default function CalendarPage() {
           {/* Grid */}
           <div className="grid flex-1 auto-rows-fr grid-cols-7 gap-1">
             {days.map((day) => {
-              const dayEvents = events.filter((e) => isSameDay(new Date(e.date), day))
+              const dayEvents = eventOccs.filter((o) => isSameDay(new Date(o.date), day))
+              const dayReminders = reminderOccs.filter((o) => isSameDay(new Date(o.date), day))
               const inMonth = isSameMonth(day, cursor)
               return (
                 <div
@@ -122,34 +133,31 @@ export default function CalendarPage() {
                     {format(day, 'd')}
                   </div>
                   <div className="space-y-1">
-                    {dayEvents.slice(0, 3).map((e) => {
-                      const g = groupById(state, e.groupId)!
+                    {dayEvents.slice(0, 3).map((o) => {
+                      const g = groupById(state, o.item.groupId)!
                       return (
                         <div
-                          key={e.id}
+                          key={o.key}
                           className="truncate rounded-lg px-1.5 py-0.5 text-[10px] font-semibold"
                           style={groupStyles.soft(g.color)}
-                          title={e.title}
+                          title={o.item.title}
                         >
-                          {e.title}
+                          {o.item.title}
                         </div>
                       )
                     })}
                     {dayEvents.length > 3 && (
                       <div className="px-1.5 text-[10px] font-bold text-ink/40">+{dayEvents.length - 3} more</div>
                     )}
-                    {reminders
-                      .filter((r) => isSameDay(new Date(r.date), day))
-                      .slice(0, 2)
-                      .map((r) => (
-                        <div
-                          key={r.id}
-                          className="flex items-center gap-1 truncate rounded-lg bg-sun-soft px-1.5 py-0.5 text-[10px] font-semibold text-[#B7841A]"
-                          title={r.title}
-                        >
-                          <Bell size={9} className="shrink-0" /> {r.title}
-                        </div>
-                      ))}
+                    {dayReminders.slice(0, 2).map((o) => (
+                      <div
+                        key={o.key}
+                        className="flex items-center gap-1 truncate rounded-lg bg-sun-soft px-1.5 py-0.5 text-[10px] font-semibold text-[#B7841A]"
+                        title={o.item.title}
+                      >
+                        <Bell size={9} className="shrink-0" /> {o.item.title}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )
@@ -168,11 +176,11 @@ export default function CalendarPage() {
                 <EmptyState emoji="🗓️" text="Nothing scheduled this month." />
               ) : (
                 <>
-                  {monthReminders.map((r) => (
-                    <ReminderRow key={r.id} reminder={r} showGroup />
+                  {monthReminders.map((o) => (
+                    <ReminderRow key={o.key} reminder={{ ...o.item, date: o.date }} showGroup />
                   ))}
-                  {monthEvents.map((e) => (
-                    <EventRow key={e.id} event={e} showGroup />
+                  {monthEvents.map((o) => (
+                    <EventRow key={o.key} event={{ ...o.item, date: o.date }} showGroup />
                   ))}
                 </>
               )}

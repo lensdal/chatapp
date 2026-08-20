@@ -6,7 +6,6 @@ import { TaskRow, EventRow, ReminderRow, PaymentButton, KidTag } from '../compon
 import { CaptureButton } from '../components/Capture'
 import { useStore } from '../store/store'
 import {
-  upcomingEvents,
   openTasks,
   overdueTasks,
   paymentsDue,
@@ -15,6 +14,7 @@ import {
   eventsForChild,
 } from '../lib/selectors'
 import { groupStyles, toHex } from '../lib/ui'
+import { expandOccurrences } from '../lib/recurrence'
 import { format } from 'date-fns'
 import { fmtDayShort, fmtTime } from '../lib/dates'
 import type { ReactNode } from 'react'
@@ -51,11 +51,10 @@ function StatTile({
 export default function Dashboard() {
   const { state } = useStore()
   const counts = todoCounts(state)
-  const upcoming = upcomingEvents(state).slice(0, 5)
-  const headsUp = [...state.reminders]
-    .filter((r) => new Date(r.date) >= new Date(new Date().toDateString()))
-    .sort((a, b) => +new Date(a.date) - +new Date(b.date))
-    .slice(0, 4)
+  const today0 = new Date(new Date().toDateString())
+  const horizon = new Date(today0); horizon.setDate(today0.getDate() + 90)
+  const upcoming = expandOccurrences(state.events, today0.toISOString(), horizon.toISOString()).slice(0, 5)
+  const headsUp = expandOccurrences(state.reminders, today0.toISOString(), horizon.toISOString()).slice(0, 4)
   const overdue = overdueTasks(state)
   const payments = paymentsDue(state)
   const open = openTasks(state)
@@ -189,7 +188,7 @@ export default function Dashboard() {
                 {upcoming.length === 0 ? (
                   <EmptyState emoji="📭" text="No upcoming events yet." />
                 ) : (
-                  upcoming.map((e) => <EventRow key={e.id} event={e} />)
+                  upcoming.map((o) => <EventRow key={o.key} event={{ ...o.item, date: o.date }} />)
                 )}
               </Card>
             </section>
@@ -201,8 +200,8 @@ export default function Dashboard() {
                   Heads up
                 </SectionTitle>
                 <Card className="divide-y divide-black/5 p-2">
-                  {headsUp.map((r) => (
-                    <ReminderRow key={r.id} reminder={r} />
+                  {headsUp.map((o) => (
+                    <ReminderRow key={o.key} reminder={{ ...o.item, date: o.date }} />
                   ))}
                 </Card>
               </section>

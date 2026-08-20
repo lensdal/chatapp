@@ -8,6 +8,7 @@ import EditChildModal from '../components/EditChildModal'
 import { useStore } from '../store/store'
 import { childById, tasksForChild, eventsForChild } from '../lib/selectors'
 import { groupStyles } from '../lib/ui'
+import { expandOccurrences } from '../lib/recurrence'
 import { isPast, isToday } from 'date-fns'
 
 function KidsGrid() {
@@ -75,9 +76,9 @@ function KidDetail({ childId }: { childId: string }) {
   }
   const groups = state.groups.filter((g) => g.childIds.includes(child.id))
   const openTasks = tasksForChild(state, child.id).filter((t) => !t.done)
-  const upcoming = eventsForChild(state, child.id).filter(
-    (e) => new Date(e.date) >= new Date(new Date().toDateString()),
-  )
+  const today0 = new Date(new Date().toDateString())
+  const horizon = new Date(today0); horizon.setDate(today0.getDate() + 90)
+  const upcoming = expandOccurrences(eventsForChild(state, child.id), today0.toISOString(), horizon.toISOString())
 
   return (
     <>
@@ -114,7 +115,7 @@ function KidDetail({ childId }: { childId: string }) {
                 {upcoming.length === 0 ? (
                   <EmptyState emoji="📅" text="Nothing on the calendar." />
                 ) : (
-                  upcoming.map((e) => <EventRow key={e.id} event={e} showKid={false} />)
+                  upcoming.map((o) => <EventRow key={o.key} event={{ ...o.item, date: o.date }} showKid={false} />)
                 )}
               </Card>
             </section>
