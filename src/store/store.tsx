@@ -132,6 +132,7 @@ type Action =
   // tasks
   | { type: 'UPDATE_TASK'; taskId: string; patch: Partial<Task> }
   | { type: 'ADD_REMINDER'; reminder: Omit<import('../types').Reminder, 'id'> }
+  | { type: 'PROMOTE_TO_REMINDER'; messageId: string; reminder: Omit<import('../types').Reminder, 'id'> }
   | { type: 'UPDATE_REMINDER'; reminderId: string; patch: Partial<import('../types').Reminder> }
   | { type: 'DELETE_REMINDER'; reminderId: string }
   | { type: 'ADD_CHILD'; child: Omit<import('../types').Child, 'id'> }
@@ -794,6 +795,17 @@ function reducer(state: AppState, action: Action): AppState {
 
     case 'ADD_REMINDER':
       return { ...state, reminders: [...state.reminders, { ...action.reminder, id: uid('rem') }] }
+
+    case 'PROMOTE_TO_REMINDER': {
+      const rid = uid('rem')
+      return {
+        ...state,
+        reminders: [...state.reminders, { ...action.reminder, id: rid }],
+        messages: state.messages.map((m) =>
+          m.id === action.messageId ? { ...m, linkedReminderId: rid } : m,
+        ),
+      }
+    }
 
     case 'UPDATE_REMINDER':
       return {

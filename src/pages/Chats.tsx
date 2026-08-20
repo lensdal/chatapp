@@ -7,6 +7,7 @@ import {
   ListChecks,
   CalendarDays,
   CheckCircle2,
+  Bell,
   ChevronRight,
   ClipboardList,
   Pin,
@@ -204,6 +205,7 @@ function MessageBubble({
   const mine = msg.senderId === state.currentUserId
   const linkedTask = state.tasks.find((t) => t.id === msg.linkedTaskId)
   const linkedEvent = state.events.find((e) => e.id === msg.linkedEventId)
+  const linkedReminder = state.reminders.find((r) => r.id === msg.linkedReminderId)
   const repliedTo = msg.replyToId ? state.messages.find((m) => m.id === msg.replyToId) : undefined
   const repliedSender = repliedTo ? memberById(state, repliedTo.senderId) : undefined
   const acks = msg.acks ?? []
@@ -263,14 +265,14 @@ function MessageBubble({
             </button>
           ))}
 
-        {(linkedTask || linkedEvent) && (
+        {(linkedTask || linkedEvent || linkedReminder) && (
           <div
             className={`mt-1.5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ${
-              linkedTask ? 'bg-mint-soft text-mint' : 'bg-sky-soft text-sky'
+              linkedTask ? 'bg-mint-soft text-mint' : linkedEvent ? 'bg-sky-soft text-sky' : 'bg-sun-soft text-[#B7841A]'
             }`}
           >
-            {linkedTask ? <CheckCircle2 size={13} /> : <CalendarDays size={13} />}
-            {linkedTask ? 'Added as a task' : 'Added to calendar'}
+            {linkedTask ? <CheckCircle2 size={13} /> : linkedEvent ? <CalendarDays size={13} /> : <Bell size={13} />}
+            {linkedTask ? 'Added as a task' : linkedEvent ? 'Added to calendar' : 'Added as a reminder'}
           </div>
         )}
 
@@ -302,12 +304,12 @@ function MessageBubble({
           >
             <Reply size={11} /> Reply
           </button>
-          {!linkedTask && !linkedEvent && (
+          {!linkedTask && !linkedEvent && !linkedReminder && (
             <button
               onClick={() => onPromote(msg)}
               className="inline-flex items-center gap-1 rounded-full bg-violet-soft px-2 py-0.5 text-[10px] font-bold text-violet opacity-0 transition group-hover:opacity-100"
             >
-              <Wand2 size={11} /> Make task / event
+              <Wand2 size={11} /> Make task / event / reminder
             </button>
           )}
           <button

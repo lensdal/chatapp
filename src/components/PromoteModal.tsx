@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ListChecks, CalendarDays, DollarSign, Sparkles } from 'lucide-react'
+import { ListChecks, CalendarDays, DollarSign, Sparkles, Bell } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
@@ -9,7 +9,13 @@ import { usePaymentFields } from './usePaymentFields'
 import type { Priority } from '../types'
 import { format } from 'date-fns'
 
-type Kind = 'task' | 'event'
+type Kind = 'task' | 'event' | 'reminder'
+
+const KINDS: { id: Kind; label: string; icon: typeof ListChecks }[] = [
+  { id: 'task', label: 'A task', icon: ListChecks },
+  { id: 'event', label: 'An event', icon: CalendarDays },
+  { id: 'reminder', label: 'A reminder', icon: Bell },
+]
 
 const inputCls =
   'w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white'
@@ -51,6 +57,7 @@ export default function PromoteModal({
   const [time, setTime] = useState('09:00')
   const [priority, setPriority] = useState<Priority>('medium')
   const [location, setLocation] = useState('')
+  const [note, setNote] = useState('')
   const [hasPayment, setHasPayment] = useState(false)
   const pay = usePaymentFields(groupId)
 
@@ -67,6 +74,7 @@ export default function PromoteModal({
       setTitle(parsed.title)
       setPriority(parsed.priority)
       setLocation(parsed.location ?? '')
+      setNote('')
       if (parsed.dateISO) {
         const d = new Date(parsed.dateISO)
         setDate(format(d, 'yyyy-MM-dd'))
@@ -84,6 +92,7 @@ export default function PromoteModal({
       setTime(defaultKind === 'event' ? '10:00' : '09:00')
       setPriority('medium')
       setLocation('')
+      setNote('')
       setHasPayment(false)
       pay.reset({ amount: '' })
     }
@@ -111,17 +120,29 @@ export default function PromoteModal({
       }
       if (messageId) dispatch({ type: 'PROMOTE_TO_TASK', messageId, task })
       else dispatch({ type: 'ADD_TASK', task })
-    } else {
+    } else if (kind === 'event') {
       const event = {
         groupId,
         childId: childId || undefined,
         title: cleanTitle,
         date: toISO(date, time),
+        hasTime: true,
         location: location.trim() || undefined,
         addedToGoogle: false,
       }
       if (messageId) dispatch({ type: 'PROMOTE_TO_EVENT', messageId, event })
       else dispatch({ type: 'ADD_EVENT', event })
+    } else {
+      const reminder = {
+        groupId,
+        childId: childId || undefined,
+        title: cleanTitle,
+        note: note.trim() || undefined,
+        date: toISO(date, time),
+        hasTime: true,
+      }
+      if (messageId) dispatch({ type: 'PROMOTE_TO_REMINDER', messageId, reminder })
+      else dispatch({ type: 'ADD_REMINDER', reminder })
     }
     onClose()
   }
@@ -147,31 +168,42 @@ export default function PromoteModal({
         </div>
       )}
 
-      <div className="mb-5 grid grid-cols-2 gap-2">
-        {(['task', 'event'] as Kind[]).map((k) => (
-          <button
-            key={k}
-            onClick={() => setKind(k)}
-            className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-bold transition ${
-              kind === k
-                ? 'bg-violet text-white shadow-soft'
-                : 'bg-canvas text-ink/55 hover:bg-black/[0.05]'
-            }`}
-          >
-            {k === 'task' ? <ListChecks size={18} /> : <CalendarDays size={18} />}
-            {k === 'task' ? 'A task' : 'An event'}
-          </button>
-        ))}
+      <div className="mb-5 grid grid-cols-3 gap-2">
+        {KINDS.map((k) => {
+          const Icon = k.icon
+          return (
+            <button
+              key={k.id}
+              onClick={() => setKind(k.id)}
+              className={`flex items-center justify-center gap-1.5 rounded-2xl px-3 py-3 text-sm font-bold transition ${
+                kind === k.id
+                  ? 'bg-violet text-white shadow-soft'
+                  : 'bg-canvas text-ink/55 hover:bg-black/[0.05]'
+              }`}
+            >
+              <Icon size={17} />
+              {k.label}
+            </button>
+          )
+        })}
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className={labelCls}>{kind === 'task' ? 'What needs doing?' : 'Event name'}</label>
+          <label className={labelCls}>
+            {kind === 'task' ? 'What needs doing?' : kind === 'event' ? 'Event name' : 'Reminder'}
+          </label>
           <input
             className={inputCls}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={kind === 'task' ? 'e.g. Bring a red shirt' : 'e.g. Home game vs Northgate'}
+            placeholder={
+              kind === 'task'
+                ? 'e.g. Bring a red shirt'
+                : kind === 'event'
+                  ? 'e.g. Home game vs Northgate'
+                  : 'e.g. No school Friday'
+            }
             autoFocus
           />
         </div>
@@ -248,7 +280,7 @@ export default function PromoteModal({
               {hasPayment && <div className="mt-3">{pay.node}</div>}
             </div>
           </>
-        ) : (
+        ) : kind === 'event' ? (
           <div>
             <label className={labelCls}>Location (optional)</label>
             <input
@@ -256,6 +288,16 @@ export default function PromoteModal({
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Field 4, Westside Park"
+            />
+          </div>
+        ) : (
+          <div>
+            <label className={labelCls}>Note (optional)</label>
+            <textarea
+              className={`${inputCls} min-h-[72px] resize-y`}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="e.g. Campus closed — no drop-off or aftercare"
             />
           </div>
         )}
@@ -273,8 +315,7 @@ export default function PromoteModal({
           disabled={!title.trim()}
           className="flex-1 rounded-2xl bg-violet py-3 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90 disabled:opacity-40"
         >
-          {kind === 'task' ? 'Create task' : 'Add event'}
-          {kind === 'task' ? ' for everyone' : ''}
+          {kind === 'task' ? 'Create task for everyone' : kind === 'event' ? 'Add event' : 'Add reminder'}
         </button>
       </div>
     </Modal>

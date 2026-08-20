@@ -94,6 +94,7 @@ export interface ChatMessage {
   linkedPollId?: string
   linkedCollectionId?: string
   linkedSignatureId?: string
+  linkedReminderId?: string
   pinned?: boolean
   replyToId?: string // message this one is replying to
   reactions?: Record<string, string[]> // emoji -> memberIds
