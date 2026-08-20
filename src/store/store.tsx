@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v12'
+const STORAGE_KEY = 'village.state.v13'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -125,7 +125,7 @@ type Action =
     }
   // events
   | { type: 'UPDATE_EVENT'; eventId: string; patch: Partial<EventItem> }
-  | { type: 'SET_RSVP'; eventId: string; status: RSVPStatus }
+  | { type: 'SET_RSVP'; eventId: string; status: RSVPStatus; adults?: number; children?: number; names?: string }
   | { type: 'CARPOOL_OFFER'; eventId: string; seats: number }
   | { type: 'CARPOOL_CANCEL'; eventId: string }
   | { type: 'CARPOOL_TOGGLE_REQUEST'; eventId: string }
@@ -526,11 +526,17 @@ function reducer(state: AppState, action: Action): AppState {
     case 'SET_RSVP':
       return {
         ...state,
-        events: state.events.map((e) =>
-          e.id !== action.eventId
-            ? e
-            : { ...e, rsvps: { ...(e.rsvps ?? {}), [state.currentUserId]: action.status } },
-        ),
+        events: state.events.map((e) => {
+          if (e.id !== action.eventId) return e
+          const prev = e.rsvps?.[state.currentUserId]
+          const entry = {
+            status: action.status,
+            adults: action.adults ?? prev?.adults,
+            children: action.children ?? prev?.children,
+            names: action.names ?? prev?.names,
+          }
+          return { ...e, rsvps: { ...(e.rsvps ?? {}), [state.currentUserId]: entry } }
+        }),
       }
 
     case 'CARPOOL_OFFER':

@@ -1,17 +1,39 @@
 import { useState } from 'react'
-import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink, Bell, X } from 'lucide-react'
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink, Bell, X, FileText, Paperclip } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { EventItem, Reminder, Task, PaymentMethod } from '../types'
+import type { EventItem, FileAttachment, Reminder, Task, PaymentMethod } from '../types'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
 import { methodMeta, buildPayLink } from '../lib/pay'
 import { groupStyles, priorityChip, priorityLabel } from '../lib/ui'
 import { isRepeating, recurrenceShort } from '../lib/recurrence'
+import { headcount } from '../lib/rsvp'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
 import { Pill } from './ui'
 import { format } from 'date-fns'
 import { EventDetailModal, TaskDetailModal } from './details'
+
+export function AttachmentChip({ attachment }: { attachment: FileAttachment }) {
+  const toast = useToast()
+  if (attachment.kind === 'image' && attachment.dataUrl) {
+    return (
+      <img
+        src={attachment.dataUrl}
+        alt={attachment.name}
+        className="mt-1 max-h-52 w-full rounded-2xl object-cover"
+      />
+    )
+  }
+  return (
+    <button
+      onClick={() => toast(`Downloading ${attachment.name}`, '📎')}
+      className="mt-1 inline-flex items-center gap-2 rounded-2xl bg-canvas px-3 py-2 text-sm font-semibold text-ink/70 transition hover:bg-black/[0.05]"
+    >
+      <FileText size={16} className="text-violet" /> {attachment.name}
+    </button>
+  )
+}
 
 export function KidTag({ childId, plain = false }: { childId?: string; plain?: boolean }) {
   const { state } = useStore()
@@ -138,6 +160,9 @@ export function TaskRow({
           {isRepeating(task.recurrence) && (
             <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> {recurrenceShort(task.recurrence)}</Pill>
           )}
+          {task.attachment && (
+            <Pill className="bg-black/[0.04] text-ink/55"><Paperclip size={11} /></Pill>
+          )}
           {others.length > 0 && (
             <Pill className="bg-black/[0.04] text-ink/55"><Users size={11} /> +{others.length}</Pill>
           )}
@@ -183,6 +208,7 @@ export function ReminderRow({
           {reminder.hasTime ? ` · ${fmtTime(reminder.date)}` : ''}
         </div>
         {reminder.note && <p className="mt-1 text-xs text-ink/55">{reminder.note}</p>}
+        {reminder.attachment && <AttachmentChip attachment={reminder.attachment} />}
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {showKid && <KidTag childId={reminder.childId} />}
           {showGroup && <GroupTag groupId={reminder.groupId} />}
@@ -247,7 +273,7 @@ export function EventRow({
   const [detail, setDetail] = useState(false)
   const d = new Date(event.date)
   const group = groupById(state, event.groupId)
-  const goingCount = event.rsvps ? Object.values(event.rsvps).filter((s) => s === 'going').length : 0
+  const goingCount = headcount(event).total
   return (
     <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
       <button
@@ -279,6 +305,9 @@ export function EventRow({
           {showGroup && <GroupTag groupId={event.groupId} />}
           {isRepeating(event.recurrence) && (
             <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> {recurrenceShort(event.recurrence)}</Pill>
+          )}
+          {event.attachment && (
+            <Pill className="bg-black/[0.04] text-ink/55"><Paperclip size={11} /></Pill>
           )}
         </div>
       </div>

@@ -17,8 +17,33 @@ import { groupById, memberById, displayLabel, isAdmin } from '../lib/selectors'
 import { groupStyles, priorityChip, priorityLabel } from '../lib/ui'
 import { isRepeating, recurrenceSummary } from '../lib/recurrence'
 import { mapsLinks } from '../lib/maps'
+import { rsvpsByStatus, headcount } from '../lib/rsvp'
 import { fmtDay, fmtTime } from '../lib/dates'
+import { AttachmentChip } from './items'
 import type { EventItem, RSVPStatus, Task } from '../types'
+
+function Stepper({
+  label,
+  value,
+  onChange,
+  min = 0,
+}: {
+  label: string
+  value: number
+  onChange: (v: number) => void
+  min?: number
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-semibold text-ink/60">{label}</span>
+      <div className="flex items-center gap-1 rounded-full bg-white px-2 py-1 ring-1 ring-black/10">
+        <button onClick={() => onChange(Math.max(min, value - 1))} className="px-1.5 font-bold text-ink/50">−</button>
+        <span className="w-6 text-center text-sm font-bold tabular-nums">{value}</span>
+        <button onClick={() => onChange(value + 1)} className="px-1.5 font-bold text-ink/50">+</button>
+      </div>
+    </div>
+  )
+}
 
 const RSVP_META: { key: RSVPStatus; label: string; cls: string }[] = [
   { key: 'going', label: 'Going', cls: 'bg-mint text-white' },
@@ -44,8 +69,12 @@ export function EventDetailModal({
   const me = state.currentUserId
   const canManage = isAdmin(group, me) || event.createdById === me
   const rsvps = event.rsvps ?? {}
-  const myRsvp = rsvps[me]
-  const byStatus = (s: RSVPStatus) => Object.keys(rsvps).filter((k) => rsvps[k] === s)
+  const myEntry = rsvps[me]
+  const myRsvp = myEntry?.status
+  const byStatus = (s: RSVPStatus) => rsvpsByStatus(event, s)
+  const heads = headcount(event)
+  const setRsvp = (status: RSVPStatus, patch: { adults?: number; children?: number; names?: string } = {}) =>
+    dispatch({ type: 'SET_RSVP', eventId: event.id, status, ...patch })
   const myOffer = (event.carpoolOffers ?? []).find((o) => o.memberId === me)
   const iNeedRide = (event.carpoolRequests ?? []).includes(me)
 
@@ -85,11 +114,19 @@ export function EventDetailModal({
             </div>
           )}
           {event.note && <p className="mt-2 text-sm text-ink/60">{event.note}</p>}
+          {event.attachment && <AttachmentChip attachment={event.attachment} />}
         </div>
 
         {/* RSVP */}
         <div>
-          <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">Who's going?</div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wide text-ink/40">Who's going?</span>
+            {heads.total > 0 && (
+              <span className="text-xs font-semibold text-mint">
+                {heads.total} coming · {heads.adults} adult{heads.adults === 1 ? '' : 's'}, {heads.children} kid{heads.children === 1 ? '' : 's'}
+              </span>
+            )}
+          </div>
           <div className="flex gap-2">
             {RSVP_META.map((r) => {
               const people = byStatus(r.key)
@@ -97,7 +134,7 @@ export function EventDetailModal({
               return (
                 <button
                   key={r.key}
-                  onClick={() => dispatch({ type: 'SET_RSVP', eventId: event.id, status: r.key })}
+                  onClick={() => setRsvp(r.key, r.key === 'going' && !myEntry?.adults && !myEntry?.children ? { adults: 1, children: 0 } : {})}
                   className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2.5 text-sm font-bold transition ${
                     mine ? r.cls + ' shadow-soft' : 'bg-canvas text-ink/55 hover:bg-black/[0.05]'
                   }`}
@@ -108,11 +145,40 @@ export function EventDetailModal({
               )
             })}
           </div>
-          {byStatus('going').length > 0 && (
-            <div className="mt-2 text-xs text-ink/50">
-              <span className="font-semibold text-mint">Going: </span>
-              {byStatus('going').map(name).join(', ')}
+
+          {/* Headcount editor (only when I'm going) */}
+          {myRsvp === 'going' && (
+            <div className="mt-3 space-y-3 rounded-2xl bg-canvas p-3">
+              <div className="flex items-center gap-4">
+                <Stepper label="Adults" value={myEntry?.adults ?? 1} onChange={(v) => setRsvp('going', { adults: v })} min={0} />
+                <Stepper label="Kids" value={myEntry?.children ?? 0} onChange={(v) => setRsvp('going', { children: v })} min={0} />
+              </div>
+              <input
+                className="w-full rounded-2xl border border-black/10 bg-white px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet"
+                value={myEntry?.names ?? ''}
+                onChange={(e) => setRsvp('going', { names: e.target.value })}
+                placeholder="Names (optional) — e.g. Sam, Calixta, Grandma Rosa"
+              />
             </div>
+          )}
+
+          {byStatus('going').length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs text-ink/55">
+              {byStatus('going').map((id) => {
+                const e = rsvps[id]
+                const bits = [
+                  e.adults ? `${e.adults} adult${e.adults === 1 ? '' : 's'}` : null,
+                  e.children ? `${e.children} kid${e.children === 1 ? '' : 's'}` : null,
+                ].filter(Boolean).join(', ')
+                return (
+                  <li key={id}>
+                    <span className="font-semibold text-mint">{name(id)}</span>
+                    {bits && <span className="text-ink/45"> · {bits}</span>}
+                    {e.names && <span className="text-ink/45"> ({e.names})</span>}
+                  </li>
+                )
+              })}
+            </ul>
           )}
         </div>
 
@@ -247,6 +313,7 @@ export function TaskDetailModal({
             </div>
           )}
           {task.note && <p className="mt-2 text-sm text-ink/60">{task.note}</p>}
+          {task.attachment && <AttachmentChip attachment={task.attachment} />}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

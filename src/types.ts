@@ -23,6 +23,22 @@ export interface Recurrence {
 
 export type RSVPStatus = 'going' | 'maybe' | 'no'
 
+// An RSVP can carry a headcount (adults / children) and optional names, so
+// "we're coming — 2 adults and 3 kids (the Ortiz family)" is expressible.
+export interface RSVPEntry {
+  status: RSVPStatus
+  adults?: number
+  children?: number
+  names?: string
+}
+
+// A file attached to a message, task, event, or reminder.
+export interface FileAttachment {
+  name: string
+  kind: 'pdf' | 'image' | 'doc' | 'sheet'
+  dataUrl?: string
+}
+
 export interface Child {
   id: string
   name: string
@@ -159,9 +175,10 @@ export interface EventItem {
   createdFromMessageId?: string
   createdById?: string
   recurrence?: Recurrence
-  rsvps?: Record<string, RSVPStatus>
+  rsvps?: Record<string, RSVPEntry>
   carpoolOffers?: { memberId: string; seats: number }[]
   carpoolRequests?: string[] // memberIds needing a ride
+  attachment?: FileAttachment
 }
 
 // A lightweight heads-up — "No school", "No practice" — not a to-do or an
@@ -176,6 +193,7 @@ export interface Reminder {
   hasTime?: boolean
   recurrence?: Recurrence
   createdById?: string
+  attachment?: FileAttachment
 }
 
 export interface Payment {
@@ -199,6 +217,7 @@ export interface Task {
   priority: Priority
   assigneeIds: string[]
   payment?: Payment
+  attachment?: FileAttachment
   createdFromMessageId?: string
   fromSignup?: { sheetId: string; slotId: string }
   fromSignature?: { docId: string }

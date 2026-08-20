@@ -225,7 +225,12 @@ export function makeSeed(): AppState {
         addedToGoogle: false,
         createdById: 'coach-dave',
         createdFromMessageId: 'm-soccer-3',
-        rsvps: { me: 'going', jenna: 'going', marcus: 'maybe', lena: 'going' },
+        rsvps: {
+          me: { status: 'going', adults: 2, children: 1, names: 'Sam + Calixta' },
+          jenna: { status: 'going', adults: 1, children: 2 },
+          marcus: { status: 'maybe' },
+          lena: { status: 'going', adults: 2 },
+        },
         carpoolOffers: [{ memberId: 'marcus', seats: 2 }],
         carpoolRequests: ['jenna'],
       },
@@ -249,7 +254,7 @@ export function makeSeed(): AppState {
         location: 'Riverside Aquatic Center',
         addedToGoogle: false,
         createdById: 'coach-bri',
-        rsvps: { me: 'going', marcus: 'going' },
+        rsvps: { me: { status: 'going', adults: 1 }, marcus: { status: 'going', adults: 1, children: 1 } },
       },
       {
         id: 'ev-4',

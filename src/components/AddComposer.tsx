@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
-import { CalendarDays, ListChecks, Bell, MapPin } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { myGroups } from '../lib/selectors'
 import { groupStyles } from '../lib/ui'
 import { NO_REPEAT, isRepeating } from '../lib/recurrence'
+import { readAsAttachment } from '../lib/files'
 import { usePaymentFields } from './usePaymentFields'
 import RepeatPicker from './RepeatPicker'
-import type { Priority, Recurrence } from '../types'
+import type { FileAttachment, Priority, Recurrence } from '../types'
 
 const inputCls =
   'w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white'
@@ -49,8 +50,21 @@ export default function AddComposer({
   const [priority, setPriority] = useState<Priority>('medium')
   const [repeat, setRepeat] = useState<Recurrence>(NO_REPEAT)
   const [includePayment, setIncludePayment] = useState(false)
+  const [attachment, setAttachment] = useState<FileAttachment | undefined>(undefined)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const pay = usePaymentFields(groupId)
+
+  const onAttach = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setAttachment(await readAsAttachment(file))
+    } catch {
+      toast('Could not read that file', '⚠️')
+    }
+    e.target.value = ''
+  }
 
   useEffect(() => {
     if (open) {
@@ -66,6 +80,7 @@ export default function AddComposer({
       setPriority('medium')
       setRepeat(NO_REPEAT)
       setIncludePayment(false)
+      setAttachment(undefined)
       pay.reset({ amount: '' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,6 +119,7 @@ export default function AddComposer({
           recurrence: rec,
           addedToGoogle: false,
           createdById: state.currentUserId,
+          attachment,
         },
       })
     } else if (kind === 'task') {
@@ -122,6 +138,7 @@ export default function AddComposer({
           payment: includePayment ? pay.build() : undefined,
           recurrence: rec,
           createdById: state.currentUserId,
+          attachment,
         },
       })
     } else {
@@ -136,6 +153,7 @@ export default function AddComposer({
           hasTime: addTime,
           recurrence: rec,
           createdById: state.currentUserId,
+          attachment,
         },
       })
     }
@@ -291,6 +309,28 @@ export default function AddComposer({
                   : 'Anything worth adding'
             }
           />
+        </div>
+
+        {/* Attachment (all kinds) */}
+        <div>
+          <label className={labelCls}>Attachment</label>
+          <input ref={fileRef} type="file" className="hidden" onChange={onAttach} />
+          {attachment ? (
+            <div className="flex items-center gap-2 rounded-2xl bg-canvas px-3 py-2.5">
+              <Paperclip size={15} className="shrink-0 text-violet" />
+              <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink/70">{attachment.name}</span>
+              <button onClick={() => setAttachment(undefined)} className="rounded-full p-1 text-ink/40 hover:text-tang" title="Remove">
+                <X size={15} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-canvas px-4 py-2.5 text-sm font-bold text-ink/60 transition hover:bg-black/[0.05]"
+            >
+              <Paperclip size={15} /> Attach a file
+            </button>
+          )}
         </div>
 
         {/* Payment (tasks only) */}
