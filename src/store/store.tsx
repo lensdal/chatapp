@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v11'
+const STORAGE_KEY = 'village.state.v12'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -131,6 +131,13 @@ type Action =
   | { type: 'CARPOOL_TOGGLE_REQUEST'; eventId: string }
   // tasks
   | { type: 'UPDATE_TASK'; taskId: string; patch: Partial<Task> }
+  | { type: 'ADD_REMINDER'; reminder: Omit<import('../types').Reminder, 'id'> }
+  | { type: 'UPDATE_REMINDER'; reminderId: string; patch: Partial<import('../types').Reminder> }
+  | { type: 'DELETE_REMINDER'; reminderId: string }
+  | { type: 'ADD_CHILD'; child: Omit<import('../types').Child, 'id'> }
+  | { type: 'UPDATE_CHILD'; childId: string; patch: Partial<import('../types').Child> }
+  | { type: 'DELETE_CHILD'; childId: string }
+  | { type: 'SET_VILLAGE_PAY'; enabled: boolean }
   // chat extras
   | { type: 'REACT'; messageId: string; emoji: string }
   | { type: 'ACK_MESSAGE'; messageId: string }
@@ -773,6 +780,46 @@ function reducer(state: AppState, action: Action): AppState {
           m.id === state.currentUserId
             ? { ...m, handles: { ...m.handles, ...action.handles } }
             : m,
+        ),
+      }
+
+    case 'SET_VILLAGE_PAY':
+      return { ...state, villagePayEnabled: action.enabled }
+
+    case 'ADD_REMINDER':
+      return { ...state, reminders: [...state.reminders, { ...action.reminder, id: uid('rem') }] }
+
+    case 'UPDATE_REMINDER':
+      return {
+        ...state,
+        reminders: state.reminders.map((r) =>
+          r.id === action.reminderId ? { ...r, ...action.patch } : r,
+        ),
+      }
+
+    case 'DELETE_REMINDER':
+      return { ...state, reminders: state.reminders.filter((r) => r.id !== action.reminderId) }
+
+    case 'ADD_CHILD':
+      return { ...state, children: [...state.children, { ...action.child, id: uid('kid') }] }
+
+    case 'UPDATE_CHILD':
+      return {
+        ...state,
+        children: state.children.map((c) =>
+          c.id === action.childId ? { ...c, ...action.patch } : c,
+        ),
+      }
+
+    case 'DELETE_CHILD':
+      return {
+        ...state,
+        children: state.children.filter((c) => c.id !== action.childId),
+        // Detach the child from any groups referencing them.
+        groups: state.groups.map((g) =>
+          g.childIds.includes(action.childId)
+            ? { ...g, childIds: g.childIds.filter((id) => id !== action.childId) }
+            : g,
         ),
       }
 

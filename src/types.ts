@@ -2,14 +2,24 @@ export type ColorKey = 'violet' | 'sky' | 'blush' | 'sun' | 'tang' | 'mint'
 
 export type Priority = 'high' | 'medium' | 'low'
 
-export type PaymentMethod = 'venmo' | 'cashapp' | 'zelle' | 'other'
+export type PaymentMethod = 'venmo' | 'cashapp' | 'zelle' | 'village' | 'other'
 
 // A creator's payment usernames/handles, keyed by method.
 export type PaymentHandles = Partial<Record<PaymentMethod, string>>
 
 export type GroupRole = 'admin' | 'member'
 
-export type Recurrence = 'none' | 'weekly' | 'monthly'
+// Google-Calendar-style recurrence. `freq: 'none'` (or an absent value) means
+// it does not repeat.
+export type RepeatFreq = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+export interface Recurrence {
+  freq: RepeatFreq
+  interval: number // every N days/weeks/months/years
+  weekdays?: number[] // for weekly: 0 (Sun) – 6 (Sat)
+  until?: string // ISO date the repeat ends (optional)
+  count?: number // or stop after N occurrences (optional)
+}
 
 export type RSVPStatus = 'going' | 'maybe' | 'no'
 
@@ -142,7 +152,8 @@ export interface EventItem {
   childId?: string
   title: string
   date: string // ISO (start)
-  location?: string
+  hasTime?: boolean // false/undefined = all-day (time is optional)
+  location?: string // free-text address; links out to maps
   note?: string
   addedToGoogle: boolean
   createdFromMessageId?: string
@@ -153,10 +164,25 @@ export interface EventItem {
   carpoolRequests?: string[] // memberIds needing a ride
 }
 
+// A lightweight heads-up — "No school", "No practice" — not a to-do or an
+// event with RSVPs. Just a title, an optional note, and a day.
+export interface Reminder {
+  id: string
+  groupId?: string
+  childId?: string
+  title: string
+  note?: string
+  date: string // ISO
+  hasTime?: boolean
+  recurrence?: Recurrence
+  createdById?: string
+}
+
 export interface Payment {
   amount: number
-  recipient: string
-  methods: PaymentMethod[]
+  recipient: string // display name of who's collecting (or "the group")
+  recipientId?: string // member id, when the collector is a group member
+  methods: PaymentMethod[] // every accepted way to pay (may include 'village')
   handles: PaymentHandles
   paid: boolean
 }
@@ -167,6 +193,8 @@ export interface Task {
   childId?: string
   title: string
   dueDate?: string // ISO
+  hasTime?: boolean // false/undefined = no specific time (time is optional)
+  note?: string
   done: boolean
   priority: Priority
   assigneeIds: string[]
@@ -216,6 +244,7 @@ export interface AppState {
   forwards: ForwardItem[]
   messages: ChatMessage[]
   events: EventItem[]
+  reminders: Reminder[]
   tasks: Task[]
   signups: SignUpSheet[]
   polls: Poll[]
@@ -224,6 +253,8 @@ export interface AppState {
   googleConnected: boolean
   venmoConnected: boolean
   whatsappConnected: boolean
+  // Whether the current user has enabled paying & collecting through Village.
+  villagePayEnabled: boolean
   translateTo: string // '' = off, else a language name
   // Current user's own notification prefs, per group (defaults to on).
   notify: Record<string, { reminders: boolean; digest: boolean }>

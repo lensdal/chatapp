@@ -21,6 +21,7 @@ export function makeSeed(): AppState {
     googleConnected: false,
     venmoConnected: false,
     whatsappConnected: true,
+    villagePayEnabled: false,
     translateTo: '',
     // Your own notification prefs per group (unset = on). Swim digest starts off
     // to show a mixed state.
@@ -276,10 +277,30 @@ export function makeSeed(): AppState {
         childId: 'calixta',
         title: 'Practice',
         date: at(1, 17, 0),
+        hasTime: true,
         location: 'Field 2, Westside Park',
         addedToGoogle: false,
         createdById: 'coach-dave',
-        recurrence: 'weekly',
+        recurrence: { freq: 'weekly', interval: 1, weekdays: [2, 4] },
+      },
+    ],
+
+    reminders: [
+      {
+        id: 'rem-1',
+        groupId: 'class-isabella',
+        childId: 'isabella',
+        title: 'No school — Teacher in-service day',
+        note: 'Campus closed. No drop-off or aftercare.',
+        date: at(3),
+      },
+      {
+        id: 'rem-2',
+        groupId: 'soccer',
+        childId: 'calixta',
+        title: 'No practice this Friday',
+        note: 'Coach Dave is away — practice resumes Monday.',
+        date: at(2),
       },
     ],
 

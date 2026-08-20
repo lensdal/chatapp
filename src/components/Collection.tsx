@@ -5,7 +5,7 @@ import { Avatar } from './ui'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById } from '../lib/selectors'
-import { PAY_METHODS, methodMeta, buildPayLink } from '../lib/pay'
+import { PAY_METHODS, methodMeta, buildPayLink, isVillage } from '../lib/pay'
 import type { Collection, PaymentHandles, PaymentMethod } from '../types'
 
 export function CollectionCard({ collection }: { collection: Collection }) {
@@ -147,6 +147,7 @@ export function CreateCollectionModal({
     venmo: false,
     cashapp: false,
     zelle: false,
+    village: false,
     other: false,
   })
   const [handles, setHandles] = useState<PaymentHandles>({})
@@ -163,6 +164,7 @@ export function CreateCollectionModal({
         venmo: !!myHandles.venmo,
         cashapp: !!myHandles.cashapp,
         zelle: !!myHandles.zelle,
+        village: false,
         other: !!myHandles.other,
       })
       setHandles({ ...myHandles })
@@ -171,15 +173,18 @@ export function CreateCollectionModal({
   }, [open])
 
   const chosen = PAY_METHODS.filter((m) => accepted[m.id])
-  const chosenWithHandles = chosen.filter((m) => (handles[m.id] ?? '').trim())
+  // Village is paid inside the app, so it needs no handle; every other chosen
+  // method must have one.
+  const needsHandle = chosen.filter((m) => !isVillage(m.id))
+  const withHandles = needsHandle.filter((m) => (handles[m.id] ?? '').trim())
   const canSubmit =
-    title.trim() && recipient.trim() && chosen.length > 0 && chosenWithHandles.length === chosen.length
+    title.trim() && recipient.trim() && chosen.length > 0 && withHandles.length === needsHandle.length
 
   const submit = () => {
     if (!canSubmit) return
     const acceptedMethods = chosen.map((m) => m.id)
     const finalHandles: PaymentHandles = {}
-    for (const m of chosen) finalHandles[m.id] = (handles[m.id] ?? '').trim()
+    for (const m of chosen) if (!isVillage(m.id)) finalHandles[m.id] = (handles[m.id] ?? '').trim()
     dispatch({
       type: 'ADD_COLLECTION',
       groupId,
@@ -231,11 +236,15 @@ export function CreateCollectionModal({
                       className="h-5 w-5 accent-violet"
                     />
                     <span className="text-sm font-bold">{m.label}</span>
-                    {!m.hasLink && (
-                      <span className="text-[10px] font-semibold text-ink/35">(manual — no auto-open)</span>
+                    {isVillage(m.id) ? (
+                      <span className="text-[10px] font-semibold text-violet">(in-app)</span>
+                    ) : (
+                      !m.hasLink && (
+                        <span className="text-[10px] font-semibold text-ink/35">(manual — no auto-open)</span>
+                      )
                     )}
                   </label>
-                  {on && (
+                  {on && !isVillage(m.id) && (
                     <input
                       className={`${inputCls} mt-2`}
                       value={handles[m.id] ?? ''}

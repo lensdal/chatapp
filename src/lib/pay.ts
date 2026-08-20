@@ -37,6 +37,14 @@ export const PAY_METHODS: MethodMeta[] = [
     className: 'bg-violet text-white hover:bg-violet/90',
   },
   {
+    id: 'village',
+    label: 'Village',
+    handleLabel: 'Village',
+    placeholder: 'Paid securely inside Village',
+    hasLink: false,
+    className: 'bg-gradient-to-r from-violet to-sky text-white hover:opacity-90',
+  },
+  {
     id: 'other',
     label: 'Other',
     handleLabel: 'Handle or instructions',
@@ -46,8 +54,11 @@ export const PAY_METHODS: MethodMeta[] = [
   },
 ]
 
+// Village needs no handle — payment happens inside the app.
+export const isVillage = (m: PaymentMethod): boolean => m === 'village'
+
 export const methodMeta = (m: PaymentMethod): MethodMeta =>
-  PAY_METHODS.find((x) => x.id === m) ?? PAY_METHODS[3]
+  PAY_METHODS.find((x) => x.id === m) ?? PAY_METHODS[PAY_METHODS.length - 1]
 
 // Build a prefilled payment link that opens the platform ready to send.
 // Venmo & Cash App support deep links; Zelle has no universal link (it lives

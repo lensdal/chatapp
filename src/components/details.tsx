@@ -15,6 +15,8 @@ import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { groupById, memberById, displayLabel, isAdmin } from '../lib/selectors'
 import { groupStyles, priorityChip, priorityLabel } from '../lib/ui'
+import { isRepeating, recurrenceSummary } from '../lib/recurrence'
+import { mapsLinks } from '../lib/maps'
 import { fmtDay, fmtTime } from '../lib/dates'
 import type { EventItem, RSVPStatus, Task } from '../types'
 
@@ -56,21 +58,32 @@ export function EventDetailModal({
           <div className="flex flex-wrap items-center gap-1.5">
             <KidTag childId={event.childId} plain />
             <GroupTag groupId={event.groupId} plain />
-            {event.recurrence && event.recurrence !== 'none' && (
+            {isRepeating(event.recurrence) && (
               <Pill className="bg-violet-soft text-violet">
-                <Repeat size={12} /> Repeats {event.recurrence}
+                <Repeat size={12} /> {recurrenceSummary(event.recurrence)}
               </Pill>
             )}
           </div>
           <h3 className="mt-2 text-xl font-extrabold">{event.title}</h3>
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink/55">
-            <span className="font-semibold">{fmtDay(event.date)} · {fmtTime(event.date)}</span>
-            {event.location && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin size={13} /> {event.location}
-              </span>
-            )}
+            <span className="font-semibold">
+              {fmtDay(event.date)}
+              {event.hasTime ? ` · ${fmtTime(event.date)}` : ' · All day'}
+            </span>
           </div>
+          {event.location && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span className="inline-flex items-center gap-1 text-ink/60">
+                <MapPin size={14} /> {event.location}
+              </span>
+              <a href={mapsLinks(event.location).google} target="_blank" rel="noopener noreferrer" className="chip bg-canvas text-violet">
+                Google Maps
+              </a>
+              <a href={mapsLinks(event.location).apple} target="_blank" rel="noopener noreferrer" className="chip bg-canvas text-violet">
+                Apple Maps
+              </a>
+            </div>
+          )}
           {event.note && <p className="mt-2 text-sm text-ink/60">{event.note}</p>}
         </div>
 
@@ -166,33 +179,19 @@ export function EventDetailModal({
             {event.addedToGoogle ? <><CalendarCheck size={13} /> On Google Calendar</> : <><CalendarPlus size={13} /> Add to Google</>}
           </button>
           {canManage && (
-            <>
-              <button
-                onClick={() =>
-                  toast(
-                    state.whatsappConnected
-                      ? `Reminder sent to the group in ${group.name}`
-                      : 'Connect WhatsApp in Settings first',
-                    '💬',
-                  )
-                }
-                className="chip bg-[#25D366]/12 text-[#0f9d58] ring-1 ring-[#25D366]/30"
-              >
-                <Bell size={13} /> Send reminder
-              </button>
-              <button
-                onClick={() =>
-                  dispatch({
-                    type: 'UPDATE_EVENT',
-                    eventId: event.id,
-                    patch: { recurrence: event.recurrence === 'weekly' ? 'none' : 'weekly' },
-                  })
-                }
-                className={`chip ${event.recurrence === 'weekly' ? 'bg-violet text-white' : 'bg-white text-ink/60 ring-1 ring-black/10'}`}
-              >
-                <Repeat size={13} /> Weekly
-              </button>
-            </>
+            <button
+              onClick={() =>
+                toast(
+                  state.whatsappConnected
+                    ? `Reminder sent to the group in ${group.name}`
+                    : 'Connect WhatsApp in Settings first',
+                  '💬',
+                )
+              }
+              className="chip bg-[#25D366]/12 text-[#0f9d58] ring-1 ring-[#25D366]/30"
+            >
+              <Bell size={13} /> Send reminder
+            </button>
           )}
         </div>
       </div>
@@ -237,14 +236,17 @@ export function TaskDetailModal({
             <KidTag childId={task.childId} plain />
             <GroupTag groupId={task.groupId} plain />
             <Pill className={priorityChip[task.priority]}>{priorityLabel[task.priority]}</Pill>
-            {task.recurrence && task.recurrence !== 'none' && (
-              <Pill className="bg-violet-soft text-violet"><Repeat size={12} /> {task.recurrence}</Pill>
+            {isRepeating(task.recurrence) && (
+              <Pill className="bg-violet-soft text-violet"><Repeat size={12} /> {recurrenceSummary(task.recurrence)}</Pill>
             )}
           </div>
           <h3 className={`mt-2 text-xl font-extrabold ${task.done ? 'text-ink/40 line-through' : ''}`}>{task.title}</h3>
           {task.dueDate && (
-            <div className="mt-1 text-sm font-semibold text-ink/55">Due {fmtDay(task.dueDate)}</div>
+            <div className="mt-1 text-sm font-semibold text-ink/55">
+              Due {fmtDay(task.dueDate)}{task.hasTime ? ` · ${fmtTime(task.dueDate)}` : ''}
+            </div>
           )}
+          {task.note && <p className="mt-2 text-sm text-ink/60">{task.note}</p>}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -292,18 +294,6 @@ export function TaskDetailModal({
               className="chip bg-[#25D366]/12 text-[#0f9d58] ring-1 ring-[#25D366]/30"
             >
               <Bell size={13} /> Send reminder
-            </button>
-            <button
-              onClick={() =>
-                dispatch({
-                  type: 'UPDATE_TASK',
-                  taskId: task.id,
-                  patch: { recurrence: task.recurrence === 'weekly' ? 'none' : 'weekly' },
-                })
-              }
-              className={`chip ${task.recurrence === 'weekly' ? 'bg-violet text-white' : 'bg-white text-ink/60 ring-1 ring-black/10'}`}
-            >
-              <Repeat size={13} /> Weekly
             </button>
           </div>
         )}

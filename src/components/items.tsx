@@ -7,6 +7,7 @@ import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
 import { methodMeta, buildPayLink } from '../lib/pay'
 import { groupStyles, priorityChip, priorityLabel } from '../lib/ui'
+import { isRepeating, recurrenceShort } from '../lib/recurrence'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
 import { Pill } from './ui'
 import { format } from 'date-fns'
@@ -134,8 +135,8 @@ export function TaskRow({
           )}
           {showKid && <KidTag childId={task.childId} />}
           {showGroup && <GroupTag groupId={task.groupId} />}
-          {task.recurrence === 'weekly' && (
-            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> Weekly</Pill>
+          {isRepeating(task.recurrence) && (
+            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> {recurrenceShort(task.recurrence)}</Pill>
           )}
           {others.length > 0 && (
             <Pill className="bg-black/[0.04] text-ink/55"><Users size={11} /> +{others.length}</Pill>
@@ -221,7 +222,7 @@ export function EventRow({
           {event.title}
         </button>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/50">
-          <span className="font-semibold">{fmtTime(event.date)}</span>
+          <span className="font-semibold">{event.hasTime ? fmtTime(event.date) : 'All day'}</span>
           {event.location && (
             <span className="inline-flex items-center gap-1">
               <MapPin size={12} /> {event.location}
@@ -232,8 +233,8 @@ export function EventRow({
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {showKid && <KidTag childId={event.childId} />}
           {showGroup && <GroupTag groupId={event.groupId} />}
-          {event.recurrence === 'weekly' && (
-            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> Weekly</Pill>
+          {isRepeating(event.recurrence) && (
+            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> {recurrenceShort(event.recurrence)}</Pill>
           )}
         </div>
       </div>
