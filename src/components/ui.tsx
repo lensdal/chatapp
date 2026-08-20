@@ -1,6 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import type { ColorKey } from '../types'
-import { colorClasses, hexWithAlpha } from '../lib/ui'
+import { hexWithAlpha } from '../lib/ui'
 
 // A group's icon: an uploaded photo, or its emoji on a soft tint of its color.
 export function GroupIcon({
@@ -38,7 +37,7 @@ export function Avatar({
   image,
 }: {
   emoji: string
-  color: ColorKey
+  color: string
   size?: 'xs' | 'sm' | 'md' | 'lg'
   ring?: boolean
   image?: string
@@ -51,9 +50,10 @@ export function Avatar({
   }[size]
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${colorClasses[color].soft} ${dims} ${
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${dims} ${
         ring ? 'ring-2 ring-white' : ''
       }`}
+      style={image ? undefined : { backgroundColor: hexWithAlpha(color, 0.16) }}
     >
       {image ? (
         <img src={image} alt="" className="h-full w-full object-cover" />
@@ -68,7 +68,7 @@ export function AvatarStack({
   people,
   max = 4,
 }: {
-  people: { emoji: string; color: ColorKey; image?: string }[]
+  people: { emoji: string; color: string; image?: string }[]
   max?: number
 }) {
   const shown = people.slice(0, max)

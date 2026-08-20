@@ -6,7 +6,7 @@ import { useStore } from '../store/store'
 import { PAY_METHODS } from '../lib/pay'
 import { useToast } from '../components/Toast'
 import { myGroups, notifyFor, memberById } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import type { EventItem } from '../types'
 import AvatarPicker from '../components/AvatarPicker'
 
@@ -177,7 +177,7 @@ export default function Settings() {
                 <div key={c.id} className="flex items-center gap-2.5 rounded-2xl bg-canvas px-4 py-2.5">
                   <Avatar emoji={c.emoji} color={c.color} size="sm" />
                   <span className="font-bold">{c.name}</span>
-                  <span className={`h-2.5 w-2.5 rounded-full ${colorClasses[c.color].dot}`} />
+                  <span className="h-2.5 w-2.5 rounded-full" style={groupStyles.dot(c.color)} />
                 </div>
               ))}
             </div>

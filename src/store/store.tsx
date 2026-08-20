@@ -28,7 +28,7 @@ function genJoinCode(name: string): string {
   return `${base}-${n.toString().padStart(2, '0')}`
 }
 
-const STORAGE_KEY = 'village.state.v10'
+const STORAGE_KEY = 'village.state.v11'
 
 let idCounter = 0
 export function uid(prefix = 'id'): string {
@@ -65,7 +65,7 @@ type Action =
       type: 'SET_PROFILE'
       name?: string
       emoji: string
-      color: import('../types').ColorKey
+      color: string
       avatarImage?: string
     }
   | {

@@ -16,7 +16,7 @@ export type RSVPStatus = 'going' | 'maybe' | 'no'
 export interface Child {
   id: string
   name: string
-  color: ColorKey
+  color: string // hex color
   emoji: string
 }
 
@@ -25,7 +25,7 @@ export interface Member {
   name: string
   role: string // global default role/label
   emoji: string
-  color: ColorKey
+  color: string // hex color
   phone?: string
   handles?: PaymentHandles
   avatarImage?: string // data URL when the member uploaded a photo

@@ -5,7 +5,7 @@ import { Card, SectionTitle, EmptyState, GroupIcon } from '../components/ui'
 import { EventRow, TaskRow } from '../components/items'
 import { useStore } from '../store/store'
 import { childById, tasksForChild, eventsForChild } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { isPast, isToday } from 'date-fns'
 
 function KidsGrid() {
@@ -21,11 +21,10 @@ function KidsGrid() {
               (t) => t.dueDate && isPast(new Date(t.dueDate)) && !isToday(new Date(t.dueDate)),
             ).length
             const groups = state.groups.filter((g) => g.childIds.includes(child.id))
-            const cc = colorClasses[child.color]
             return (
               <Link key={child.id} to={`/kids/${child.id}`}>
                 <Card className="overflow-hidden transition hover:shadow-soft">
-                  <div className={`flex flex-col items-center gap-2 px-5 py-6 ${cc.soft}`}>
+                  <div className="flex flex-col items-center gap-2 px-5 py-6" style={groupStyles.softBg(child.color)}>
                     <span className="text-5xl">{child.emoji}</span>
                     <span className="text-xl font-extrabold">{child.name}</span>
                   </div>
@@ -61,7 +60,6 @@ function KidDetail({ childId }: { childId: string }) {
     navigate('/kids')
     return null
   }
-  const cc = colorClasses[child.color]
   const groups = state.groups.filter((g) => g.childIds.includes(child.id))
   const openTasks = tasksForChild(state, child.id).filter((t) => !t.done)
   const upcoming = eventsForChild(state, child.id).filter(
@@ -114,7 +112,7 @@ function KidDetail({ childId }: { childId: string }) {
                         <div className="truncate font-bold">{g.name}</div>
                         <div className="truncate text-xs text-ink/45">{g.description || g.category}</div>
                       </div>
-                      {open > 0 && <span className={`chip ${cc.softText}`}>{open}</span>}
+                      {open > 0 && <span className="chip" style={groupStyles.soft(child.color)}>{open}</span>}
                     </Card>
                   </Link>
                 )

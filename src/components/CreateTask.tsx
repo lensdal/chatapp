@@ -3,7 +3,7 @@ import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { myGroups } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import type { Priority } from '../types'
 
 const inputCls =
@@ -105,7 +105,8 @@ export default function CreateTaskModal({ open, onClose }: { open: boolean; onCl
                 <button
                   key={cid}
                   onClick={() => setChildId(cid)}
-                  className={`chip ${childId === cid ? colorClasses[child.color].solid : colorClasses[child.color].softText}`}
+                  className="chip"
+                  style={childId === cid ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
                 >
                   {child.emoji} {child.name}
                 </button>

@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Upload, Check, Trash2 } from 'lucide-react'
+import { Upload, Check, Trash2, Plus } from 'lucide-react'
 import Modal from './Modal'
 import { Avatar } from './ui'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById } from '../lib/selectors'
 import { AVATAR_PRESETS } from '../lib/avatars'
-import { colorClasses } from '../lib/ui'
-import type { ColorKey } from '../types'
+import { GROUP_COLORS, hexWithAlpha } from '../lib/ui'
 
 const inputCls =
   'w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white'
@@ -48,7 +47,7 @@ export default function AvatarPicker({ open, onClose }: { open: boolean; onClose
 
   const [name, setName] = useState('')
   const [emoji, setEmoji] = useState(me.emoji)
-  const [color, setColor] = useState<ColorKey>(me.color)
+  const [color, setColor] = useState<string>(me.color)
   const [image, setImage] = useState<string | undefined>(me.avatarImage)
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export default function AvatarPicker({ open, onClose }: { open: boolean; onClose
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const pickPreset = (p: { emoji: string; color: ColorKey }) => {
+  const pickPreset = (p: { emoji: string; color: string }) => {
     setEmoji(p.emoji)
     setColor(p.color)
     setImage(undefined)
@@ -127,19 +126,49 @@ export default function AvatarPicker({ open, onClose }: { open: boolean; onClose
 
       <div className="grid grid-cols-6 gap-2 sm:grid-cols-10">
         {AVATAR_PRESETS.map((p, i) => {
-          const selected = !image && p.emoji === emoji && p.color === color
+          const selected = !image && p.emoji === emoji && p.color.toLowerCase() === color.toLowerCase()
           return (
             <button
               key={i}
               onClick={() => pickPreset(p)}
-              className={`flex aspect-square items-center justify-center rounded-2xl text-xl transition ${colorClasses[p.color].soft} ${
+              className={`flex aspect-square items-center justify-center rounded-2xl text-xl transition ${
                 selected ? 'ring-2 ring-violet ring-offset-2' : 'hover:scale-105'
               }`}
+              style={{ backgroundColor: hexWithAlpha(p.color, 0.16) }}
             >
               {p.emoji}
             </button>
           )
         })}
+      </div>
+
+      {/* Color — a full palette + wheel, independent of the emoji above */}
+      <div className="mb-2 mt-5 text-xs font-bold uppercase tracking-wide text-ink/40">Color</div>
+      <div className="flex flex-wrap items-center gap-2">
+        {GROUP_COLORS.map((c) => (
+          <button
+            key={c}
+            onClick={() => setColor(c)}
+            className={`h-8 w-8 rounded-full transition ${
+              color.toLowerCase() === c.toLowerCase() ? 'ring-2 ring-offset-2 ring-ink/40' : 'hover:scale-105'
+            }`}
+            style={{ backgroundColor: c }}
+            aria-label={`Use ${c}`}
+          />
+        ))}
+        <label
+          className="relative inline-flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-full ring-1 ring-black/10"
+          title="Pick any color"
+        >
+          <span className="pointer-events-none absolute inset-0" style={{ background: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)' }} />
+          <Plus size={14} className="relative text-white drop-shadow" />
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          />
+        </label>
       </div>
 
       <div className="mt-6 flex gap-3">

@@ -14,7 +14,7 @@ import { KidTag, GroupTag, PaymentButton } from './items'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { groupById, memberById, displayLabel, isAdmin } from '../lib/selectors'
-import { colorClasses, priorityChip, priorityLabel } from '../lib/ui'
+import { groupStyles, priorityChip, priorityLabel } from '../lib/ui'
 import { fmtDay, fmtTime } from '../lib/dates'
 import type { EventItem, RSVPStatus, Task } from '../types'
 
@@ -270,7 +270,8 @@ export function TaskDetailModal({
                 <button
                   key={gm.memberId}
                   onClick={() => toggleAssignee(gm.memberId)}
-                  className={`chip ${on ? colorClasses[m.color].solid : 'bg-canvas text-ink/55'}`}
+                  className={`chip ${on ? '' : 'bg-canvas text-ink/55'}`}
+                  style={on ? groupStyles.solid(m.color) : undefined}
                 >
                   {m.emoji} {m.isSelf ? 'You' : m.name.split(' ')[0]}
                 </button>

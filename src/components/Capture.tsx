@@ -5,7 +5,7 @@ import { format } from 'date-fns'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { parseForward, detectChild } from '../lib/parse'
 import { usePaymentFields } from './usePaymentFields'
 import type { Priority } from '../types'
@@ -218,7 +218,8 @@ export function ForwardCaptureModal({
                       <button
                         key={cid}
                         onClick={() => setChildId(cid)}
-                        className={`chip ${childId === cid ? colorClasses[child.color].solid : colorClasses[child.color].softText}`}
+                        className="chip"
+                        style={childId === cid ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
                       >
                         {child.emoji} {child.name}
                       </button>

@@ -46,23 +46,23 @@ export function makeSeed(): AppState {
     ],
 
     children: [
-      { id: 'isabella', name: 'Isabella', color: 'sky', emoji: '🦄' },
-      { id: 'calixta', name: 'Calixta', color: 'blush', emoji: '🌸' },
-      { id: 'mateo', name: 'David', color: 'mint', emoji: '🐢' },
+      { id: 'isabella', name: 'Isabella', color: '#5B8DEF', emoji: '🦄' },
+      { id: 'calixta', name: 'Calixta', color: '#E45FCF', emoji: '🌸' },
+      { id: 'mateo', name: 'David', color: '#3FB984', emoji: '🐢' },
     ],
 
     members: [
-      { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: 'violet', phone: '+1 (415) 555-0100', handles: { venmo: '@sam-ortiz', cashapp: '$SamOrtiz', zelle: 'sam@email.com' }, isSelf: true },
-      { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: 'tang', phone: '+1 (415) 555-0142', handles: { venmo: '@coach-dave', zelle: 'dave.coach@email.com' } },
-      { id: 'priya', name: 'Priya Shah', role: 'Homeroom Parent', emoji: '🌻', color: 'sun', phone: '+1 (415) 555-0177' },
-      { id: 'ms-chen', name: 'Ms. Chen', role: 'Teacher', emoji: '🍎', color: 'sky', phone: '+1 (415) 555-0110' },
-      { id: 'coach-bri', name: 'Coach Bri', role: 'Swim Coach', emoji: '🏊‍♀️', color: 'mint', phone: '+1 (415) 555-0155', handles: { cashapp: '$CoachBri', venmo: '@coachbri' } },
-      { id: 'alvarez', name: 'Mr. Alvarez', role: 'Scout Leader', emoji: '🏕️', color: 'violet', phone: '+1 (415) 555-0188', handles: { venmo: '@troop402' } },
-      { id: 'jenna', name: 'Jenna M.', role: 'Parent', emoji: '💐', color: 'blush', phone: '+1 (415) 555-0121' },
-      { id: 'marcus', name: 'Marcus T.', role: 'Parent', emoji: '⚽', color: 'sky', phone: '+1 (415) 555-0133' },
-      { id: 'lena', name: 'Lena K.', role: 'Parent', emoji: '🎨', color: 'sun', phone: '+1 (415) 555-0166' },
-      { id: 'rosa', name: 'Grandma Rosa', role: 'Caregiver', emoji: '👵', color: 'tang', phone: '+1 (415) 555-0190' },
-      { id: 'office', name: 'Lincoln Office', role: 'School', emoji: '🏫', color: 'blush', phone: '+1 (415) 555-0101' },
+      { id: 'me', name: 'You', role: 'Parent', emoji: '🦊', color: '#7C5CFC', phone: '+1 (415) 555-0100', handles: { venmo: '@sam-ortiz', cashapp: '$SamOrtiz', zelle: 'sam@email.com' }, isSelf: true },
+      { id: 'coach-dave', name: 'Coach Dave', role: 'Soccer Coach', emoji: '🧢', color: '#F07E3E', phone: '+1 (415) 555-0142', handles: { venmo: '@coach-dave', zelle: 'dave.coach@email.com' } },
+      { id: 'priya', name: 'Priya Shah', role: 'Homeroom Parent', emoji: '🌻', color: '#F5B93E', phone: '+1 (415) 555-0177' },
+      { id: 'ms-chen', name: 'Ms. Chen', role: 'Teacher', emoji: '🍎', color: '#5B8DEF', phone: '+1 (415) 555-0110' },
+      { id: 'coach-bri', name: 'Coach Bri', role: 'Swim Coach', emoji: '🏊‍♀️', color: '#3FB984', phone: '+1 (415) 555-0155', handles: { cashapp: '$CoachBri', venmo: '@coachbri' } },
+      { id: 'alvarez', name: 'Mr. Alvarez', role: 'Scout Leader', emoji: '🏕️', color: '#7C5CFC', phone: '+1 (415) 555-0188', handles: { venmo: '@troop402' } },
+      { id: 'jenna', name: 'Jenna M.', role: 'Parent', emoji: '💐', color: '#E45FCF', phone: '+1 (415) 555-0121' },
+      { id: 'marcus', name: 'Marcus T.', role: 'Parent', emoji: '⚽', color: '#5B8DEF', phone: '+1 (415) 555-0133' },
+      { id: 'lena', name: 'Lena K.', role: 'Parent', emoji: '🎨', color: '#F5B93E', phone: '+1 (415) 555-0166' },
+      { id: 'rosa', name: 'Grandma Rosa', role: 'Caregiver', emoji: '👵', color: '#F07E3E', phone: '+1 (415) 555-0190' },
+      { id: 'office', name: 'Lincoln Office', role: 'School', emoji: '🏫', color: '#E45FCF', phone: '+1 (415) 555-0101' },
     ],
 
     groups: [

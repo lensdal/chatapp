@@ -17,7 +17,7 @@ import { Card, EmptyState } from '../components/ui'
 import { EventRow } from '../components/items'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
-import { colorClasses, groupStyles } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 
 export default function CalendarPage() {
   const { state } = useStore()
@@ -77,7 +77,8 @@ export default function CalendarPage() {
                 <button
                   key={c.id}
                   onClick={() => setChildFilter(c.id)}
-                  className={`chip ${childFilter === c.id ? colorClasses[c.color].solid : colorClasses[c.color].softText}`}
+                  className="chip"
+                  style={childFilter === c.id ? groupStyles.solid(c.color) : groupStyles.soft(c.color)}
                 >
                   {c.emoji} {c.name}
                 </button>

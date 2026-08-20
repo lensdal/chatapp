@@ -6,7 +6,7 @@ import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
 import { methodMeta, buildPayLink } from '../lib/pay'
-import { colorClasses, groupStyles, priorityChip, priorityLabel } from '../lib/ui'
+import { groupStyles, priorityChip, priorityLabel } from '../lib/ui'
 import { fmtDay, fmtTime, fmtRelativeDue } from '../lib/dates'
 import { Pill } from './ui'
 import { format } from 'date-fns'
@@ -17,7 +17,7 @@ export function KidTag({ childId, plain = false }: { childId?: string; plain?: b
   const child = childById(state, childId)
   if (!child) return null
   const pill = (
-    <Pill className={`${colorClasses[child.color].softText} hover:opacity-80`}>
+    <Pill className="hover:opacity-80" style={groupStyles.soft(child.color)}>
       <span>{child.emoji}</span>
       {child.name}
     </Pill>

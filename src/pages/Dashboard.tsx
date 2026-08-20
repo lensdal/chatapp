@@ -14,7 +14,7 @@ import {
   tasksForChild,
   eventsForChild,
 } from '../lib/selectors'
-import { colorClasses, toHex } from '../lib/ui'
+import { groupStyles, toHex } from '../lib/ui'
 import { format } from 'date-fns'
 import { fmtDayShort, fmtTime } from '../lib/dates'
 import type { ReactNode } from 'react'
@@ -126,14 +126,13 @@ export default function Dashboard() {
                   const nextEvent = eventsForChild(state, child.id).find(
                     (e) => new Date(e.date) >= new Date(new Date().toDateString()),
                   )
-                  const cc = colorClasses[child.color]
                   return (
                     <Card key={child.id} className="overflow-hidden">
-                      <div className={`flex items-center gap-2.5 px-4 py-3 ${cc.soft}`}>
+                      <div className="flex items-center gap-2.5 px-4 py-3" style={groupStyles.softBg(child.color)}>
                         <span className="text-2xl">{child.emoji}</span>
                         <div>
                           <div className="font-extrabold leading-none">{child.name}</div>
-                          <div className={`text-xs font-semibold ${cc.text}`}>
+                          <div className="text-xs font-semibold" style={groupStyles.text(child.color)}>
                             {kidTasks.length} to-do{kidTasks.length === 1 ? '' : 's'}
                           </div>
                         </div>
@@ -162,7 +161,7 @@ export default function Dashboard() {
                         <ul className="space-y-1.5">
                           {kidTasks.slice(0, 3).map((t) => (
                             <li key={t.id} className="flex items-center gap-2 text-xs">
-                              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${cc.dot}`} />
+                              <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={groupStyles.dot(child.color)} />
                               <span className="truncate font-medium text-ink/75">{t.title}</span>
                             </li>
                           ))}

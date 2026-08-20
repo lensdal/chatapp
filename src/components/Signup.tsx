@@ -6,7 +6,7 @@ import { KidTag } from './items'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById, groupById } from '../lib/selectors'
-import { colorClasses, groupStyles } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { fmtDay } from '../lib/dates'
 import type { SignUpSheet } from '../types'
 import { format } from 'date-fns'
@@ -218,7 +218,8 @@ export function CreateSignupModal({
                   <button
                     key={cid}
                     onClick={() => setChildId(cid)}
-                    className={`chip ${childId === cid ? colorClasses[child.color].solid : colorClasses[child.color].softText}`}
+                    className="chip"
+                    style={childId === cid ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
                   >
                     {child.emoji} {child.name}
                   </button>

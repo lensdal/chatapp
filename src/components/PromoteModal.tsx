@@ -3,7 +3,7 @@ import { ListChecks, CalendarDays, DollarSign, Sparkles } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
-import { colorClasses } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { parseForward, detectChild } from '../lib/parse'
 import { usePaymentFields } from './usePaymentFields'
 import type { Priority } from '../types'
@@ -192,9 +192,8 @@ export default function PromoteModal({
                   <button
                     key={cid}
                     onClick={() => setChildId(cid)}
-                    className={`chip ${
-                      childId === cid ? colorClasses[child.color].solid : colorClasses[child.color].softText
-                    }`}
+                    className="chip"
+                    style={childId === cid ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
                   >
                     {child.emoji} {child.name}
                   </button>
