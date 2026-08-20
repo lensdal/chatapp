@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { CalendarDays, ListChecks, Clock3, AlertTriangle, DollarSign, ArrowRight } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, SectionTitle, Donut, EmptyState, Pill } from '../components/ui'
-import { TaskRow, EventRow, PaymentButton, KidTag } from '../components/items'
+import { TaskRow, EventRow, ReminderRow, PaymentButton, KidTag } from '../components/items'
 import { CaptureButton } from '../components/Capture'
 import { useStore } from '../store/store'
 import {
@@ -52,6 +52,10 @@ export default function Dashboard() {
   const { state } = useStore()
   const counts = todoCounts(state)
   const upcoming = upcomingEvents(state).slice(0, 5)
+  const headsUp = [...state.reminders]
+    .filter((r) => new Date(r.date) >= new Date(new Date().toDateString()))
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date))
+    .slice(0, 4)
   const overdue = overdueTasks(state)
   const payments = paymentsDue(state)
   const open = openTasks(state)
@@ -189,6 +193,20 @@ export default function Dashboard() {
                 )}
               </Card>
             </section>
+
+            {/* Heads up — reminders */}
+            {headsUp.length > 0 && (
+              <section>
+                <SectionTitle action={<Link to="/calendar" className="text-sm font-semibold text-violet">Calendar</Link>}>
+                  Heads up
+                </SectionTitle>
+                <Card className="divide-y divide-black/5 p-2">
+                  {headsUp.map((r) => (
+                    <ReminderRow key={r.id} reminder={r} />
+                  ))}
+                </Card>
+              </section>
+            )}
           </div>
 
           {/* Right column */}

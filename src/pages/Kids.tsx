@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Plus, Pencil } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, SectionTitle, EmptyState, GroupIcon } from '../components/ui'
 import { EventRow, TaskRow } from '../components/items'
+import EditChildModal from '../components/EditChildModal'
 import { useStore } from '../store/store'
 import { childById, tasksForChild, eventsForChild } from '../lib/selectors'
 import { groupStyles } from '../lib/ui'
@@ -10,10 +12,19 @@ import { isPast, isToday } from 'date-fns'
 
 function KidsGrid() {
   const { state } = useStore()
+  const [addOpen, setAddOpen] = useState(false)
   return (
     <>
       <Topbar title="My Kids" subtitle="A quick read on where each kid stands." />
       <div className="flex-1 overflow-y-auto px-8 pb-10 pt-4">
+        <div className="mb-4 flex justify-end">
+          <button
+            onClick={() => setAddOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
+          >
+            <Plus size={16} /> Add a kid
+          </button>
+        </div>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {state.children.map((child) => {
             const open = tasksForChild(state, child.id).filter((t) => !t.done)
@@ -48,6 +59,7 @@ function KidsGrid() {
           })}
         </div>
       </div>
+      <EditChildModal open={addOpen} onClose={() => setAddOpen(false)} />
     </>
   )
 }
@@ -55,6 +67,7 @@ function KidsGrid() {
 function KidDetail({ childId }: { childId: string }) {
   const { state } = useStore()
   const navigate = useNavigate()
+  const [editOpen, setEditOpen] = useState(false)
   const child = childById(state, childId)
   if (!child) {
     navigate('/kids')
@@ -70,9 +83,17 @@ function KidDetail({ childId }: { childId: string }) {
     <>
       <Topbar title={`${child.emoji} ${child.name}`} subtitle={`${groups.length} groups · ${openTasks.length} open to-dos`} />
       <div className="flex-1 overflow-y-auto px-8 pb-10 pt-4">
-        <Link to="/kids" className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-violet">
-          <ChevronLeft size={16} /> All kids
-        </Link>
+        <div className="mb-4 flex items-center justify-between">
+          <Link to="/kids" className="inline-flex items-center gap-1 text-sm font-semibold text-violet">
+            <ChevronLeft size={16} /> All kids
+          </Link>
+          <button
+            onClick={() => setEditOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink/70 shadow-soft ring-1 ring-black/5 transition hover:text-violet"
+          >
+            <Pencil size={14} /> Edit kid
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <div className="space-y-6 xl:col-span-2">
@@ -121,6 +142,7 @@ function KidDetail({ childId }: { childId: string }) {
           </div>
         </div>
       </div>
+      <EditChildModal open={editOpen} onClose={() => setEditOpen(false)} childId={child.id} />
     </>
   )
 }

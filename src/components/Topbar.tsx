@@ -1,8 +1,10 @@
-import { Bell, Search } from 'lucide-react'
+import { useState } from 'react'
+import { Bell, Search, Plus } from 'lucide-react'
 import { format } from 'date-fns'
 import { useStore } from '../store/store'
 import { overdueTasks, paymentsDue } from '../lib/selectors'
 import { CaptureButton } from './Capture'
+import AddComposer from './AddComposer'
 
 export default function Topbar({
   title,
@@ -13,6 +15,7 @@ export default function Topbar({
 }) {
   const { state } = useStore()
   const alerts = overdueTasks(state).length + paymentsDue(state).length
+  const [addOpen, setAddOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-10 flex items-center gap-4 border-b border-black/5 bg-canvas/80 px-8 py-4 backdrop-blur">
@@ -26,6 +29,12 @@ export default function Topbar({
           <Search size={16} />
           <span>Search groups, tasks…</span>
         </div>
+        <button
+          onClick={() => setAddOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
+        >
+          <Plus size={16} /> Add
+        </button>
         <CaptureButton variant="topbar" />
         <button className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink/70 shadow-soft transition hover:text-violet">
           <Bell size={19} />
@@ -39,6 +48,7 @@ export default function Topbar({
           {format(new Date(), 'EEEE, MMM d')}
         </div>
       </div>
+      <AddComposer open={addOpen} onClose={() => setAddOpen(false)} />
     </header>
   )
 }

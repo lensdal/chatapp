@@ -200,13 +200,37 @@ export default function Settings() {
           </Card>
 
           <Card className="p-5">
+            <SectionTitle>Village Payments</SectionTitle>
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet to-sky text-white">
+                <Wallet size={22} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="font-bold">Pay & collect through Village</div>
+                <div className="text-sm text-ink/50">
+                  Turn this on to offer <strong>Village</strong> as a way to pay on any task or collection —
+                  money moves inside the app, no handles to share. This is where Village securely holds the
+                  payment info for everything paid through it. <span className="text-ink/40">(Full bank/card setup coming soon.)</span>
+                </div>
+              </div>
+              <Switch
+                on={state.villagePayEnabled}
+                onChange={(v) => {
+                  dispatch({ type: 'SET_VILLAGE_PAY', enabled: v })
+                  toast(v ? 'Village Payments enabled' : 'Village Payments turned off', '💜')
+                }}
+              />
+            </div>
+          </Card>
+
+          <Card className="p-5">
             <SectionTitle>Your payment handles</SectionTitle>
             <p className="mb-3 text-sm text-ink/50">
               Saved once and reused whenever you collect money. When someone pays, Venmo & Cash App open
               prefilled; Zelle & Other just show people where to send it.
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {PAY_METHODS.map((m) => (
+              {PAY_METHODS.filter((m) => m.id !== 'village').map((m) => (
                 <div key={m.id}>
                   <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink/40">
                     {m.label}

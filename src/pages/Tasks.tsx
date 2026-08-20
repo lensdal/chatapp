@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, EmptyState } from '../components/ui'
 import { TaskRow } from '../components/items'
-import CreateTaskModal from '../components/CreateTask'
+import AddComposer from '../components/AddComposer'
 import { useStore } from '../store/store'
 import { groupStyles } from '../lib/ui'
 import type { Task } from '../types'
@@ -137,7 +137,7 @@ export default function Tasks() {
           </div>
         )}
       </div>
-      <CreateTaskModal open={newOpen} onClose={() => setNewOpen(false)} />
+      <AddComposer open={newOpen} onClose={() => setNewOpen(false)} initialKind="task" />
     </>
   )
 }

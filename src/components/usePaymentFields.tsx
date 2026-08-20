@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useStore } from '../store/store'
 import { groupById, memberById } from '../lib/selectors'
-import { PAY_METHODS, methodMeta } from '../lib/pay'
+import { PAY_METHODS, methodMeta, isVillage } from '../lib/pay'
 import type { Member, Payment, PaymentHandles, PaymentMethod } from '../types'
 
 const inputCls =
@@ -11,51 +11,83 @@ const labelCls = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-in
 const handleMethods = (h?: PaymentHandles): PaymentMethod[] =>
   (Object.keys(h ?? {}) as PaymentMethod[]).filter((k) => (h?.[k] ?? '').trim())
 
-// A reusable payment sub-form. The recipient is usually a group member, so we
-// reuse their saved handles/methods; otherwise you can enter someone else's.
+const emptyAccepted = (): Record<PaymentMethod, boolean> => ({
+  venmo: false,
+  cashapp: false,
+  zelle: false,
+  village: false,
+  other: false,
+})
+
+// A reusable payment sub-form. First you say WHO is collecting (a group member,
+// the group itself, or someone else), then check every way they'll accept it —
+// including Village, which is paid inside the app and needs no handle.
 export function usePaymentFields(groupId: string) {
   const { state } = useStore()
   const group = groupById(state, groupId)
+  const villageOn = state.villagePayEnabled
   const members: Member[] = (group?.members ?? [])
     .map((gm) => memberById(state, gm.memberId))
     .filter((m): m is Member => Boolean(m) && m!.id !== state.currentUserId)
 
   const [amount, setAmount] = useState('')
+  // 'group' = the whole group, or a member id, or 'other'.
   const [payTo, setPayTo] = useState<string>('other')
   const [recipientText, setRecipientText] = useState('')
-  const [method, setMethod] = useState<PaymentMethod>('venmo')
-  const [handle, setHandle] = useState('')
+  const [accepted, setAccepted] = useState<Record<PaymentMethod, boolean>>(emptyAccepted())
+  const [handles, setHandles] = useState<PaymentHandles>({})
+
+  // Prefill accepted methods + handles from whoever is collecting.
+  const applyRecipientDefaults = (id: string) => {
+    const acc = emptyAccepted()
+    const h: PaymentHandles = {}
+    if (id !== 'other' && id !== 'group') {
+      const m = members.find((x) => x.id === id)
+      for (const k of handleMethods(m?.handles)) {
+        acc[k] = true
+        h[k] = m!.handles![k]!
+      }
+    }
+    if (villageOn) acc.village = true
+    setAccepted(acc)
+    setHandles(h)
+  }
 
   const reset = (o: { amount?: string; method?: PaymentMethod }) => {
     setAmount(o.amount ?? '')
-    setMethod(o.method ?? 'venmo')
     setRecipientText('')
-    setHandle('')
     // Default to the first member who has saved payment info (usually a coach).
     const withHandles = members.find((m) => handleMethods(m.handles).length)
-    setPayTo(withHandles?.id ?? 'other')
+    const initial = withHandles?.id ?? 'other'
+    setPayTo(initial)
+    applyRecipientDefaults(initial)
+    if (o.method) setAccepted((a) => ({ ...a, [o.method!]: true }))
   }
 
-  const selectedMember = payTo !== 'other' ? members.find((m) => m.id === payTo) : undefined
-  const memberMethods = handleMethods(selectedMember?.handles)
+  const pickRecipient = (id: string) => {
+    setPayTo(id)
+    applyRecipientDefaults(id)
+  }
+
+  const recipientName = (): string => {
+    if (payTo === 'group') return group ? group.name : 'the group'
+    if (payTo === 'other') return recipientText.trim() || 'the organizer'
+    return members.find((m) => m.id === payTo)?.name ?? 'the organizer'
+  }
+
+  const chosen = (Object.keys(accepted) as PaymentMethod[]).filter((k) => accepted[k])
 
   const build = (): Payment | undefined => {
     if (!amount) return undefined
-    if (payTo === 'other') {
-      return {
-        amount: Number(amount),
-        recipient: recipientText.trim() || 'the organizer',
-        methods: [method],
-        handles: handle.trim() ? { [method]: handle.trim() } : {},
-        paid: false,
-      }
-    }
-    const handles = selectedMember?.handles ?? {}
+    const methods = chosen.length ? chosen : (['village'] as PaymentMethod[])
+    const finalHandles: PaymentHandles = {}
+    for (const m of methods) if (!isVillage(m) && (handles[m] ?? '').trim()) finalHandles[m] = handles[m]!.trim()
     return {
       amount: Number(amount),
-      recipient: selectedMember?.name ?? 'the organizer',
-      methods: memberMethods.length ? memberMethods : [method],
-      handles,
+      recipient: recipientName(),
+      recipientId: payTo !== 'other' && payTo !== 'group' ? payTo : undefined,
+      methods,
+      handles: finalHandles,
       paid: false,
     }
   }
@@ -74,53 +106,64 @@ export function usePaymentFields(groupId: string) {
           />
         </div>
         <div>
-          <label className={labelCls}>Pay to</label>
-          <select className={inputCls} value={payTo} onChange={(e) => setPayTo(e.target.value)}>
+          <label className={labelCls}>Who's collecting?</label>
+          <select className={inputCls} value={payTo} onChange={(e) => pickRecipient(e.target.value)}>
             {members.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.emoji} {m.name}
               </option>
             ))}
+            <option value="group">The whole group</option>
             <option value="other">Someone else…</option>
           </select>
         </div>
       </div>
 
-      {payTo !== 'other' ? (
-        memberMethods.length ? (
-          <div className="text-[11px] font-medium text-ink/50">
-            Uses {selectedMember?.name}'s saved{' '}
-            {memberMethods.map((m) => methodMeta(m).label).join(', ')} — the payer taps to send.
-          </div>
-        ) : (
-          <div className="text-[11px] font-medium text-tang">
-            {selectedMember?.name} hasn't saved payment info yet — you can still track this, or pick “Someone
-            else” to add a handle.
-          </div>
-        )
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <input
-            className={`${inputCls} col-span-2`}
-            value={recipientText}
-            onChange={(e) => setRecipientText(e.target.value)}
-            placeholder="Pay who? (e.g. Coach Dave)"
-          />
-          <select className={inputCls} value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}>
-            {PAY_METHODS.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-          <input
-            className={inputCls}
-            value={handle}
-            onChange={(e) => setHandle(e.target.value)}
-            placeholder={methodMeta(method).placeholder}
-          />
-        </div>
+      {payTo === 'other' && (
+        <input
+          className={inputCls}
+          value={recipientText}
+          onChange={(e) => setRecipientText(e.target.value)}
+          placeholder="Their name — e.g. Coach Dave"
+        />
       )}
+
+      <div>
+        <label className={labelCls}>Ways to pay (pick any)</label>
+        <div className="space-y-2">
+          {PAY_METHODS.map((m) => {
+            if (isVillage(m.id) && !villageOn) return null
+            const on = accepted[m.id]
+            return (
+              <div key={m.id} className="rounded-2xl bg-canvas px-3 py-2.5">
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={on}
+                    onChange={(e) => setAccepted((a) => ({ ...a, [m.id]: e.target.checked }))}
+                    className="h-5 w-5 accent-violet"
+                  />
+                  <span className="text-sm font-bold">{m.label}</span>
+                  {isVillage(m.id) && <span className="text-[10px] font-semibold text-violet">(in-app · no handle needed)</span>}
+                </label>
+                {on && !isVillage(m.id) && (
+                  <input
+                    className={`${inputCls} mt-2`}
+                    value={handles[m.id] ?? ''}
+                    onChange={(e) => setHandles((h) => ({ ...h, [m.id]: e.target.value }))}
+                    placeholder={methodMeta(m.id).placeholder}
+                  />
+                )}
+              </div>
+            )
+          })}
+        </div>
+        {!villageOn && (
+          <p className="mt-2 text-[11px] text-ink/40">
+            Turn on Village Payments in Settings to let people pay through Village.
+          </p>
+        )}
+      </div>
     </div>
   )
 

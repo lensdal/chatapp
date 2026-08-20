@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink } from 'lucide-react'
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink, Bell, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { EventItem, Task, PaymentMethod } from '../types'
+import type { EventItem, Reminder, Task, PaymentMethod } from '../types'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { childById, groupById } from '../lib/selectors'
@@ -156,6 +156,50 @@ export function TaskRow({
         )}
       </div>
       <TaskDetailModal task={task} open={detail} onClose={() => setDetail(false)} />
+    </div>
+  )
+}
+
+export function ReminderRow({
+  reminder,
+  showGroup = true,
+  showKid = true,
+}: {
+  reminder: Reminder
+  showGroup?: boolean
+  showKid?: boolean
+}) {
+  const { state, dispatch } = useStore()
+  const mine = reminder.createdById === state.currentUserId
+  return (
+    <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sun-soft text-[#B7841A]">
+        <Bell size={18} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-bold leading-snug">{reminder.title}</div>
+        <div className="mt-0.5 text-xs font-semibold text-ink/50">
+          {fmtDay(reminder.date)}
+          {reminder.hasTime ? ` · ${fmtTime(reminder.date)}` : ''}
+        </div>
+        {reminder.note && <p className="mt-1 text-xs text-ink/55">{reminder.note}</p>}
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          {showKid && <KidTag childId={reminder.childId} />}
+          {showGroup && <GroupTag groupId={reminder.groupId} />}
+          {isRepeating(reminder.recurrence) && (
+            <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> {recurrenceShort(reminder.recurrence)}</Pill>
+          )}
+        </div>
+      </div>
+      {mine && (
+        <button
+          onClick={() => dispatch({ type: 'DELETE_REMINDER', reminderId: reminder.id })}
+          className="shrink-0 rounded-full p-1.5 text-ink/35 transition hover:bg-black/[0.05] hover:text-tang"
+          title="Delete reminder"
+        >
+          <X size={15} />
+        </button>
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Bell } from 'lucide-react'
 import {
   startOfMonth,
   endOfMonth,
@@ -14,7 +14,7 @@ import {
 } from 'date-fns'
 import Topbar from '../components/Topbar'
 import { Card, EmptyState } from '../components/ui'
-import { EventRow } from '../components/items'
+import { EventRow, ReminderRow } from '../components/items'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
 import { groupStyles } from '../lib/ui'
@@ -28,6 +28,10 @@ export default function CalendarPage() {
     .filter((e) => childFilter === 'all' || e.childId === childFilter)
     .sort((a, b) => +new Date(a.date) - +new Date(b.date))
 
+  const reminders = state.reminders
+    .filter((r) => childFilter === 'all' || r.childId === childFilter)
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date))
+
   const monthStart = startOfMonth(cursor)
   const days = eachDayOfInterval({
     start: startOfWeek(monthStart),
@@ -35,6 +39,7 @@ export default function CalendarPage() {
   })
 
   const monthEvents = events.filter((e) => isSameMonth(new Date(e.date), cursor))
+  const monthReminders = reminders.filter((r) => isSameMonth(new Date(r.date), cursor))
 
   return (
     <>
@@ -133,6 +138,18 @@ export default function CalendarPage() {
                     {dayEvents.length > 3 && (
                       <div className="px-1.5 text-[10px] font-bold text-ink/40">+{dayEvents.length - 3} more</div>
                     )}
+                    {reminders
+                      .filter((r) => isSameDay(new Date(r.date), day))
+                      .slice(0, 2)
+                      .map((r) => (
+                        <div
+                          key={r.id}
+                          className="flex items-center gap-1 truncate rounded-lg bg-sun-soft px-1.5 py-0.5 text-[10px] font-semibold text-[#B7841A]"
+                          title={r.title}
+                        >
+                          <Bell size={9} className="shrink-0" /> {r.title}
+                        </div>
+                      ))}
                   </div>
                 </div>
               )
@@ -147,10 +164,17 @@ export default function CalendarPage() {
               {format(cursor, 'MMMM')} agenda
             </h3>
             <div className="min-h-0 flex-1 divide-y divide-black/5 overflow-y-auto">
-              {monthEvents.length === 0 ? (
-                <EmptyState emoji="🗓️" text="No events this month." />
+              {monthEvents.length === 0 && monthReminders.length === 0 ? (
+                <EmptyState emoji="🗓️" text="Nothing scheduled this month." />
               ) : (
-                monthEvents.map((e) => <EventRow key={e.id} event={e} showGroup />)
+                <>
+                  {monthReminders.map((r) => (
+                    <ReminderRow key={r.id} reminder={r} showGroup />
+                  ))}
+                  {monthEvents.map((e) => (
+                    <EventRow key={e.id} event={e} showGroup />
+                  ))}
+                </>
               )}
             </div>
           </Card>
