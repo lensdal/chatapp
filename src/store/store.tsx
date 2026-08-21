@@ -98,17 +98,16 @@ type Action =
       emoji: string
       image?: string
       color: string
-      childNames?: string[]
-      relationship?: string
+      childIds?: string[] // which of your kids this group is for
+      groupTag?: string // how the creator shows up, e.g. "Callie's Dad"
       announcementsOnly: boolean
       joinPrivacy?: 'open' | 'approval'
     }
   | {
       type: 'JOIN_GROUP'
       groupId: string
-      childName?: string
-      relationship?: string
-      displayName?: string
+      childIds?: string[] // your kid(s) this group is for — merged into the group
+      groupTag?: string // how you show up, e.g. "Callie's Dad"
     }
   | { type: 'LEAVE_GROUP'; groupId: string }
   | {
@@ -425,12 +424,10 @@ function reducer(state: AppState, action: Action): AppState {
     // ---- groups & membership ----
     case 'CREATE_GROUP': {
       const id = uid('g')
-      const kids = (action.childNames ?? []).map((n) => n.trim()).filter(Boolean)
       const me: GroupMember = {
         memberId: state.currentUserId,
         role: 'admin',
-        childName: kids.length ? kids.join(' & ') : undefined,
-        relationship: action.relationship || undefined,
+        displayName: action.groupTag?.trim() || undefined,
       }
       const group: Group = {
         id,
@@ -440,7 +437,7 @@ function reducer(state: AppState, action: Action): AppState {
         emoji: action.emoji,
         image: action.image || undefined,
         color: action.color,
-        childIds: [],
+        childIds: action.childIds ?? [],
         members: [me],
         joinCode: genJoinCode(action.name),
         announcementsOnly: action.announcementsOnly,
@@ -457,14 +454,14 @@ function reducer(state: AppState, action: Action): AppState {
             ? g
             : {
                 ...g,
+                // Merge the joiner's kid(s) into the group's kids.
+                childIds: [...new Set([...g.childIds, ...(action.childIds ?? [])])],
                 members: [
                   ...g.members,
                   {
                     memberId: state.currentUserId,
                     role: 'member',
-                    childName: action.childName || undefined,
-                    relationship: action.relationship || undefined,
-                    displayName: action.displayName || undefined,
+                    displayName: action.groupTag?.trim() || undefined,
                   },
                 ],
               },

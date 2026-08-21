@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Copy, RefreshCw, Shield, LogOut, Users, Upload, Trash2, Plus, X, Globe, Lock } from 'lucide-react'
+import { Copy, RefreshCw, Shield, LogOut, Users, Upload, Trash2, Plus, Globe, Lock } from 'lucide-react'
 import Modal from './Modal'
 import { Avatar, GroupIcon } from './ui'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { groupByCode, memberById, displayLabel, isAdmin } from '../lib/selectors'
-import { GROUP_COLORS } from '../lib/ui'
+import { GROUP_COLORS, groupStyles } from '../lib/ui'
 import { fileToSquareDataUrl } from '../lib/image'
 import type { Group } from '../types'
 
@@ -14,7 +14,6 @@ const inputCls =
   'w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white'
 const labelCls = 'mb-1.5 block text-xs font-bold uppercase tracking-wide text-ink/40'
 const EMOJIS = ['⚽', '🏀', '⚾', '🏊', '🏕️', '📚', '🎨', '🎭', '🎵', '♟️', '🏫', '🎉', '🐝', '🚌', '🩰', '🥋']
-const RELATIONSHIPS = ['Mom', 'Dad', 'Parent', 'Guardian', 'Grandparent', 'Coach', 'Teacher']
 
 const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length
 
@@ -46,24 +45,8 @@ function Toggle({
   )
 }
 
-function RelationshipPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {RELATIONSHIPS.map((r) => (
-        <button
-          key={r}
-          onClick={() => onChange(r)}
-          className={`chip ${value === r ? 'bg-ink text-white' : 'bg-canvas text-ink/55'}`}
-        >
-          {r}
-        </button>
-      ))}
-    </div>
-  )
-}
-
 export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { dispatch } = useStore()
+  const { state, dispatch } = useStore()
   const toast = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
@@ -71,9 +54,8 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
   const [emoji, setEmoji] = useState('🎉')
   const [image, setImage] = useState<string | undefined>(undefined)
   const [color, setColor] = useState('#7C5CFC')
-  const [childNames, setChildNames] = useState<string[]>([''])
-  const [relationship, setRelationship] = useState('Parent')
-  const [relationshipOther, setRelationshipOther] = useState('')
+  const [kidIds, setKidIds] = useState<string[]>([])
+  const [groupTag, setGroupTag] = useState('')
   const [announcementsOnly, setAnnouncementsOnly] = useState(false)
   const [joinPrivacy, setJoinPrivacy] = useState<'open' | 'approval'>('open')
 
@@ -84,9 +66,8 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
       setEmoji('🎉')
       setImage(undefined)
       setColor('#7C5CFC')
-      setChildNames([''])
-      setRelationship('Parent')
-      setRelationshipOther('')
+      setKidIds([])
+      setGroupTag('')
       setAnnouncementsOnly(false)
       setJoinPrivacy('open')
     }
@@ -94,8 +75,7 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
 
   const words = countWords(description)
   const canCreate = name.trim().length > 0 && words >= 50
-  const roleOptions = [...RELATIONSHIPS, 'Other']
-  const finalRelationship = relationship === 'Other' ? relationshipOther.trim() || 'Other' : relationship
+  const toggleKid = (id: string) => setKidIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -117,8 +97,8 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
       emoji,
       image,
       color,
-      childNames: childNames.map((c) => c.trim()).filter(Boolean),
-      relationship: finalRelationship,
+      childIds: kidIds,
+      groupTag: groupTag.trim() || undefined,
       announcementsOnly,
       joinPrivacy,
     })
@@ -219,49 +199,35 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
           )}
         </div>
 
-        {/* How you show up + kids */}
-        <div className="rounded-2xl bg-canvas p-4">
-          <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">How should you show up here?</div>
-          <div className="space-y-2">
-            {childNames.map((cn, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <input
-                  className={inputCls}
-                  value={cn}
-                  onChange={(e) => setChildNames((arr) => arr.map((v, j) => (j === i ? e.target.value : v)))}
-                  placeholder={i === 0 ? 'Your child (optional)' : 'Another child'}
-                />
-                {childNames.length > 1 && (
-                  <button
-                    onClick={() => setChildNames((arr) => arr.filter((_, j) => j !== i))}
-                    className="shrink-0 rounded-xl bg-white p-2 text-ink/40 ring-1 ring-black/10 transition hover:text-tang"
-                    title="Remove"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button onClick={() => setChildNames((arr) => [...arr, ''])} className="inline-flex items-center gap-1.5 text-xs font-bold text-violet">
-              <Plus size={14} /> Add another child
-            </button>
+        {/* Which kid is this group for? */}
+        {state.children.length > 0 && (
+          <div>
+            <label className={labelCls}>Which kid is this group for?</label>
+            <div className="flex flex-wrap gap-2">
+              {state.children.map((child) => (
+                <button
+                  key={child.id}
+                  onClick={() => toggleKid(child.id)}
+                  className="chip"
+                  style={kidIds.includes(child.id) ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
+                >
+                  {child.emoji} {child.name}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-xs text-ink/45">Pick one or more — or none for a whole-family group.</p>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {roleOptions.map((r) => (
-              <button key={r} onClick={() => setRelationship(r)} className={`chip ${relationship === r ? 'bg-ink text-white' : 'bg-white text-ink/55'}`}>
-                {r}
-              </button>
-            ))}
-          </div>
-          {relationship === 'Other' && (
-            <input
-              className={`${inputCls} mt-2`}
-              value={relationshipOther}
-              onChange={(e) => setRelationshipOther(e.target.value)}
-              placeholder="Describe your role — e.g. Nanny, Neighbor, Team manager"
-              autoFocus
-            />
-          )}
+        )}
+
+        {/* Your group tag */}
+        <div>
+          <label className={labelCls}>Your group tag</label>
+          <input
+            className={inputCls}
+            value={groupTag}
+            onChange={(e) => setGroupTag(e.target.value)}
+            placeholder="How you show up here — e.g. Callie's Dad, David's Grandma, Elle's Nanny"
+          />
         </div>
 
         {/* Join privacy */}
@@ -316,21 +282,20 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
   const { state, dispatch } = useStore()
   const navigate = useNavigate()
   const [code, setCode] = useState('')
-  const [childName, setChildName] = useState('')
-  const [relationship, setRelationship] = useState('Parent')
-  const [displayName, setDisplayName] = useState('')
+  const [kidIds, setKidIds] = useState<string[]>([])
+  const [groupTag, setGroupTag] = useState('')
 
   useEffect(() => {
     if (open) {
       setCode('')
-      setChildName('')
-      setRelationship('Parent')
-      setDisplayName('')
+      setKidIds([])
+      setGroupTag('')
     }
   }, [open])
 
   const found = code.trim() ? groupByCode(state, code) : undefined
   const alreadyIn = found?.members.some((m) => m.memberId === state.currentUserId)
+  const toggleKid = (id: string) => setKidIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
 
   return (
     <Modal open={open} onClose={onClose} title="Join a group">
@@ -366,16 +331,30 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
               <div className="text-sm font-semibold text-mint">You're already in this group.</div>
             ) : (
               <div className="rounded-2xl bg-canvas p-4">
-                <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">A couple quick questions</div>
-                <div className="grid grid-cols-2 gap-3">
-                  <input className={inputCls} value={childName} onChange={(e) => setChildName(e.target.value)} placeholder="Your child's name" />
-                  <div />
-                </div>
-                <div className="mt-2"><RelationshipPicker value={relationship} onChange={setRelationship} /></div>
-                <input className={`${inputCls} mt-3`} value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Custom name (optional) — e.g. Team treasurer" />
-                <p className="mt-2 text-xs text-ink/45">
-                  If left blank, you'll show as <strong>{childName ? `${childName}'s ${relationship}` : `"${relationship}"`}</strong> in this group.
-                </p>
+                {state.children.length > 0 && (
+                  <>
+                    <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">Which kid is this group for?</div>
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {state.children.map((child) => (
+                        <button
+                          key={child.id}
+                          onClick={() => toggleKid(child.id)}
+                          className="chip"
+                          style={kidIds.includes(child.id) ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
+                        >
+                          {child.emoji} {child.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                <div className="mb-1.5 text-xs font-bold uppercase tracking-wide text-ink/40">Your group tag</div>
+                <input
+                  className={inputCls}
+                  value={groupTag}
+                  onChange={(e) => setGroupTag(e.target.value)}
+                  placeholder="How you show up here — e.g. Callie's Dad, David's Grandma, Elle's Nanny"
+                />
               </div>
             )}
           </>
@@ -389,9 +368,8 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
             dispatch({
               type: 'JOIN_GROUP',
               groupId: found.id,
-              childName: childName.trim() || undefined,
-              relationship,
-              displayName: displayName.trim() || undefined,
+              childIds: kidIds,
+              groupTag: groupTag.trim() || undefined,
             })
             onClose()
             navigate(`/chats/${found.id}`)
@@ -518,16 +496,12 @@ export function GroupSettingsModal({ group, open, onClose }: { group: Group; ope
 export function EditMembershipModal({ group, open, onClose }: { group: Group; open: boolean; onClose: () => void }) {
   const { state, dispatch } = useStore()
   const mine = group.members.find((m) => m.memberId === state.currentUserId)
-  const [childName, setChildName] = useState(mine?.childName ?? '')
-  const [relationship, setRelationship] = useState(mine?.relationship ?? 'Parent')
-  const [displayName, setDisplayName] = useState(mine?.displayName ?? '')
+  const currentTag =
+    mine?.displayName || (mine?.childName ? `${mine.childName}'s ${mine.relationship ?? ''}`.trim() : mine?.relationship ?? '')
+  const [groupTag, setGroupTag] = useState(currentTag)
 
   useEffect(() => {
-    if (open) {
-      setChildName(mine?.childName ?? '')
-      setRelationship(mine?.relationship ?? 'Parent')
-      setDisplayName(mine?.displayName ?? '')
-    }
+    if (open) setGroupTag(currentTag)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
@@ -538,21 +512,15 @@ export function EditMembershipModal({ group, open, onClose }: { group: Group; op
           <Users size={16} /> This only changes your name inside <strong>{group.name}</strong>.
         </div>
         <div>
-          <label className={labelCls}>Your child's name (in this group)</label>
-          <input className={inputCls} value={childName} onChange={(e) => setChildName(e.target.value)} placeholder="e.g. Calixta" />
+          <label className={labelCls}>Your group tag</label>
+          <input
+            className={inputCls}
+            value={groupTag}
+            onChange={(e) => setGroupTag(e.target.value)}
+            placeholder="e.g. Callie's Dad, David's Grandma, Elle's Nanny"
+            autoFocus
+          />
         </div>
-        <div>
-          <label className={labelCls}>Your relationship</label>
-          <RelationshipPicker value={relationship} onChange={setRelationship} />
-        </div>
-        <div>
-          <label className={labelCls}>Or a custom name (optional)</label>
-          <input className={inputCls} value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="e.g. Team treasurer" />
-        </div>
-        <p className="text-xs text-ink/45">
-          You'll show as{' '}
-          <strong>{displayName.trim() || (childName.trim() ? `${childName.trim()}'s ${relationship}` : relationship)}</strong>.
-        </p>
       </div>
       <div className="mt-6 flex gap-3">
         <button onClick={onClose} className="flex-1 rounded-2xl bg-canvas py-3 text-sm font-bold text-ink/55 hover:bg-black/[0.05]">Cancel</button>
@@ -563,9 +531,9 @@ export function EditMembershipModal({ group, open, onClose }: { group: Group; op
               groupId: group.id,
               memberId: state.currentUserId,
               patch: {
-                childName: childName.trim() || undefined,
-                relationship,
-                displayName: displayName.trim() || undefined,
+                childName: undefined,
+                relationship: undefined,
+                displayName: groupTag.trim() || undefined,
               },
             })
             onClose()
