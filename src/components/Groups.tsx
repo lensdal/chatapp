@@ -8,6 +8,7 @@ import { useToast } from './Toast'
 import { groupByCode, memberById, displayLabel, isAdmin } from '../lib/selectors'
 import { GROUP_COLORS, groupStyles } from '../lib/ui'
 import { fileToSquareDataUrl } from '../lib/image'
+import EditChildModal from './EditChildModal'
 import type { Group } from '../types'
 
 const inputCls =
@@ -58,6 +59,8 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
   const [groupTag, setGroupTag] = useState('')
   const [announcementsOnly, setAnnouncementsOnly] = useState(false)
   const [joinPrivacy, setJoinPrivacy] = useState<'open' | 'approval'>('open')
+  const [addKidOpen, setAddKidOpen] = useState(false)
+  const [preAddIds, setPreAddIds] = useState<string[]>([])
 
   useEffect(() => {
     if (open) {
@@ -76,6 +79,15 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
   const words = countWords(description)
   const canCreate = name.trim().length > 0 && words >= 50
   const toggleKid = (id: string) => setKidIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
+  const openAddKid = () => {
+    setPreAddIds(state.children.map((c) => c.id))
+    setAddKidOpen(true)
+  }
+  const closeAddKid = () => {
+    const newIds = state.children.map((c) => c.id).filter((id) => !preAddIds.includes(id))
+    if (newIds.length) setKidIds((prev) => [...new Set([...prev, ...newIds])])
+    setAddKidOpen(false)
+  }
 
   const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -107,6 +119,7 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title="Start a new group">
       <div className="space-y-5">
         {/* Name + live icon preview */}
@@ -200,24 +213,25 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
         </div>
 
         {/* Which kid is this group for? */}
-        {state.children.length > 0 && (
-          <div>
-            <label className={labelCls}>Which kid is this group for?</label>
-            <div className="flex flex-wrap gap-2">
-              {state.children.map((child) => (
-                <button
-                  key={child.id}
-                  onClick={() => toggleKid(child.id)}
-                  className="chip"
-                  style={kidIds.includes(child.id) ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
-                >
-                  {child.emoji} {child.name}
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-xs text-ink/45">Pick one or more — or none for a whole-family group.</p>
+        <div>
+          <label className={labelCls}>Which kid is this group for?</label>
+          <div className="flex flex-wrap gap-2">
+            {state.children.map((child) => (
+              <button
+                key={child.id}
+                onClick={() => toggleKid(child.id)}
+                className="chip"
+                style={kidIds.includes(child.id) ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
+              >
+                {child.emoji} {child.name}
+              </button>
+            ))}
+            <button onClick={openAddKid} className="chip bg-white text-violet ring-1 ring-violet/30 hover:bg-violet-soft">
+              <Plus size={13} /> Add a kid
+            </button>
           </div>
-        )}
+          <p className="mt-1.5 text-xs text-ink/45">Pick one or more — or none for a whole-family group.</p>
+        </div>
 
         {/* Your group tag */}
         <div>
@@ -275,6 +289,8 @@ export function CreateGroupModal({ open, onClose }: { open: boolean; onClose: ()
         </button>
       </div>
     </Modal>
+    <EditChildModal open={addKidOpen} onClose={closeAddKid} />
+    </>
   )
 }
 
@@ -284,6 +300,8 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
   const [code, setCode] = useState('')
   const [kidIds, setKidIds] = useState<string[]>([])
   const [groupTag, setGroupTag] = useState('')
+  const [addKidOpen, setAddKidOpen] = useState(false)
+  const [preAddIds, setPreAddIds] = useState<string[]>([])
 
   useEffect(() => {
     if (open) {
@@ -296,8 +314,18 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
   const found = code.trim() ? groupByCode(state, code) : undefined
   const alreadyIn = found?.members.some((m) => m.memberId === state.currentUserId)
   const toggleKid = (id: string) => setKidIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
+  const openAddKid = () => {
+    setPreAddIds(state.children.map((c) => c.id))
+    setAddKidOpen(true)
+  }
+  const closeAddKid = () => {
+    const newIds = state.children.map((c) => c.id).filter((id) => !preAddIds.includes(id))
+    if (newIds.length) setKidIds((prev) => [...new Set([...prev, ...newIds])])
+    setAddKidOpen(false)
+  }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title="Join a group">
       <div className="space-y-4">
         <div className="rounded-2xl bg-violet-soft px-4 py-3 text-sm text-violet">
@@ -331,23 +359,22 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
               <div className="text-sm font-semibold text-mint">You're already in this group.</div>
             ) : (
               <div className="rounded-2xl bg-canvas p-4">
-                {state.children.length > 0 && (
-                  <>
-                    <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">Which kid is this group for?</div>
-                    <div className="mb-3 flex flex-wrap gap-2">
-                      {state.children.map((child) => (
-                        <button
-                          key={child.id}
-                          onClick={() => toggleKid(child.id)}
-                          className="chip"
-                          style={kidIds.includes(child.id) ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
-                        >
-                          {child.emoji} {child.name}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
+                <div className="mb-2 text-xs font-bold uppercase tracking-wide text-ink/40">Which kid is this group for?</div>
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {state.children.map((child) => (
+                    <button
+                      key={child.id}
+                      onClick={() => toggleKid(child.id)}
+                      className="chip"
+                      style={kidIds.includes(child.id) ? groupStyles.solid(child.color) : groupStyles.soft(child.color)}
+                    >
+                      {child.emoji} {child.name}
+                    </button>
+                  ))}
+                  <button onClick={openAddKid} className="chip bg-white text-violet ring-1 ring-violet/30 hover:bg-violet-soft">
+                    <Plus size={13} /> Add a kid
+                  </button>
+                </div>
                 <div className="mb-1.5 text-xs font-bold uppercase tracking-wide text-ink/40">Your group tag</div>
                 <input
                   className={inputCls}
@@ -381,6 +408,8 @@ export function JoinGroupModal({ open, onClose }: { open: boolean; onClose: () =
         </button>
       </div>
     </Modal>
+    <EditChildModal open={addKidOpen} onClose={closeAddKid} />
+    </>
   )
 }
 
