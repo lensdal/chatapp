@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X } from 'lucide-react'
+import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
@@ -51,6 +51,7 @@ export default function AddComposer({
   const [repeat, setRepeat] = useState<Recurrence>(NO_REPEAT)
   const [includePayment, setIncludePayment] = useState(false)
   const [attachment, setAttachment] = useState<FileAttachment | undefined>(undefined)
+  const [requestSignature, setRequestSignature] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const pay = usePaymentFields(groupId)
@@ -81,6 +82,7 @@ export default function AddComposer({
       setRepeat(NO_REPEAT)
       setIncludePayment(false)
       setAttachment(undefined)
+      setRequestSignature(false)
       pay.reset({ amount: '' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,6 +159,23 @@ export default function AddComposer({
         },
       })
     }
+
+    // If they asked for signatures on the attached file, also post a signature
+    // request for it (people sign it; each gets a "Sign" to-do).
+    if (requestSignature && attachment) {
+      dispatch({
+        type: 'ADD_SIGNATURE_DOC',
+        groupId: groupId || undefined,
+        childId: childId || undefined,
+        title: title.trim() || attachment.name,
+        note: note.trim() || undefined,
+        dueDate: iso,
+        fileName: attachment.name,
+        fileKind: attachment.kind,
+        fileDataUrl: attachment.dataUrl,
+      })
+    }
+
     toast(
       kind === 'event' ? 'Event added' : kind === 'task' ? 'Task added' : 'Reminder added',
       kind === 'event' ? '📅' : kind === 'task' ? '✅' : '🔔',
@@ -316,13 +335,40 @@ export default function AddComposer({
           <label className={labelCls}>Attachment</label>
           <input ref={fileRef} type="file" className="hidden" onChange={onAttach} />
           {attachment ? (
-            <div className="flex items-center gap-2 rounded-2xl bg-canvas px-3 py-2.5">
-              <Paperclip size={15} className="shrink-0 text-violet" />
-              <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink/70">{attachment.name}</span>
-              <button onClick={() => setAttachment(undefined)} className="rounded-full p-1 text-ink/40 hover:text-tang" title="Remove">
-                <X size={15} />
-              </button>
-            </div>
+            <>
+              <div className="flex items-center gap-2 rounded-2xl bg-canvas px-3 py-2.5">
+                <Paperclip size={15} className="shrink-0 text-violet" />
+                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink/70">{attachment.name}</span>
+                <button
+                  onClick={() => {
+                    setAttachment(undefined)
+                    setRequestSignature(false)
+                  }}
+                  className="rounded-full p-1 text-ink/40 hover:text-tang"
+                  title="Remove"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+              {/* Turn the attached file into something people sign */}
+              <label className="mt-2 flex cursor-pointer items-start gap-3 rounded-2xl bg-canvas px-3 py-2.5">
+                <input
+                  type="checkbox"
+                  checked={requestSignature}
+                  onChange={(e) => setRequestSignature(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 accent-violet"
+                />
+                <span className="min-w-0">
+                  <span className="flex items-center gap-1.5 text-sm font-bold">
+                    <PenLine size={15} /> Request signatures on this
+                  </span>
+                  <span className="block text-xs text-ink/50">
+                    Everyone can sign it{groupId ? ' in the group' : ''}, and each gets a “Sign” to-do — great for
+                    permission slips &amp; waivers.
+                  </span>
+                </span>
+              </label>
+            </>
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
