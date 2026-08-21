@@ -102,7 +102,7 @@ export function EventDetailModal({
               {event.hasTime ? ` · ${fmtTime(event.date)}` : ' · All day'}
             </span>
           </div>
-          {(event.mode ?? 'inperson') === 'inperson' && event.location && (
+          {((event.mode ?? 'inperson') === 'inperson' || event.mode === 'hybrid') && event.location && (
             <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <span className="inline-flex items-center gap-1 text-ink/60">
                 <MapPin size={14} /> {event.location}
@@ -115,7 +115,7 @@ export function EventDetailModal({
               </a>
             </div>
           )}
-          {event.mode === 'virtual' && event.meetingUrl && (
+          {(event.mode === 'virtual' || event.mode === 'hybrid') && event.meetingUrl && (
             <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <span className="inline-flex min-w-0 items-center gap-1 text-ink/60">
                 <Video size={14} /> <span className="truncate">{event.meetingUrl}</span>

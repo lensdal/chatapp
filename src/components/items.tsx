@@ -293,12 +293,12 @@ export function EventRow({
         </button>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/50">
           <span className="font-semibold">{event.hasTime ? fmtTime(event.date) : 'All day'}</span>
-          {(event.mode ?? 'inperson') === 'inperson' && event.location && (
+          {((event.mode ?? 'inperson') === 'inperson' || event.mode === 'hybrid') && event.location && (
             <span className="inline-flex items-center gap-1">
               <MapPin size={12} /> {event.location}
             </span>
           )}
-          {event.mode === 'virtual' && event.meetingUrl && (
+          {(event.mode === 'virtual' || event.mode === 'hybrid') && event.meetingUrl && (
             <span className="inline-flex items-center gap-1 font-semibold text-violet">
               <Video size={12} /> Virtual
             </span>

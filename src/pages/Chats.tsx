@@ -30,7 +30,7 @@ import {
 import Topbar from '../components/Topbar'
 import { Card, Avatar, AvatarStack, EmptyState, Pill, GroupIcon } from '../components/ui'
 import { EventRow, TaskRow, KidTag } from '../components/items'
-import PromoteModal from '../components/PromoteModal'
+import AddComposer from '../components/AddComposer'
 import { SignupCard, CreateSignupModal } from '../components/Signup'
 import { PollCard, CreatePollModal } from '../components/Poll'
 import { CollectionCard, CreateCollectionModal } from '../components/Collection'
@@ -647,8 +647,8 @@ function ChatView({ groupId }: { groupId: string }) {
         </div>
       </div>
 
-      <PromoteModal open={!!modalMsg} onClose={() => setModalMsg(null)} groupId={groupId} messageId={modalMsg?.id} defaultText={modalMsg?.text ?? ''} />
-      <PromoteModal open={createOpen} onClose={() => setCreateOpen(false)} groupId={groupId} />
+      <AddComposer open={!!modalMsg} onClose={() => setModalMsg(null)} initialGroupId={groupId} messageId={modalMsg?.id} defaultText={modalMsg?.text ?? ''} />
+      <AddComposer open={createOpen} onClose={() => setCreateOpen(false)} initialGroupId={groupId} />
       <CreateSignupModal open={signupOpen} onClose={() => setSignupOpen(false)} groupId={groupId} />
       <CreatePollModal open={pollOpen} onClose={() => setPollOpen(false)} groupId={groupId} />
       <CreateCollectionModal open={collectOpen} onClose={() => setCollectOpen(false)} groupId={groupId} />

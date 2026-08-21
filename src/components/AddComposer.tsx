@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine, Video, Phone } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine, Video, Phone, Sparkles } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
@@ -7,9 +7,13 @@ import { myGroups } from '../lib/selectors'
 import { groupStyles } from '../lib/ui'
 import { NO_REPEAT, isRepeating } from '../lib/recurrence'
 import { readAsAttachment } from '../lib/files'
+import { parseForward, detectChild } from '../lib/parse'
+import { format } from 'date-fns'
 import { usePaymentFields } from './usePaymentFields'
 import RepeatPicker from './RepeatPicker'
 import type { FileAttachment, Priority, Recurrence } from '../types'
+
+type Mode = 'inperson' | 'virtual' | 'phone' | 'hybrid'
 
 const inputCls =
   'w-full rounded-2xl border border-black/10 bg-canvas/60 px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet focus:bg-white'
@@ -28,15 +32,22 @@ export default function AddComposer({
   onClose,
   initialKind = 'event',
   initialGroupId = '',
+  messageId,
+  defaultText = '',
 }: {
   open: boolean
   onClose: () => void
   initialKind?: Kind
   initialGroupId?: string
+  messageId?: string // when set, this promotes a chat message (links back to it)
+  defaultText?: string // message text to pre-fill + auto-detect from
 }) {
   const { state, dispatch } = useStore()
   const toast = useToast()
   const groups = myGroups(state)
+
+  // When promoting a chat message, auto-detect task/event details from it.
+  const parsed = useMemo(() => (defaultText.trim() ? parseForward(defaultText) : null), [defaultText])
 
   const [kind, setKind] = useState<Kind>(initialKind)
   const [title, setTitle] = useState('')
@@ -45,7 +56,7 @@ export default function AddComposer({
   const [date, setDate] = useState('')
   const [addTime, setAddTime] = useState(false)
   const [time, setTime] = useState('10:00')
-  const [mode, setMode] = useState<'inperson' | 'virtual' | 'phone'>('inperson')
+  const [mode, setMode] = useState<Mode>('inperson')
   const [location, setLocation] = useState('')
   const [meetingUrl, setMeetingUrl] = useState('')
   const [callInfo, setCallInfo] = useState('')
@@ -71,24 +82,48 @@ export default function AddComposer({
   }
 
   useEffect(() => {
-    if (open) {
+    if (!open) return
+    // Common resets
+    setGroupId(initialGroupId)
+    setMode('inperson')
+    setLocation('')
+    setMeetingUrl('')
+    setCallInfo('')
+    setNote('')
+    setRepeat(NO_REPEAT)
+    setAttachment(undefined)
+    setRequestSignature(false)
+
+    if (parsed) {
+      // Promoting a chat message: auto-fill from what we detected.
+      setKind(parsed.type)
+      setTitle(parsed.title)
+      setPriority(parsed.priority)
+      setLocation(parsed.location ?? '')
+      if (parsed.dateISO) {
+        const d = new Date(parsed.dateISO)
+        setDate(format(d, 'yyyy-MM-dd'))
+        setAddTime(parsed.hasTime)
+        setTime(parsed.hasTime ? format(d, 'HH:mm') : '10:00')
+      } else {
+        setDate('')
+        setAddTime(false)
+        setTime('10:00')
+      }
+      setIncludePayment(!!parsed.amount)
+      pay.reset({ amount: parsed.amount ? String(parsed.amount) : '', method: parsed.method })
+      const kids = groups.find((g) => g.id === initialGroupId)?.childIds ?? []
+      const detected = detectChild(defaultText, state.children)
+      setChildId(detected && kids.includes(detected) ? detected : kids.length === 1 ? kids[0] : '')
+    } else {
       setKind(initialKind)
       setTitle('')
-      setGroupId(initialGroupId)
       setChildId('')
       setDate('')
       setAddTime(false)
       setTime('10:00')
-      setMode('inperson')
-      setLocation('')
-      setMeetingUrl('')
-      setCallInfo('')
-      setNote('')
       setPriority('medium')
-      setRepeat(NO_REPEAT)
       setIncludePayment(false)
-      setAttachment(undefined)
-      setRequestSignature(false)
       pay.reset({ amount: '' })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,60 +148,59 @@ export default function AddComposer({
   const submit = () => {
     if (!canSubmit) return
     const iso = combine()
+    const showLocation = mode === 'inperson' || mode === 'hybrid'
+    const showLink = mode === 'virtual' || mode === 'hybrid'
     if (kind === 'event') {
-      dispatch({
-        type: 'ADD_EVENT',
-        event: {
-          groupId,
-          childId: childId || undefined,
-          title: title.trim(),
-          date: iso ?? new Date().toISOString(),
-          hasTime: addTime,
-          mode,
-          location: mode === 'inperson' ? location.trim() || undefined : undefined,
-          meetingUrl: mode === 'virtual' ? meetingUrl.trim() || undefined : undefined,
-          callInfo: mode === 'phone' ? callInfo.trim() || undefined : undefined,
-          note: note.trim() || undefined,
-          recurrence: rec,
-          addedToGoogle: false,
-          createdById: state.currentUserId,
-          attachment,
-        },
-      })
+      const event = {
+        groupId,
+        childId: childId || undefined,
+        title: title.trim(),
+        date: iso ?? new Date().toISOString(),
+        hasTime: addTime,
+        mode,
+        location: showLocation ? location.trim() || undefined : undefined,
+        meetingUrl: showLink ? meetingUrl.trim() || undefined : undefined,
+        callInfo: mode === 'phone' ? callInfo.trim() || undefined : undefined,
+        note: note.trim() || undefined,
+        recurrence: rec,
+        addedToGoogle: false,
+        createdById: state.currentUserId,
+        attachment,
+      }
+      if (messageId) dispatch({ type: 'PROMOTE_TO_EVENT', messageId, event })
+      else dispatch({ type: 'ADD_EVENT', event })
     } else if (kind === 'task') {
-      dispatch({
-        type: 'ADD_TASK',
-        task: {
-          groupId: groupId || undefined,
-          childId: childId || undefined,
-          title: title.trim(),
-          dueDate: iso,
-          hasTime: !!date && addTime,
-          note: note.trim() || undefined,
-          done: false,
-          priority,
-          assigneeIds: [state.currentUserId],
-          payment: includePayment ? pay.build() : undefined,
-          recurrence: rec,
-          createdById: state.currentUserId,
-          attachment,
-        },
-      })
+      const task = {
+        groupId: groupId || undefined,
+        childId: childId || undefined,
+        title: title.trim(),
+        dueDate: iso,
+        hasTime: !!date && addTime,
+        note: note.trim() || undefined,
+        done: false,
+        priority,
+        assigneeIds: [state.currentUserId],
+        payment: includePayment ? pay.build() : undefined,
+        recurrence: rec,
+        createdById: state.currentUserId,
+        attachment,
+      }
+      if (messageId) dispatch({ type: 'PROMOTE_TO_TASK', messageId, task })
+      else dispatch({ type: 'ADD_TASK', task })
     } else {
-      dispatch({
-        type: 'ADD_REMINDER',
-        reminder: {
-          groupId: groupId || undefined,
-          childId: childId || undefined,
-          title: title.trim(),
-          note: note.trim() || undefined,
-          date: iso ?? new Date().toISOString(),
-          hasTime: addTime,
-          recurrence: rec,
-          createdById: state.currentUserId,
-          attachment,
-        },
-      })
+      const reminder = {
+        groupId: groupId || undefined,
+        childId: childId || undefined,
+        title: title.trim(),
+        note: note.trim() || undefined,
+        date: iso ?? new Date().toISOString(),
+        hasTime: addTime,
+        recurrence: rec,
+        createdById: state.currentUserId,
+        attachment,
+      }
+      if (messageId) dispatch({ type: 'PROMOTE_TO_REMINDER', messageId, reminder })
+      else dispatch({ type: 'ADD_REMINDER', reminder })
     }
 
     // If they asked for signatures on the attached file, also post a signature
@@ -202,8 +236,22 @@ export default function AddComposer({
   const dateLabel = kind === 'task' ? 'Due date (optional)' : 'Date'
 
   return (
-    <Modal open={open} onClose={onClose} title="Add to Village">
+    <Modal open={open} onClose={onClose} title={messageId ? 'Turn this into…' : 'Add to Village'}>
       <div className="space-y-4">
+        {messageId && defaultText && (
+          <div className="rounded-2xl bg-canvas px-4 py-3 text-sm italic text-ink/55">“{defaultText}”</div>
+        )}
+        {parsed && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-violet">
+              <Sparkles size={13} /> Auto-filled
+            </span>
+            {parsed.cues.map((c, i) => (
+              <span key={i} className="chip bg-violet-soft text-violet">{c}</span>
+            ))}
+          </div>
+        )}
+
         {/* Kind tabs */}
         <div className="grid grid-cols-3 gap-2">
           {KINDS.map((k) => {
@@ -290,11 +338,12 @@ export default function AddComposer({
         {kind === 'event' && (
           <div>
             <label className={labelCls}>How do people attend?</label>
-            <div className="mb-2 grid grid-cols-3 gap-2">
+            <div className="mb-2 grid grid-cols-2 gap-2">
               {([
                 { id: 'inperson', label: 'In person', icon: MapPin },
                 { id: 'virtual', label: 'Virtual', icon: Video },
                 { id: 'phone', label: 'Phone', icon: Phone },
+                { id: 'hybrid', label: 'Hybrid', icon: Sparkles },
               ] as const).map((m) => {
                 const Icon = m.icon
                 return (
@@ -310,39 +359,41 @@ export default function AddComposer({
                 )
               })}
             </div>
-            {mode === 'inperson' && (
-              <div className="relative">
-                <MapPin size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
-                <input
-                  className={`${inputCls} pl-9`}
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Address or place — links to Google & Apple Maps"
-                />
-              </div>
-            )}
-            {mode === 'virtual' && (
-              <div className="relative">
-                <Video size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
-                <input
-                  className={`${inputCls} pl-9`}
-                  value={meetingUrl}
-                  onChange={(e) => setMeetingUrl(e.target.value)}
-                  placeholder="Meeting link — e.g. https://meet.google.com/…"
-                />
-              </div>
-            )}
-            {mode === 'phone' && (
-              <div className="relative">
-                <Phone size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
-                <input
-                  className={`${inputCls} pl-9`}
-                  value={callInfo}
-                  onChange={(e) => setCallInfo(e.target.value)}
-                  placeholder="Dial-in number — e.g. +1 555-123-4567 (code 8842)"
-                />
-              </div>
-            )}
+            <div className="space-y-2">
+              {(mode === 'inperson' || mode === 'hybrid') && (
+                <div className="relative">
+                  <MapPin size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
+                  <input
+                    className={`${inputCls} pl-9`}
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="Address or place — links to Google & Apple Maps"
+                  />
+                </div>
+              )}
+              {(mode === 'virtual' || mode === 'hybrid') && (
+                <div className="relative">
+                  <Video size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
+                  <input
+                    className={`${inputCls} pl-9`}
+                    value={meetingUrl}
+                    onChange={(e) => setMeetingUrl(e.target.value)}
+                    placeholder="Meeting link — e.g. https://meet.google.com/…"
+                  />
+                </div>
+              )}
+              {mode === 'phone' && (
+                <div className="relative">
+                  <Phone size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
+                  <input
+                    className={`${inputCls} pl-9`}
+                    value={callInfo}
+                    onChange={(e) => setCallInfo(e.target.value)}
+                    placeholder="Dial-in number — e.g. +1 555-123-4567 (code 8842)"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
