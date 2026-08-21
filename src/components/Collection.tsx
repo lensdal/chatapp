@@ -5,8 +5,9 @@ import { Avatar } from './ui'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
 import { memberById } from '../lib/selectors'
-import { PAY_METHODS, methodMeta, buildPayLink, isVillage } from '../lib/pay'
-import type { Collection, PaymentHandles, PaymentMethod } from '../types'
+import { methodMeta, buildPayLink } from '../lib/pay'
+import { usePayee } from './usePaymentFields'
+import type { Collection, PaymentMethod } from '../types'
 
 export function CollectionCard({ collection }: { collection: Collection }) {
   const { state, dispatch } = useStore()
@@ -134,23 +135,13 @@ export function CreateCollectionModal({
   initialTitle?: string
   initialSuggested?: number
 }) {
-  const { state, dispatch } = useStore()
-  const myHandles = memberById(state, state.currentUserId)?.handles ?? {}
+  const { dispatch } = useStore()
+  const payee = usePayee(groupId, { includeSelf: true })
 
   const [title, setTitle] = useState('')
   const [note, setNote] = useState('')
   const [suggested, setSuggested] = useState('20')
   const [goal, setGoal] = useState('')
-  const [recipient, setRecipient] = useState('')
-  // Which methods are accepted, and the handle entered for each.
-  const [accepted, setAccepted] = useState<Record<PaymentMethod, boolean>>({
-    venmo: false,
-    cashapp: false,
-    zelle: false,
-    village: false,
-    other: false,
-  })
-  const [handles, setHandles] = useState<PaymentHandles>({})
 
   useEffect(() => {
     if (open) {
@@ -158,33 +149,16 @@ export function CreateCollectionModal({
       setNote('')
       setSuggested(initialSuggested != null ? String(initialSuggested) : '20')
       setGoal('')
-      setRecipient('')
-      // Pre-select methods the user already has a handle for.
-      setAccepted({
-        venmo: !!myHandles.venmo,
-        cashapp: !!myHandles.cashapp,
-        zelle: !!myHandles.zelle,
-        village: false,
-        other: !!myHandles.other,
-      })
-      setHandles({ ...myHandles })
+      payee.reset()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const chosen = PAY_METHODS.filter((m) => accepted[m.id])
-  // Village is paid inside the app, so it needs no handle; every other chosen
-  // method must have one.
-  const needsHandle = chosen.filter((m) => !isVillage(m.id))
-  const withHandles = needsHandle.filter((m) => (handles[m.id] ?? '').trim())
-  const canSubmit =
-    title.trim() && recipient.trim() && chosen.length > 0 && withHandles.length === needsHandle.length
+  const canSubmit = !!title.trim() && payee.ready
 
   const submit = () => {
     if (!canSubmit) return
-    const acceptedMethods = chosen.map((m) => m.id)
-    const finalHandles: PaymentHandles = {}
-    for (const m of chosen) if (!isVillage(m.id)) finalHandles[m.id] = (handles[m.id] ?? '').trim()
+    const p = payee.build()
     dispatch({
       type: 'ADD_COLLECTION',
       groupId,
@@ -192,9 +166,9 @@ export function CreateCollectionModal({
       note: note.trim() || undefined,
       suggested: suggested ? Number(suggested) : undefined,
       goal: goal ? Number(goal) : undefined,
-      acceptedMethods,
-      handles: finalHandles,
-      recipient: recipient.trim(),
+      acceptedMethods: p.methods,
+      handles: p.handles,
+      recipient: p.recipient,
     })
     onClose()
   }
@@ -216,51 +190,7 @@ export function CreateCollectionModal({
             <input className={inputCls} value={goal} onChange={(e) => setGoal(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" placeholder="e.g. 200" />
           </div>
         </div>
-        <div>
-          <label className={labelCls}>Collected by</label>
-          <input className={inputCls} value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="e.g. Jenna" />
-        </div>
-
-        <div>
-          <label className={labelCls}>How can people pay you? (pick any)</label>
-          <div className="space-y-2">
-            {PAY_METHODS.map((m) => {
-              const on = accepted[m.id]
-              return (
-                <div key={m.id} className="rounded-2xl bg-canvas px-3 py-2.5">
-                  <label className="flex cursor-pointer items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={on}
-                      onChange={(e) => setAccepted((a) => ({ ...a, [m.id]: e.target.checked }))}
-                      className="h-5 w-5 accent-violet"
-                    />
-                    <span className="text-sm font-bold">{m.label}</span>
-                    {isVillage(m.id) ? (
-                      <span className="text-[10px] font-semibold text-violet">(in-app)</span>
-                    ) : (
-                      !m.hasLink && (
-                        <span className="text-[10px] font-semibold text-ink/35">(manual — no auto-open)</span>
-                      )
-                    )}
-                  </label>
-                  {on && !isVillage(m.id) && (
-                    <input
-                      className={`${inputCls} mt-2`}
-                      value={handles[m.id] ?? ''}
-                      onChange={(e) => setHandles((h) => ({ ...h, [m.id]: e.target.value }))}
-                      placeholder={m.placeholder}
-                    />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-          <p className="mt-2 text-[11px] text-ink/40">
-            Your usernames are saved to your profile so you don't have to re-enter them. Venmo & Cash App
-            open prefilled when someone pays; Zelle/Other just show your handle to send to.
-          </p>
-        </div>
+        {payee.node}
 
         <div>
           <label className={labelCls}>Note (optional)</label>
