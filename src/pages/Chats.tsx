@@ -309,7 +309,7 @@ function MessageBubble({
               onClick={() => onPromote(msg)}
               className="inline-flex items-center gap-1 rounded-full bg-violet-soft px-2 py-0.5 text-[10px] font-bold text-violet opacity-0 transition group-hover:opacity-100"
             >
-              <Wand2 size={11} /> Make task / event / reminder
+              <Wand2 size={11} /> Add
             </button>
           )}
           <button
@@ -480,7 +480,7 @@ function ChatView({ groupId }: { groupId: string }) {
           {canPost ? (
             <div className="border-t border-black/5">
               <div className="flex items-center gap-1.5 overflow-x-auto px-4 pt-3">
-                <ComposerAction icon={<Plus size={13} />} label="Task / event" onClick={() => setCreateOpen(true)} />
+                <ComposerAction icon={<Plus size={13} />} label="Add" onClick={() => setCreateOpen(true)} />
                 <ComposerAction icon={<ClipboardList size={13} />} label="Sign-up" onClick={() => setSignupOpen(true)} />
                 <ComposerAction icon={<BarChart3 size={13} />} label="Poll" onClick={() => setPollOpen(true)} />
                 <ComposerAction icon={<PiggyBank size={13} />} label="Collect" onClick={() => setCollectOpen(true)} />

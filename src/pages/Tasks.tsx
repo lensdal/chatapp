@@ -105,7 +105,7 @@ export default function Tasks() {
               onClick={() => setNewOpen(true)}
               className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
             >
-              <Plus size={16} /> New task
+              <Plus size={16} /> Add
             </button>
           </div>
         </div>

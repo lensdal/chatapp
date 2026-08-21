@@ -315,7 +315,7 @@ export default function PromoteModal({
           disabled={!title.trim()}
           className="flex-1 rounded-2xl bg-violet py-3 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90 disabled:opacity-40"
         >
-          {kind === 'task' ? 'Create task for everyone' : kind === 'event' ? 'Add event' : 'Add reminder'}
+          Add {kind}
         </button>
       </div>
     </Modal>
