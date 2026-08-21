@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import Topbar from '../components/Topbar'
 import { Card, EmptyState } from '../components/ui'
 import { TaskRow } from '../components/items'
-import AddComposer from '../components/AddComposer'
+import AddMenu from '../components/AddMenu'
 import { useStore } from '../store/store'
 import { groupStyles } from '../lib/ui'
 import type { Task } from '../types'
@@ -15,7 +15,6 @@ export default function Tasks() {
   const { state } = useStore()
   const [status, setStatus] = useState<Status>('open')
   const [groupBy, setGroupBy] = useState<GroupBy>('kid')
-  const [newOpen, setNewOpen] = useState(false)
 
   const filtered = useMemo(() => {
     let list = [...state.tasks]
@@ -101,12 +100,16 @@ export default function Tasks() {
                 ))}
               </div>
             </div>
-            <button
-              onClick={() => setNewOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
-            >
-              <Plus size={16} /> Add
-            </button>
+            <AddMenu>
+              {(open) => (
+                <button
+                  onClick={open}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
+                >
+                  <Plus size={16} /> Add
+                </button>
+              )}
+            </AddMenu>
           </div>
         </div>
 
@@ -137,7 +140,6 @@ export default function Tasks() {
           </div>
         )}
       </div>
-      <AddComposer open={newOpen} onClose={() => setNewOpen(false)} initialKind="task" />
     </>
   )
 }

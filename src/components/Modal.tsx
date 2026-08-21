@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 
 export default function Modal({
@@ -22,7 +23,9 @@ export default function Modal({
   }, [open, onClose])
 
   if (!open) return null
-  return (
+  // Portal to <body> so a modal is never mispositioned or clipped by an
+  // ancestor's containing block (e.g. a backdrop-blur header) or overflow.
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
       onClick={onClose}
@@ -42,6 +45,7 @@ export default function Modal({
         </div>
         <div className="max-h-[70vh] overflow-y-auto px-6 py-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
