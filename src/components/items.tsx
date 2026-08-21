@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink, Bell, X, FileText, Paperclip } from 'lucide-react'
+import { Check, MapPin, CalendarPlus, CalendarCheck, DollarSign, MessageCircle, Repeat, Users, ExternalLink, Bell, X, FileText, Paperclip, Video, Phone } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { EventItem, FileAttachment, Reminder, Task, PaymentMethod } from '../types'
 import { useStore } from '../store/store'
@@ -293,9 +293,19 @@ export function EventRow({
         </button>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink/50">
           <span className="font-semibold">{event.hasTime ? fmtTime(event.date) : 'All day'}</span>
-          {event.location && (
+          {(event.mode ?? 'inperson') === 'inperson' && event.location && (
             <span className="inline-flex items-center gap-1">
               <MapPin size={12} /> {event.location}
+            </span>
+          )}
+          {event.mode === 'virtual' && event.meetingUrl && (
+            <span className="inline-flex items-center gap-1 font-semibold text-violet">
+              <Video size={12} /> Virtual
+            </span>
+          )}
+          {event.mode === 'phone' && event.callInfo && (
+            <span className="inline-flex items-center gap-1">
+              <Phone size={12} /> {event.callInfo}
             </span>
           )}
           {goingCount > 0 && <span className="font-semibold text-mint">{goingCount} going</span>}

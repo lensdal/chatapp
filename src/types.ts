@@ -170,7 +170,10 @@ export interface EventItem {
   title: string
   date: string // ISO (start)
   hasTime?: boolean // false/undefined = all-day (time is optional)
-  location?: string // free-text address; links out to maps
+  mode?: 'inperson' | 'virtual' | 'phone' // how you attend; default in person
+  location?: string // free-text address; links out to maps (in person)
+  meetingUrl?: string // join link (virtual)
+  callInfo?: string // dial-in number / access code (phone)
   note?: string
   addedToGoogle: boolean
   createdFromMessageId?: string

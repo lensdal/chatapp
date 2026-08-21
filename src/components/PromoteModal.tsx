@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ListChecks, CalendarDays, DollarSign, Sparkles, Bell } from 'lucide-react'
+import { ListChecks, CalendarDays, DollarSign, Sparkles, Bell, MapPin, Video, Phone } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { groupById } from '../lib/selectors'
@@ -56,7 +56,10 @@ export default function PromoteModal({
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [time, setTime] = useState('09:00')
   const [priority, setPriority] = useState<Priority>('medium')
+  const [mode, setMode] = useState<'inperson' | 'virtual' | 'phone'>('inperson')
   const [location, setLocation] = useState('')
+  const [meetingUrl, setMeetingUrl] = useState('')
+  const [callInfo, setCallInfo] = useState('')
   const [note, setNote] = useState('')
   const [hasPayment, setHasPayment] = useState(false)
   const pay = usePaymentFields(groupId)
@@ -73,7 +76,10 @@ export default function PromoteModal({
       setKind(parsed.type)
       setTitle(parsed.title)
       setPriority(parsed.priority)
+      setMode('inperson')
       setLocation(parsed.location ?? '')
+      setMeetingUrl('')
+      setCallInfo('')
       setNote('')
       if (parsed.dateISO) {
         const d = new Date(parsed.dateISO)
@@ -91,7 +97,10 @@ export default function PromoteModal({
       setDate(format(new Date(), 'yyyy-MM-dd'))
       setTime(defaultKind === 'event' ? '10:00' : '09:00')
       setPriority('medium')
+      setMode('inperson')
       setLocation('')
+      setMeetingUrl('')
+      setCallInfo('')
       setNote('')
       setHasPayment(false)
       pay.reset({ amount: '' })
@@ -127,7 +136,10 @@ export default function PromoteModal({
         title: cleanTitle,
         date: toISO(date, time),
         hasTime: true,
-        location: location.trim() || undefined,
+        mode,
+        location: mode === 'inperson' ? location.trim() || undefined : undefined,
+        meetingUrl: mode === 'virtual' ? meetingUrl.trim() || undefined : undefined,
+        callInfo: mode === 'phone' ? callInfo.trim() || undefined : undefined,
         addedToGoogle: false,
       }
       if (messageId) dispatch({ type: 'PROMOTE_TO_EVENT', messageId, event })
@@ -282,13 +294,51 @@ export default function PromoteModal({
           </>
         ) : kind === 'event' ? (
           <div>
-            <label className={labelCls}>Location (optional)</label>
-            <input
-              className={inputCls}
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Field 4, Westside Park"
-            />
+            <label className={labelCls}>How do people attend?</label>
+            <div className="mb-2 grid grid-cols-3 gap-2">
+              {([
+                { id: 'inperson', label: 'In person', icon: MapPin },
+                { id: 'virtual', label: 'Virtual', icon: Video },
+                { id: 'phone', label: 'Phone', icon: Phone },
+              ] as const).map((m) => {
+                const Icon = m.icon
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setMode(m.id)}
+                    className={`flex items-center justify-center gap-1.5 rounded-2xl px-2 py-2.5 text-sm font-bold transition ${
+                      mode === m.id ? 'bg-violet text-white shadow-soft' : 'bg-canvas text-ink/55 hover:bg-black/[0.05]'
+                    }`}
+                  >
+                    <Icon size={15} /> {m.label}
+                  </button>
+                )
+              })}
+            </div>
+            {mode === 'inperson' && (
+              <input
+                className={inputCls}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Address or place — e.g. Field 4, Westside Park"
+              />
+            )}
+            {mode === 'virtual' && (
+              <input
+                className={inputCls}
+                value={meetingUrl}
+                onChange={(e) => setMeetingUrl(e.target.value)}
+                placeholder="Meeting link — e.g. https://meet.google.com/…"
+              />
+            )}
+            {mode === 'phone' && (
+              <input
+                className={inputCls}
+                value={callInfo}
+                onChange={(e) => setCallInfo(e.target.value)}
+                placeholder="Dial-in — e.g. +1 555-123-4567 (code 8842)"
+              />
+            )}
           </div>
         ) : (
           <div>

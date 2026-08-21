@@ -7,6 +7,8 @@ import {
   Car,
   Bell,
   Check,
+  Video,
+  Phone,
 } from 'lucide-react'
 import Modal from './Modal'
 import { Avatar, Pill } from './ui'
@@ -100,7 +102,7 @@ export function EventDetailModal({
               {event.hasTime ? ` · ${fmtTime(event.date)}` : ' · All day'}
             </span>
           </div>
-          {event.location && (
+          {(event.mode ?? 'inperson') === 'inperson' && event.location && (
             <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <span className="inline-flex items-center gap-1 text-ink/60">
                 <MapPin size={14} /> {event.location}
@@ -110,6 +112,26 @@ export function EventDetailModal({
               </a>
               <a href={mapsLinks(event.location).apple} target="_blank" rel="noopener noreferrer" className="chip bg-canvas text-violet">
                 Apple Maps
+              </a>
+            </div>
+          )}
+          {event.mode === 'virtual' && event.meetingUrl && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span className="inline-flex min-w-0 items-center gap-1 text-ink/60">
+                <Video size={14} /> <span className="truncate">{event.meetingUrl}</span>
+              </span>
+              <a href={event.meetingUrl} target="_blank" rel="noopener noreferrer" className="chip bg-violet text-white shadow-soft">
+                Join
+              </a>
+            </div>
+          )}
+          {event.mode === 'phone' && event.callInfo && (
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+              <span className="inline-flex items-center gap-1 text-ink/60">
+                <Phone size={14} /> {event.callInfo}
+              </span>
+              <a href={`tel:${event.callInfo.replace(/[^0-9+]/g, '')}`} className="chip bg-violet text-white shadow-soft">
+                Call in
               </a>
             </div>
           )}

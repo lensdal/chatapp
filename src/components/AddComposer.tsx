@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine } from 'lucide-react'
+import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine, Video, Phone } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
@@ -45,7 +45,10 @@ export default function AddComposer({
   const [date, setDate] = useState('')
   const [addTime, setAddTime] = useState(false)
   const [time, setTime] = useState('10:00')
+  const [mode, setMode] = useState<'inperson' | 'virtual' | 'phone'>('inperson')
   const [location, setLocation] = useState('')
+  const [meetingUrl, setMeetingUrl] = useState('')
+  const [callInfo, setCallInfo] = useState('')
   const [note, setNote] = useState('')
   const [priority, setPriority] = useState<Priority>('medium')
   const [repeat, setRepeat] = useState<Recurrence>(NO_REPEAT)
@@ -76,7 +79,10 @@ export default function AddComposer({
       setDate('')
       setAddTime(false)
       setTime('10:00')
+      setMode('inperson')
       setLocation('')
+      setMeetingUrl('')
+      setCallInfo('')
       setNote('')
       setPriority('medium')
       setRepeat(NO_REPEAT)
@@ -116,7 +122,10 @@ export default function AddComposer({
           title: title.trim(),
           date: iso ?? new Date().toISOString(),
           hasTime: addTime,
-          location: location.trim() || undefined,
+          mode,
+          location: mode === 'inperson' ? location.trim() || undefined : undefined,
+          meetingUrl: mode === 'virtual' ? meetingUrl.trim() || undefined : undefined,
+          callInfo: mode === 'phone' ? callInfo.trim() || undefined : undefined,
           note: note.trim() || undefined,
           recurrence: rec,
           addedToGoogle: false,
@@ -280,16 +289,60 @@ export default function AddComposer({
 
         {kind === 'event' && (
           <div>
-            <label className={labelCls}>Location</label>
-            <div className="relative">
-              <MapPin size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
-              <input
-                className={`${inputCls} pl-9`}
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Address or place — links to Google & Apple Maps"
-              />
+            <label className={labelCls}>How do people attend?</label>
+            <div className="mb-2 grid grid-cols-3 gap-2">
+              {([
+                { id: 'inperson', label: 'In person', icon: MapPin },
+                { id: 'virtual', label: 'Virtual', icon: Video },
+                { id: 'phone', label: 'Phone', icon: Phone },
+              ] as const).map((m) => {
+                const Icon = m.icon
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setMode(m.id)}
+                    className={`flex items-center justify-center gap-1.5 rounded-2xl px-2 py-2.5 text-sm font-bold transition ${
+                      mode === m.id ? 'bg-violet text-white shadow-soft' : 'bg-canvas text-ink/55 hover:bg-black/[0.05]'
+                    }`}
+                  >
+                    <Icon size={15} /> {m.label}
+                  </button>
+                )
+              })}
             </div>
+            {mode === 'inperson' && (
+              <div className="relative">
+                <MapPin size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
+                <input
+                  className={`${inputCls} pl-9`}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Address or place — links to Google & Apple Maps"
+                />
+              </div>
+            )}
+            {mode === 'virtual' && (
+              <div className="relative">
+                <Video size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
+                <input
+                  className={`${inputCls} pl-9`}
+                  value={meetingUrl}
+                  onChange={(e) => setMeetingUrl(e.target.value)}
+                  placeholder="Meeting link — e.g. https://meet.google.com/…"
+                />
+              </div>
+            )}
+            {mode === 'phone' && (
+              <div className="relative">
+                <Phone size={15} className="pointer-events-none absolute left-3.5 top-3 text-ink/35" />
+                <input
+                  className={`${inputCls} pl-9`}
+                  value={callInfo}
+                  onChange={(e) => setCallInfo(e.target.value)}
+                  placeholder="Dial-in number — e.g. +1 555-123-4567 (code 8842)"
+                />
+              </div>
+            )}
           </div>
         )}
 
