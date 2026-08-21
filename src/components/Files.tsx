@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { FileText, Download, X, Image as ImageIcon, Camera, Paperclip } from 'lucide-react'
+import { FileText, Download, X, Image as ImageIcon, Camera } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
@@ -120,14 +120,12 @@ export function GroupFiles({ group, open, onClose }: { group: Group; open: boole
 }
 
 // Composer control: opens the phone camera / photo library / document picker.
-export function AttachButton({ onAdd }: { onAdd: (att: Attachment) => void }) {
-  const toast = useToast()
-  const [openMenu, setOpenMenu] = useState(false)
-  const photoRef = useRef<HTMLInputElement>(null)
-  const docRef = useRef<HTMLInputElement>(null)
+const attachChip =
+  'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-xs font-bold text-ink/60 transition hover:bg-violet-soft hover:text-violet'
 
-  const handle = async (file?: File | null) => {
-    setOpenMenu(false)
+function useAttachHandler(onAdd: (att: Attachment) => void) {
+  const toast = useToast()
+  return async (file?: File | null) => {
     if (!file) return
     try {
       const att = await readAsAttachment(file)
@@ -137,38 +135,52 @@ export function AttachButton({ onAdd }: { onAdd: (att: Attachment) => void }) {
       toast('Could not read that file', '⚠️')
     }
   }
+}
 
+// Share a document (any non-image file).
+export function DocumentButton({ onAdd }: { onAdd: (att: Attachment) => void }) {
+  const ref = useRef<HTMLInputElement>(null)
+  const handle = useAttachHandler(onAdd)
+  return (
+    <>
+      <button onClick={() => ref.current?.click()} className={attachChip}>
+        <FileText size={13} /> Document
+      </button>
+      <input ref={ref} type="file" className="hidden" onChange={(e) => handle(e.target.files?.[0])} />
+    </>
+  )
+}
+
+// Share a picture — from the camera roll, or straight from the phone camera.
+export function PictureButton({ onAdd }: { onAdd: (att: Attachment) => void }) {
+  const [menu, setMenu] = useState(false)
+  const rollRef = useRef<HTMLInputElement>(null)
+  const camRef = useRef<HTMLInputElement>(null)
+  const handle = useAttachHandler(onAdd)
+  const pick = (ref: React.RefObject<HTMLInputElement>) => {
+    setMenu(false)
+    ref.current?.click()
+  }
   return (
     <div className="relative">
-      <button
-        onClick={() => setOpenMenu((o) => !o)}
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-canvas px-3 py-1.5 text-xs font-bold text-ink/60 transition hover:bg-violet-soft hover:text-violet"
-      >
-        <Paperclip size={13} /> Attach
+      <button onClick={() => setMenu((o) => !o)} className={attachChip}>
+        <ImageIcon size={13} /> Picture
       </button>
-      {openMenu && (
-        <div className="absolute bottom-9 left-0 z-20 w-44 overflow-hidden rounded-2xl bg-white p-1 shadow-card">
-          <button onClick={() => photoRef.current?.click()} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-black/[0.04]">
-            <Camera size={16} className="text-violet" /> Photo / camera
-          </button>
-          <button onClick={() => docRef.current?.click()} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-black/[0.04]">
-            <FileText size={16} className="text-sky" /> Document
-          </button>
-        </div>
+      {menu && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setMenu(false)} />
+          <div className="absolute bottom-9 left-0 z-20 w-44 overflow-hidden rounded-2xl bg-white p-1 shadow-card">
+            <button onClick={() => pick(rollRef)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-black/[0.04]">
+              <ImageIcon size={16} className="text-violet" /> Camera roll
+            </button>
+            <button onClick={() => pick(camRef)} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-black/[0.04]">
+              <Camera size={16} className="text-sky" /> Take photo
+            </button>
+          </div>
+        </>
       )}
-      <input
-        ref={photoRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => handle(e.target.files?.[0])}
-      />
-      <input
-        ref={docRef}
-        type="file"
-        className="hidden"
-        onChange={(e) => handle(e.target.files?.[0])}
-      />
+      <input ref={rollRef} type="file" accept="image/*" className="hidden" onChange={(e) => handle(e.target.files?.[0])} />
+      <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handle(e.target.files?.[0])} />
     </div>
   )
 }

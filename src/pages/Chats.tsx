@@ -43,7 +43,7 @@ import {
   EditMembershipModal,
 } from '../components/Groups'
 import { GroupDirectory } from '../components/Directory'
-import { GroupFiles, AttachButton } from '../components/Files'
+import { GroupFiles, DocumentButton, PictureButton } from '../components/Files'
 import { useStore } from '../store/store'
 import {
   groupById,
@@ -353,6 +353,8 @@ function ChatView({ groupId }: { groupId: string }) {
   const [text, setText] = useState('')
   const [modalMsg, setModalMsg] = useState<ChatMessage | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [createKind, setCreateKind] = useState<'event' | 'task' | 'reminder'>('event')
+  const [addMenuOpen, setAddMenuOpen] = useState(false)
   const [signupOpen, setSignupOpen] = useState(false)
   const [pollOpen, setPollOpen] = useState(false)
   const [collectOpen, setCollectOpen] = useState(false)
@@ -477,19 +479,44 @@ function ChatView({ groupId }: { groupId: string }) {
 
           {canPost ? (
             <div className="border-t border-black/5">
-              <div className="flex items-center gap-1.5 overflow-x-auto px-4 pt-3">
-                <ComposerAction icon={<Plus size={13} />} label="Add" onClick={() => setCreateOpen(true)} />
-                <ComposerAction icon={<ClipboardList size={13} />} label="Sign-up" onClick={() => setSignupOpen(true)} />
-                <ComposerAction icon={<BarChart3 size={13} />} label="Poll" onClick={() => setPollOpen(true)} />
-                <ComposerAction icon={<PiggyBank size={13} />} label="Collect" onClick={() => setCollectOpen(true)} />
-                <AttachButton
+              <div className="flex items-center gap-1.5 px-4 pt-3">
+                <div className="relative">
+                  <ComposerAction icon={<Plus size={13} />} label="Add" onClick={() => setAddMenuOpen((o) => !o)} />
+                  {addMenuOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setAddMenuOpen(false)} />
+                      <div className="absolute bottom-9 left-0 z-20 w-52 overflow-hidden rounded-2xl bg-white p-1 shadow-card">
+                        {([
+                          { icon: CalendarDays, label: 'Event', run: () => { setCreateKind('event'); setCreateOpen(true) } },
+                          { icon: ListChecks, label: 'Task', run: () => { setCreateKind('task'); setCreateOpen(true) } },
+                          { icon: Bell, label: 'Reminder', run: () => { setCreateKind('reminder'); setCreateOpen(true) } },
+                          { icon: ClipboardList, label: 'Sign-up sheet', run: () => setSignupOpen(true) },
+                          { icon: BarChart3, label: 'Poll', run: () => setPollOpen(true) },
+                          { icon: PiggyBank, label: 'Collect money', run: () => setCollectOpen(true) },
+                        ] as const).map((it) => {
+                          const Icon = it.icon
+                          return (
+                            <button
+                              key={it.label}
+                              onClick={() => { setAddMenuOpen(false); it.run() }}
+                              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-black/[0.04]"
+                            >
+                              <Icon size={16} className="text-violet" /> {it.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <DocumentButton
                   onAdd={(att) =>
-                    dispatch({
-                      type: 'SEND_MESSAGE',
-                      groupId,
-                      text: att.kind === 'image' ? 'Shared a photo 📷' : 'Shared a file 📎',
-                      attachment: att,
-                    })
+                    dispatch({ type: 'SEND_MESSAGE', groupId, text: 'Shared a file 📎', attachment: att })
+                  }
+                />
+                <PictureButton
+                  onAdd={(att) =>
+                    dispatch({ type: 'SEND_MESSAGE', groupId, text: 'Shared a photo 📷', attachment: att })
                   }
                 />
               </div>
@@ -648,7 +675,7 @@ function ChatView({ groupId }: { groupId: string }) {
       </div>
 
       <AddComposer open={!!modalMsg} onClose={() => setModalMsg(null)} initialGroupId={groupId} messageId={modalMsg?.id} defaultText={modalMsg?.text ?? ''} />
-      <AddComposer open={createOpen} onClose={() => setCreateOpen(false)} initialGroupId={groupId} />
+      <AddComposer open={createOpen} onClose={() => setCreateOpen(false)} initialGroupId={groupId} initialKind={createKind} />
       <CreateSignupModal open={signupOpen} onClose={() => setSignupOpen(false)} groupId={groupId} />
       <CreatePollModal open={pollOpen} onClose={() => setPollOpen(false)} groupId={groupId} />
       <CreateCollectionModal open={collectOpen} onClose={() => setCollectOpen(false)} groupId={groupId} />
