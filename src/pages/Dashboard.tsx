@@ -52,8 +52,15 @@ export default function Dashboard() {
   const counts = todoCounts(state)
   const today0 = new Date(new Date().toDateString())
   const horizon = new Date(today0); horizon.setDate(today0.getDate() + 90)
-  const upcoming = expandOccurrences(state.events, today0.toISOString(), horizon.toISOString()).slice(0, 5)
-  const headsUp = expandOccurrences(state.reminders, today0.toISOString(), horizon.toISOString()).slice(0, 4)
+  const start = today0.toISOString()
+  const end = horizon.toISOString()
+  // Events and reminders together, in one chronological stream.
+  const soon = [
+    ...expandOccurrences(state.events, start, end).map((o) => ({ type: 'event' as const, ...o })),
+    ...expandOccurrences(state.reminders, start, end).map((o) => ({ type: 'reminder' as const, ...o })),
+  ]
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date))
+    .slice(0, 6)
   const overdue = overdueTasks(state)
   const payments = paymentsDue(state)
 
@@ -167,33 +174,25 @@ export default function Dashboard() {
               </div>
             </section>
 
-            {/* Coming up */}
+            {/* Coming up — events and reminders together */}
             <section>
               <SectionTitle action={<Link to="/calendar" className="text-sm font-semibold text-violet">Full calendar</Link>}>
                 Coming up
               </SectionTitle>
               <Card className="divide-y divide-black/5 p-2">
-                {upcoming.length === 0 ? (
-                  <EmptyState emoji="📭" text="No upcoming events yet." />
+                {soon.length === 0 ? (
+                  <EmptyState emoji="📭" text="Nothing coming up yet." />
                 ) : (
-                  upcoming.map((o) => <EventRow key={o.key} event={{ ...o.item, date: o.date }} />)
+                  soon.map((o) =>
+                    o.type === 'event' ? (
+                      <EventRow key={o.key} event={{ ...o.item, date: o.date }} />
+                    ) : (
+                      <ReminderRow key={o.key} reminder={{ ...o.item, date: o.date }} />
+                    ),
+                  )
                 )}
               </Card>
             </section>
-
-            {/* Heads up — reminders */}
-            {headsUp.length > 0 && (
-              <section>
-                <SectionTitle action={<Link to="/calendar" className="text-sm font-semibold text-violet">Calendar</Link>}>
-                  Heads up
-                </SectionTitle>
-                <Card className="divide-y divide-black/5 p-2">
-                  {headsUp.map((o) => (
-                    <ReminderRow key={o.key} reminder={{ ...o.item, date: o.date }} />
-                  ))}
-                </Card>
-              </section>
-            )}
           </div>
 
           {/* Right column */}
