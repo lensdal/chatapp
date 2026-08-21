@@ -66,6 +66,7 @@ export default function Topbar({
   ] as const
 
   return (
+    <>
     <header className="sticky top-0 z-20 flex items-center gap-4 border-b border-black/5 bg-canvas/80 px-8 py-4 backdrop-blur">
       <div className="min-w-0">
         <h1 className="truncate text-2xl font-extrabold tracking-tight">{title}</h1>
@@ -77,33 +78,12 @@ export default function Topbar({
           <Search size={16} />
           <span>Search groups, tasks…</span>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setAddMenuOpen((o) => !o)}
-            className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
-          >
-            <Plus size={16} /> Add
-          </button>
-          {addMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-30" onClick={() => setAddMenuOpen(false)} />
-              <div className="absolute right-0 top-full z-40 mt-2 w-52 overflow-hidden rounded-2xl bg-white p-1 shadow-card">
-                {MENU.map((it) => {
-                  const Icon = it.icon
-                  return (
-                    <button
-                      key={it.label}
-                      onClick={it.run}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold hover:bg-black/[0.04]"
-                    >
-                      <Icon size={16} className="text-violet" /> {it.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </>
-          )}
-        </div>
+        <button
+          onClick={() => setAddMenuOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-full bg-violet px-4 py-2.5 text-sm font-bold text-white shadow-soft transition hover:bg-violet/90"
+        >
+          <Plus size={16} /> Add
+        </button>
         <CaptureButton variant="topbar" />
         <button className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink/70 shadow-soft transition hover:text-violet">
           <Bell size={19} />
@@ -117,6 +97,25 @@ export default function Topbar({
           {format(new Date(), 'EEEE, MMM d')}
         </div>
       </div>
+    </header>
+
+      {/* Add chooser */}
+      <Modal open={addMenuOpen} onClose={() => setAddMenuOpen(false)} title="Add to Village">
+        <div className="grid grid-cols-2 gap-2">
+          {MENU.map((it) => {
+            const Icon = it.icon
+            return (
+              <button
+                key={it.label}
+                onClick={() => { setAddMenuOpen(false); it.run() }}
+                className="flex items-center gap-2.5 rounded-2xl bg-canvas px-4 py-3.5 text-sm font-bold text-ink/75 transition hover:bg-violet-soft hover:text-violet"
+              >
+                <Icon size={18} className="text-violet" /> {it.label}
+              </button>
+            )
+          })}
+        </div>
+      </Modal>
 
       <AddComposer open={composerOpen} onClose={() => setComposerOpen(false)} initialKind={createKind} />
 
@@ -143,6 +142,6 @@ export default function Topbar({
           <CreateCollectionModal open={sheet === 'collect'} onClose={() => setSheet(null)} groupId={sheetGroupId} />
         </>
       )}
-    </header>
+    </>
   )
 }

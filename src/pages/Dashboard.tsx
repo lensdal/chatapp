@@ -1,19 +1,18 @@
 import { Link } from 'react-router-dom'
 import { CalendarDays, ListChecks, Clock3, AlertTriangle, DollarSign, ArrowRight } from 'lucide-react'
 import Topbar from '../components/Topbar'
-import { Card, SectionTitle, Donut, EmptyState, Pill } from '../components/ui'
+import { Card, SectionTitle, EmptyState, Pill } from '../components/ui'
 import { TaskRow, EventRow, ReminderRow, PaymentButton, KidTag } from '../components/items'
 import { CaptureButton } from '../components/Capture'
 import { useStore } from '../store/store'
 import {
-  openTasks,
   overdueTasks,
   paymentsDue,
   todoCounts,
   tasksForChild,
   eventsForChild,
 } from '../lib/selectors'
-import { groupStyles, toHex } from '../lib/ui'
+import { groupStyles } from '../lib/ui'
 import { expandOccurrences } from '../lib/recurrence'
 import { format } from 'date-fns'
 import { fmtDayShort, fmtTime } from '../lib/dates'
@@ -57,17 +56,6 @@ export default function Dashboard() {
   const headsUp = expandOccurrences(state.reminders, today0.toISOString(), horizon.toISOString()).slice(0, 4)
   const overdue = overdueTasks(state)
   const payments = paymentsDue(state)
-  const open = openTasks(state)
-
-  // Task breakdown by group for the donut.
-  const donutSegs = state.groups
-    .map((g) => ({
-      color: toHex(g.color),
-      value: open.filter((t) => t.groupId === g.id).length,
-      label: g.name,
-      key: g.id,
-    }))
-    .filter((s) => s.value > 0)
 
   return (
     <>
@@ -210,31 +198,6 @@ export default function Dashboard() {
 
           {/* Right column */}
           <div className="space-y-6">
-            {/* Activity donut */}
-            <Card className="p-5">
-              <SectionTitle>Your load</SectionTitle>
-              <div className="flex items-center gap-5">
-                <Donut
-                  segments={donutSegs.length ? donutSegs : [{ value: 1, color: '#EFEAF7' }]}
-                  center={
-                    <>
-                      <span className="text-2xl font-extrabold">{open.length}</span>
-                      <span className="text-[11px] font-semibold text-ink/45">to-dos</span>
-                    </>
-                  }
-                />
-                <ul className="min-w-0 flex-1 space-y-2">
-                  {donutSegs.map((s) => (
-                    <li key={s.key} className="flex items-center gap-2 text-xs">
-                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: s.color }} />
-                      <span className="min-w-0 flex-1 truncate font-medium text-ink/70">{s.label}</span>
-                      <span className="font-bold">{s.value}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Card>
-
             {/* Payments due */}
             <Card className="p-5">
               <SectionTitle
