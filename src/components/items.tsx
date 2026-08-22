@@ -274,6 +274,8 @@ export function EventRow({
   const d = new Date(event.date)
   const group = groupById(state, event.groupId)
   const goingCount = headcount(event).total
+  // Nudge: upcoming event I haven't RSVP'd to yet.
+  const needsRsvp = !event.rsvps?.[state.currentUserId] && d >= new Date(new Date().toDateString())
   return (
     <div className="flex items-start gap-3 rounded-2xl px-3 py-3 transition hover:bg-black/[0.02]">
       <button
@@ -313,6 +315,9 @@ export function EventRow({
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {showKid && <KidTag childId={event.childId} />}
           {showGroup && <GroupTag groupId={event.groupId} />}
+          {needsRsvp && (
+            <Pill className="bg-sun-soft font-bold text-[#8a6413]">Tap to RSVP</Pill>
+          )}
           {isRepeating(event.recurrence) && (
             <Pill className="bg-violet-soft text-violet"><Repeat size={11} /> {recurrenceShort(event.recurrence)}</Pill>
           )}

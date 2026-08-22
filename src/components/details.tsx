@@ -113,6 +113,17 @@ export function EventDetailModal({
 
   const name = (id: string) => displayLabel(state, group, id).name
 
+  const collect = event.collectHeadcount ?? true
+  // Group members who haven't said yes / maybe / no yet.
+  const pending = group.members.map((gm) => gm.memberId).filter((id) => !rsvps[id])
+  const nudge = () =>
+    toast(
+      state.whatsappConnected
+        ? `Nudged ${pending.length} ${pending.length === 1 ? 'person' : 'people'} who haven't replied`
+        : 'Connect WhatsApp in Settings to send nudges',
+      '👋',
+    )
+
   return (
     <Modal open={open} onClose={onClose} title="Event">
       <div className="space-y-5">
@@ -174,12 +185,25 @@ export function EventDetailModal({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wide text-ink/40">Who's going?</span>
-            {heads.total > 0 && (
+            {collect && heads.total > 0 ? (
               <span className="text-xs font-semibold text-mint">
                 {heads.total} coming · {heads.adults} adult{heads.adults === 1 ? '' : 's'}, {heads.children} kid{heads.children === 1 ? '' : 's'}
               </span>
+            ) : (
+              heads.responders > 0 && (
+                <span className="text-xs font-semibold text-mint">{heads.responders} going</span>
+              )
             )}
           </div>
+
+          {/* Nudge to respond — shown until you've RSVP'd */}
+          {!myRsvp && (
+            <div className="mb-2.5 flex items-start gap-2 rounded-2xl bg-sun-soft px-3 py-2.5 text-xs font-semibold text-[#8a6413]">
+              <span className="text-sm leading-none">👋</span>
+              <span>Don't forget to let the organizer know who's going to this event.</span>
+            </div>
+          )}
+
           <div className="flex gap-2">
             {RSVP_META.map((r) => {
               const people = byStatus(r.key)
@@ -187,7 +211,7 @@ export function EventDetailModal({
               return (
                 <button
                   key={r.key}
-                  onClick={() => setRsvp(r.key, r.key === 'going' && !myEntry?.adults && !myEntry?.children ? { adults: 1, children: 0 } : {})}
+                  onClick={() => setRsvp(r.key, collect && r.key === 'going' && !myEntry?.adults && !myEntry?.children ? { adults: 1, children: 0 } : {})}
                   className={`flex flex-1 flex-col items-center gap-1 rounded-2xl px-2 py-2.5 text-sm font-bold transition ${
                     mine ? r.cls + ' shadow-soft' : 'bg-canvas text-ink/55 hover:bg-black/[0.05]'
                   }`}
@@ -199,8 +223,8 @@ export function EventDetailModal({
             })}
           </div>
 
-          {/* Headcount editor (only when I'm going) */}
-          {myRsvp === 'going' && (
+          {/* Headcount editor (only when I'm going, and the organizer asked for it) */}
+          {collect && myRsvp === 'going' && (
             <div className="mt-3 space-y-3 rounded-2xl bg-canvas p-3">
               <div className="flex items-center gap-4">
                 <Stepper label="Adults" value={myEntry?.adults ?? 1} onChange={(v) => setRsvp('going', { adults: v })} min={0} />
@@ -232,6 +256,21 @@ export function EventDetailModal({
                 )
               })}
             </ul>
+          )}
+
+          {/* Organizer view: who still hasn't replied, with a nudge */}
+          {canManage && pending.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-canvas px-3 py-2.5 text-xs">
+              <span className="font-bold text-ink/55">
+                Waiting on {pending.length}:
+              </span>
+              <span className="min-w-0 flex-1 truncate text-ink/45">
+                {pending.map(name).join(', ')}
+              </span>
+              <button onClick={nudge} className="chip shrink-0 bg-white text-violet ring-1 ring-violet/25">
+                <Bell size={12} /> Nudge
+              </button>
+            </div>
           )}
         </div>
 

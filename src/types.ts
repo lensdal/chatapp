@@ -179,6 +179,8 @@ export interface EventItem {
   createdFromMessageId?: string
   createdById?: string
   recurrence?: Recurrence
+  // Whether the organizer wants a headcount (adults/kids & names) with each RSVP.
+  collectHeadcount?: boolean
   rsvps?: Record<string, RSVPEntry>
   carpoolOffers?: CarpoolOffer[]
   carpoolRequests?: CarpoolRequest[]

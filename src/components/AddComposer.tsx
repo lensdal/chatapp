@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine, Video, Phone, Sparkles } from 'lucide-react'
+import { CalendarDays, ListChecks, Bell, MapPin, Paperclip, X, PenLine, Video, Phone, Sparkles, Users } from 'lucide-react'
 import Modal from './Modal'
 import { useStore } from '../store/store'
 import { useToast } from './Toast'
@@ -60,6 +60,7 @@ export default function AddComposer({
   const [location, setLocation] = useState('')
   const [meetingUrl, setMeetingUrl] = useState('')
   const [callInfo, setCallInfo] = useState('')
+  const [collectHeadcount, setCollectHeadcount] = useState(true)
   const [note, setNote] = useState('')
   const [priority, setPriority] = useState<Priority>('medium')
   const [repeat, setRepeat] = useState<Recurrence>(NO_REPEAT)
@@ -89,6 +90,7 @@ export default function AddComposer({
     setLocation('')
     setMeetingUrl('')
     setCallInfo('')
+    setCollectHeadcount(true)
     setNote('')
     setRepeat(NO_REPEAT)
     setAttachment(undefined)
@@ -161,6 +163,7 @@ export default function AddComposer({
         location: showLocation ? location.trim() || undefined : undefined,
         meetingUrl: showLink ? meetingUrl.trim() || undefined : undefined,
         callInfo: mode === 'phone' ? callInfo.trim() || undefined : undefined,
+        collectHeadcount,
         note: note.trim() || undefined,
         recurrence: rec,
         addedToGoogle: false,
@@ -394,6 +397,24 @@ export default function AddComposer({
                 </div>
               )}
             </div>
+
+            {/* Headcount collection toggle */}
+            <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-2xl bg-canvas px-3 py-2.5">
+              <input
+                type="checkbox"
+                checked={collectHeadcount}
+                onChange={(e) => setCollectHeadcount(e.target.checked)}
+                className="mt-0.5 h-5 w-5 accent-violet"
+              />
+              <span className="min-w-0">
+                <span className="flex items-center gap-1.5 text-sm font-bold">
+                  <Users size={15} /> Collect a headcount
+                </span>
+                <span className="block text-xs text-ink/50">
+                  Ask each “Going” for how many adults &amp; kids are coming, plus names. Off = a simple yes / maybe / no.
+                </span>
+              </span>
+            </label>
           </div>
         )}
 
