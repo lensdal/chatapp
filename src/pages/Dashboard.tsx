@@ -18,13 +18,6 @@ import { format } from 'date-fns'
 import { fmtDayShort, fmtTime } from '../lib/dates'
 import type { ReactNode } from 'react'
 
-function greeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
-}
-
 function StatTile({
   icon,
   count,
@@ -66,7 +59,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <Topbar title={`${greeting()} 👋`} subtitle="Here's everything across all your groups, in one place." />
+      <Topbar title="Enjoy — community made simple." subtitle="Here's everything across all your groups, in one place." />
       <div className="flex-1 overflow-y-auto px-8 pb-10 pt-4">
         {/* WhatsApp forward banner */}
         <div className="mb-5 flex flex-wrap items-center gap-4 rounded-3xl bg-gradient-to-r from-mint-soft to-violet-soft px-5 py-4">

@@ -1,9 +1,8 @@
-import { Bell, Search, Plus } from 'lucide-react'
+import { Search, Plus } from 'lucide-react'
 import { format } from 'date-fns'
-import { useStore } from '../store/store'
-import { overdueTasks, paymentsDue } from '../lib/selectors'
 import { CaptureButton } from './Capture'
 import AddMenu from './AddMenu'
+import NotificationBell from './NotificationBell'
 
 export default function Topbar({
   title,
@@ -12,9 +11,6 @@ export default function Topbar({
   title: string
   subtitle?: string
 }) {
-  const { state } = useStore()
-  const alerts = overdueTasks(state).length + paymentsDue(state).length
-
   return (
     <header className="sticky top-0 z-20 flex items-center gap-4 border-b border-black/5 bg-canvas/80 px-8 py-4 backdrop-blur">
       <div className="min-w-0">
@@ -38,14 +34,7 @@ export default function Topbar({
           )}
         </AddMenu>
         <CaptureButton variant="topbar" />
-        <button className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink/70 shadow-soft transition hover:text-violet">
-          <Bell size={19} />
-          {alerts > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-tang px-1 text-[10px] font-bold text-white">
-              {alerts}
-            </span>
-          )}
-        </button>
+        <NotificationBell />
         <div className="hidden rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ink/60 shadow-soft lg:block">
           {format(new Date(), 'EEEE, MMM d')}
         </div>

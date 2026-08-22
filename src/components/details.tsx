@@ -118,9 +118,9 @@ export function EventDetailModal({
   const pending = group.members.map((gm) => gm.memberId).filter((id) => !rsvps[id])
   const nudge = () =>
     toast(
-      state.whatsappConnected
-        ? `Nudged ${pending.length} ${pending.length === 1 ? 'person' : 'people'} who haven't replied`
-        : 'Connect WhatsApp in Settings to send nudges',
+      `Nudged ${pending.length} ${pending.length === 1 ? 'person' : 'people'} who haven't replied — they'll see it in the app${
+        state.whatsappConnected ? ' & WhatsApp' : ''
+      }`,
       '👋',
     )
 
