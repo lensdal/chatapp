@@ -22,7 +22,7 @@ import { mapsLinks } from '../lib/maps'
 import { rsvpsByStatus, headcount } from '../lib/rsvp'
 import { fmtDay, fmtTime } from '../lib/dates'
 import { AttachmentChip } from './items'
-import type { EventItem, RSVPStatus, Task } from '../types'
+import type { EventItem, RSVPStatus, RideDirection, Task } from '../types'
 
 function Stepper({
   label,
@@ -53,6 +53,31 @@ const RSVP_META: { key: RSVPStatus; label: string; cls: string }[] = [
   { key: 'no', label: "Can't", cls: 'bg-tang text-white' },
 ]
 
+const DIR_META: { key: RideDirection; label: string }[] = [
+  { key: 'there', label: 'There' },
+  { key: 'back', label: 'Back' },
+  { key: 'both', label: 'Round trip' },
+]
+const dirLabel = (d: RideDirection) => DIR_META.find((x) => x.key === d)?.label ?? 'Round trip'
+
+function DirChips({ value, onChange }: { value: RideDirection; onChange: (d: RideDirection) => void }) {
+  return (
+    <div className="flex gap-1">
+      {DIR_META.map((d) => (
+        <button
+          key={d.key}
+          onClick={() => onChange(d.key)}
+          className={`rounded-full px-3 py-1 text-xs font-bold transition ${
+            value === d.key ? 'bg-violet text-white shadow-soft' : 'bg-white text-ink/55 ring-1 ring-black/10'
+          }`}
+        >
+          {d.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function EventDetailModal({
   event,
   open,
@@ -65,6 +90,9 @@ export function EventDetailModal({
   const { state, dispatch } = useStore()
   const toast = useToast()
   const [seats, setSeats] = useState(3)
+  const [dir, setDir] = useState<RideDirection>('both')
+  const [pickup, setPickup] = useState('')
+  const [reqDir, setReqDir] = useState<RideDirection>('both')
   const group = groupById(state, event.groupId)
   if (!group) return null
 
@@ -77,8 +105,11 @@ export function EventDetailModal({
   const heads = headcount(event)
   const setRsvp = (status: RSVPStatus, patch: { adults?: number; children?: number; names?: string } = {}) =>
     dispatch({ type: 'SET_RSVP', eventId: event.id, status, ...patch })
-  const myOffer = (event.carpoolOffers ?? []).find((o) => o.memberId === me)
-  const iNeedRide = (event.carpoolRequests ?? []).includes(me)
+  const offers = event.carpoolOffers ?? []
+  const requests = event.carpoolRequests ?? []
+  const myOffer = offers.find((o) => o.memberId === me)
+  const myRide = offers.find((o) => o.riders.includes(me))
+  const myReq = requests.find((r) => r.memberId === me)
 
   const name = (id: string) => displayLabel(state, group, id).name
 
@@ -206,56 +237,166 @@ export function EventDetailModal({
 
         {/* Carpool */}
         <div className="rounded-2xl bg-canvas p-4">
-          <div className="mb-2 flex items-center gap-1.5 text-sm font-bold">
-            <Car size={16} className="text-violet" /> Carpool
+          <div className="mb-3 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-sm font-bold">
+              <Car size={16} className="text-violet" /> Carpool
+            </span>
+            {offers.length > 0 && (
+              <span className="text-xs font-semibold text-ink/45">
+                {offers.reduce((s, o) => s + Math.max(0, o.seats - o.riders.length), 0)} seat
+                {offers.reduce((s, o) => s + Math.max(0, o.seats - o.riders.length), 0) === 1 ? '' : 's'} left
+              </span>
+            )}
           </div>
-          {(event.carpoolOffers ?? []).length > 0 && (
-            <ul className="mb-2 space-y-1">
-              {(event.carpoolOffers ?? []).map((o) => (
-                <li key={o.memberId} className="flex items-center gap-2 text-sm">
-                  <Avatar emoji={memberById(state, o.memberId)?.emoji ?? '🚗'} color={memberById(state, o.memberId)?.color ?? 'violet'} size="xs" />
-                  <span className="font-semibold">{name(o.memberId)}</span>
-                  <span className="text-ink/50">can drive · {o.seats} seats</span>
+
+          {/* Cars on offer */}
+          {offers.length > 0 && (
+            <ul className="mb-3 space-y-2">
+              {offers.map((o) => {
+                const driver = memberById(state, o.memberId)
+                const left = Math.max(0, o.seats - o.riders.length)
+                const full = left === 0
+                const isMine = o.memberId === me
+                const iAmRiding = o.riders.includes(me)
+                return (
+                  <li key={o.memberId} className="rounded-2xl bg-white p-3 ring-1 ring-black/5">
+                    <div className="flex items-center gap-2">
+                      <Avatar emoji={driver?.emoji ?? '🚗'} color={driver?.color ?? 'violet'} size="xs" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 text-sm font-bold">
+                          {isMine ? 'You' : name(o.memberId)} <span className="text-ink/40">driving</span>
+                        </div>
+                        <div className="text-[11px] font-semibold text-ink/45">
+                          {dirLabel(o.direction)}
+                          {o.pickup ? ` · from ${o.pickup}` : ''}
+                        </div>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${
+                          full ? 'bg-tang-soft text-tang' : 'bg-mint-soft text-mint'
+                        }`}
+                      >
+                        {full ? 'Full' : `${left} of ${o.seats} open`}
+                      </span>
+                    </div>
+                    {/* Riders */}
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      {Array.from({ length: o.seats }).map((_, i) => {
+                        const rid = o.riders[i]
+                        const rm = rid ? memberById(state, rid) : null
+                        return rid ? (
+                          <span key={i} className="inline-flex items-center gap-1 rounded-full bg-canvas px-2 py-1 text-[11px] font-semibold text-ink/70">
+                            <Avatar emoji={rm?.emoji ?? '🧑'} color={rm?.color ?? 'violet'} size="xs" />
+                            {rid === me ? 'You' : name(rid)}
+                          </span>
+                        ) : (
+                          <span key={i} className="inline-flex h-6 items-center rounded-full border border-dashed border-black/15 px-2.5 text-[11px] font-semibold text-ink/30">
+                            open
+                          </span>
+                        )
+                      })}
+                    </div>
+                    {/* Actions on this car */}
+                    {!isMine && (
+                      <div className="mt-2">
+                        {iAmRiding ? (
+                          <button
+                            onClick={() => dispatch({ type: 'CARPOOL_UNCLAIM', eventId: event.id, driverId: o.memberId })}
+                            className="chip bg-mint text-white"
+                          >
+                            <Check size={13} /> You're in — leave seat
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => dispatch({ type: 'CARPOOL_CLAIM', eventId: event.id, driverId: o.memberId })}
+                            disabled={full}
+                            className={`chip ${full ? 'bg-canvas text-ink/30' : 'bg-white text-violet ring-1 ring-violet/30'}`}
+                          >
+                            {full ? 'No seats left' : 'Grab a seat'}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {isMine && (
+                      <div className="mt-2">
+                        <button
+                          onClick={() => dispatch({ type: 'CARPOOL_CANCEL', eventId: event.id })}
+                          className="chip bg-white text-tang ring-1 ring-tang/30"
+                        >
+                          Cancel my ride
+                        </button>
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+
+          {/* People still looking for a ride */}
+          {requests.length > 0 && (
+            <ul className="mb-3 space-y-1">
+              {requests.map((r) => (
+                <li key={r.memberId} className="flex items-center gap-2 text-xs">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-tang" />
+                  <span className="font-semibold text-ink/70">{r.memberId === me ? 'You' : name(r.memberId)}</span>
+                  <span className="text-ink/45">need{r.memberId === me ? '' : 's'} a ride · {dirLabel(r.direction)}</span>
+                  {r.note && <span className="text-ink/40">· {r.note}</span>}
                 </li>
               ))}
             </ul>
           )}
-          {(event.carpoolRequests ?? []).length > 0 && (
-            <div className="mb-2 text-xs text-ink/50">
-              <span className="font-semibold text-tang">Needs a ride: </span>
-              {(event.carpoolRequests ?? []).map(name).join(', ')}
+
+          {/* My controls */}
+          {myRide ? null : myOffer ? null : (
+            <div className="space-y-3 rounded-2xl bg-white p-3 ring-1 ring-black/5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs font-bold uppercase tracking-wide text-ink/40">Offer a ride</span>
+                <div className="flex items-center gap-1 rounded-full bg-canvas px-2 py-1">
+                  <button onClick={() => setSeats((s) => Math.max(1, s - 1))} className="px-1.5 font-bold text-ink/50">−</button>
+                  <span className="w-14 text-center text-sm font-bold">{seats} seat{seats === 1 ? '' : 's'}</span>
+                  <button onClick={() => setSeats((s) => Math.min(8, s + 1))} className="px-1.5 font-bold text-ink/50">+</button>
+                </div>
+              </div>
+              <DirChips value={dir} onChange={setDir} />
+              <input
+                className="w-full rounded-2xl border border-black/10 bg-white px-4 py-2.5 text-sm font-medium outline-none transition focus:border-violet"
+                value={pickup}
+                onChange={(e) => setPickup(e.target.value)}
+                placeholder="Pickup spot or notes (optional)"
+              />
+              <button
+                onClick={() => dispatch({ type: 'CARPOOL_OFFER', eventId: event.id, seats, direction: dir, pickup })}
+                className="chip w-full justify-center bg-violet py-2.5 text-white shadow-soft"
+              >
+                <Car size={14} /> I can drive
+              </button>
             </div>
           )}
-          <div className="flex flex-wrap items-center gap-2">
-            {myOffer ? (
-              <button
-                onClick={() => dispatch({ type: 'CARPOOL_CANCEL', eventId: event.id })}
-                className="chip bg-violet text-white"
-              >
-                <Check size={13} /> Driving ({myOffer.seats} seats) — cancel
-              </button>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center gap-1 rounded-full bg-white px-2 py-1 ring-1 ring-black/10">
-                  <button onClick={() => setSeats((s) => Math.max(1, s - 1))} className="px-1 font-bold text-ink/50">−</button>
-                  <span className="w-10 text-center text-sm font-bold">{seats} seat{seats === 1 ? '' : 's'}</span>
-                  <button onClick={() => setSeats((s) => Math.min(8, s + 1))} className="px-1 font-bold text-ink/50">+</button>
-                </div>
+
+          {/* Ride request — only when I'm neither driving nor riding */}
+          {!myOffer && !myRide && (
+            <div className="mt-3">
+              {myReq ? (
                 <button
-                  onClick={() => dispatch({ type: 'CARPOOL_OFFER', eventId: event.id, seats })}
-                  className="chip bg-violet text-white shadow-soft"
+                  onClick={() => dispatch({ type: 'CARPOOL_CANCEL_REQUEST', eventId: event.id })}
+                  className="chip bg-tang text-white"
                 >
-                  <Car size={13} /> I can drive
+                  Asking for a ride ({dirLabel(myReq.direction)}) — cancel
                 </button>
-              </div>
-            )}
-            <button
-              onClick={() => dispatch({ type: 'CARPOOL_TOGGLE_REQUEST', eventId: event.id })}
-              className={`chip ${iNeedRide ? 'bg-tang text-white' : 'bg-white text-ink/60 ring-1 ring-black/10'}`}
-            >
-              {iNeedRide ? 'Cancel ride request' : 'I need a ride'}
-            </button>
-          </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-2">
+                  <DirChips value={reqDir} onChange={setReqDir} />
+                  <button
+                    onClick={() => dispatch({ type: 'CARPOOL_REQUEST', eventId: event.id, direction: reqDir })}
+                    className="chip bg-white text-tang ring-1 ring-tang/30"
+                  >
+                    I need a ride
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Actions */}

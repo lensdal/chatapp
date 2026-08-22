@@ -180,9 +180,26 @@ export interface EventItem {
   createdById?: string
   recurrence?: Recurrence
   rsvps?: Record<string, RSVPEntry>
-  carpoolOffers?: { memberId: string; seats: number }[]
-  carpoolRequests?: string[] // memberIds needing a ride
+  carpoolOffers?: CarpoolOffer[]
+  carpoolRequests?: CarpoolRequest[]
   attachment?: FileAttachment
+}
+
+export type RideDirection = 'there' | 'back' | 'both'
+
+// A driver offering seats. Riders claim a seat, so the car fills up.
+export interface CarpoolOffer {
+  memberId: string
+  seats: number
+  riders: string[] // memberIds who claimed a seat
+  direction: RideDirection
+  pickup?: string // pickup spot / notes
+}
+
+export interface CarpoolRequest {
+  memberId: string
+  direction: RideDirection
+  note?: string
 }
 
 // A lightweight heads-up — "No school", "No practice" — not a to-do or an

@@ -125,9 +125,12 @@ type Action =
   // events
   | { type: 'UPDATE_EVENT'; eventId: string; patch: Partial<EventItem> }
   | { type: 'SET_RSVP'; eventId: string; status: RSVPStatus; adults?: number; children?: number; names?: string }
-  | { type: 'CARPOOL_OFFER'; eventId: string; seats: number }
+  | { type: 'CARPOOL_OFFER'; eventId: string; seats: number; direction: import('../types').RideDirection; pickup?: string }
   | { type: 'CARPOOL_CANCEL'; eventId: string }
-  | { type: 'CARPOOL_TOGGLE_REQUEST'; eventId: string }
+  | { type: 'CARPOOL_CLAIM'; eventId: string; driverId: string }
+  | { type: 'CARPOOL_UNCLAIM'; eventId: string; driverId: string }
+  | { type: 'CARPOOL_REQUEST'; eventId: string; direction: import('../types').RideDirection; note?: string }
+  | { type: 'CARPOOL_CANCEL_REQUEST'; eventId: string }
   // tasks
   | { type: 'UPDATE_TASK'; taskId: string; patch: Partial<Task> }
   | { type: 'ADD_REMINDER'; reminder: Omit<import('../types').Reminder, 'id'> }
@@ -542,8 +545,17 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         events: state.events.map((e) => {
           if (e.id !== action.eventId) return e
-          const offers = (e.carpoolOffers ?? []).filter((o) => o.memberId !== state.currentUserId)
-          return { ...e, carpoolOffers: [...offers, { memberId: state.currentUserId, seats: action.seats }] }
+          const me = state.currentUserId
+          const existing = (e.carpoolOffers ?? []).find((o) => o.memberId === me)
+          const others = (e.carpoolOffers ?? []).filter((o) => o.memberId !== me)
+          // Keep any riders already in my car, clamped to the new seat count.
+          const riders = (existing?.riders ?? []).slice(0, action.seats)
+          return {
+            ...e,
+            carpoolOffers: [...others, { memberId: me, seats: action.seats, riders, direction: action.direction, pickup: action.pickup?.trim() || undefined }],
+            // Offering a ride clears any ride request I had.
+            carpoolRequests: (e.carpoolRequests ?? []).filter((r) => r.memberId !== me),
+          }
         }),
       }
 
@@ -557,19 +569,64 @@ function reducer(state: AppState, action: Action): AppState {
         ),
       }
 
-    case 'CARPOOL_TOGGLE_REQUEST':
+    case 'CARPOOL_CLAIM':
       return {
         ...state,
         events: state.events.map((e) => {
           if (e.id !== action.eventId) return e
-          const reqs = e.carpoolRequests ?? []
+          const me = state.currentUserId
           return {
             ...e,
-            carpoolRequests: reqs.includes(state.currentUserId)
-              ? reqs.filter((r) => r !== state.currentUserId)
-              : [...reqs, state.currentUserId],
+            carpoolOffers: (e.carpoolOffers ?? []).map((o) => {
+              if (o.memberId === action.driverId) {
+                if (o.memberId === me || o.riders.includes(me) || o.riders.length >= o.seats) return o
+                return { ...o, riders: [...o.riders, me] }
+              }
+              // Only ride in one car — drop me from any other car.
+              return o.riders.includes(me) ? { ...o, riders: o.riders.filter((r) => r !== me) } : o
+            }),
+            // Claiming a seat clears my ride request.
+            carpoolRequests: (e.carpoolRequests ?? []).filter((r) => r.memberId !== me),
           }
         }),
+      }
+
+    case 'CARPOOL_UNCLAIM':
+      return {
+        ...state,
+        events: state.events.map((e) =>
+          e.id !== action.eventId
+            ? e
+            : {
+                ...e,
+                carpoolOffers: (e.carpoolOffers ?? []).map((o) =>
+                  o.memberId === action.driverId
+                    ? { ...o, riders: o.riders.filter((r) => r !== state.currentUserId) }
+                    : o,
+                ),
+              },
+        ),
+      }
+
+    case 'CARPOOL_REQUEST':
+      return {
+        ...state,
+        events: state.events.map((e) => {
+          if (e.id !== action.eventId) return e
+          const me = state.currentUserId
+          const others = (e.carpoolRequests ?? []).filter((r) => r.memberId !== me)
+          return { ...e, carpoolRequests: [...others, { memberId: me, direction: action.direction, note: action.note?.trim() || undefined }] }
+        }),
+      }
+
+    case 'CARPOOL_CANCEL_REQUEST':
+      return {
+        ...state,
+        events: state.events.map((e) =>
+          e.id !== action.eventId
+            ? e
+            : { ...e, carpoolRequests: (e.carpoolRequests ?? []).filter((r) => r.memberId !== state.currentUserId) },
+        ),
       }
 
     // ---- tasks ----

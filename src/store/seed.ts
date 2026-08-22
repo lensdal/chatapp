@@ -231,8 +231,10 @@ export function makeSeed(): AppState {
           marcus: { status: 'maybe' },
           lena: { status: 'going', adults: 2 },
         },
-        carpoolOffers: [{ memberId: 'marcus', seats: 2 }],
-        carpoolRequests: ['jenna'],
+        carpoolOffers: [
+          { memberId: 'marcus', seats: 3, riders: ['jenna'], direction: 'both', pickup: 'Westside Park & Ride lot' },
+        ],
+        carpoolRequests: [{ memberId: 'lena', direction: 'back' }],
       },
       {
         id: 'ev-2',
