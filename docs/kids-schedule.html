@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ellie, Callie &amp; Davey</title>
+<title>Elle, Callie &amp; Davey</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -19,7 +19,7 @@
   --ink-3:#8A939B;
   --rule:#D6DBD3;
   --rule-strong:#B4BCB0;
-  --ellie:#B8371F;
+  --elle:#B8371F;
   --callie:#15665A;
   --davey:#54499E;
   --flag:#8A5A00;
@@ -34,242 +34,162 @@
 
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#12161A;
-    --surface:#191E23;
-    --sunken:#0D1114;
-    --ink:#E9ECE7;
-    --ink-2:#9AA4AC;
-    --ink-3:#6E7880;
-    --rule:#2B3238;
-    --rule-strong:#434B53;
-    --ellie:#F28466;
-    --callie:#57C1AC;
-    --davey:#A79DEE;
-    --flag:#DCAF5F;
-    --flag-bg:#2A2317;
-    --focus:#57C1AC;
+    --paper:#12161A; --surface:#191E23; --sunken:#0D1114;
+    --ink:#E9ECE7; --ink-2:#9AA4AC; --ink-3:#6E7880;
+    --rule:#2B3238; --rule-strong:#434B53;
+    --elle:#F28466; --callie:#57C1AC; --davey:#A79DEE;
+    --flag:#DCAF5F; --flag-bg:#2A2317; --focus:#57C1AC;
     --shade:rgba(233,236,231,.06);
   }
 }
 :root[data-theme="dark"]{
-  --paper:#12161A;
-  --surface:#191E23;
-  --sunken:#0D1114;
-  --ink:#E9ECE7;
-  --ink-2:#9AA4AC;
-  --ink-3:#6E7880;
-  --rule:#2B3238;
-  --rule-strong:#434B53;
-  --ellie:#F28466;
-  --callie:#57C1AC;
-  --davey:#A79DEE;
-  --flag:#DCAF5F;
-  --flag-bg:#2A2317;
-  --focus:#57C1AC;
+  --paper:#12161A; --surface:#191E23; --sunken:#0D1114;
+  --ink:#E9ECE7; --ink-2:#9AA4AC; --ink-3:#6E7880;
+  --rule:#2B3238; --rule-strong:#434B53;
+  --elle:#F28466; --callie:#57C1AC; --davey:#A79DEE;
+  --flag:#DCAF5F; --flag-bg:#2A2317; --focus:#57C1AC;
   --shade:rgba(233,236,231,.06);
 }
 
 body{
-  margin:0;
-  background:var(--paper);
-  color:var(--ink);
-  font-family:var(--sans);
-  font-size:16px;
-  line-height:1.55;
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.55;
   -webkit-font-smoothing:antialiased;
 }
-
 .wrap{max-width:64rem;margin:0 auto;padding:0 1.25rem 5rem}
 
-/* ---------- masthead ---------- */
 .masthead{padding:3rem 0 1.75rem;border-bottom:2px solid var(--ink)}
-.eyebrow{
-  font-family:var(--mono);font-size:.75rem;font-weight:500;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin:0 0 .9rem
-}
-h1{
-  font-family:var(--disp);font-weight:700;
-  font-size:clamp(2.2rem,6vw,3.4rem);line-height:1.02;
-  letter-spacing:-.02em;margin:0;text-wrap:balance
-}
+.eyebrow{font-family:var(--mono);font-size:.75rem;font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin:0 0 .9rem}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
+  line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance}
 h1 .n{white-space:nowrap}
 h1 .amp{color:var(--ink-3);font-weight:400}
-.standfirst{
-  margin:.9rem 0 0;max-width:34em;color:var(--ink-2);font-size:1.0625rem
-}
+.standfirst{margin:.9rem 0 0;max-width:34em;color:var(--ink-2);font-size:1.0625rem}
 
-/* ---------- bell times ---------- */
-.bells{
-  display:grid;gap:0;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));
-  border-bottom:1px solid var(--rule);
-}
+.bells{display:grid;gap:0;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));
+  border-bottom:1px solid var(--rule)}
 .bell{padding:1.1rem 1.25rem 1.1rem 0}
 .bell + .bell{border-left:1px solid var(--rule);padding-left:1.25rem}
-.bell .kid{
-  font-family:var(--mono);font-size:.75rem;font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem
-}
+.bell .kid{font-family:var(--mono);font-size:.75rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem}
 .bell .times{font-family:var(--mono);font-size:1.15rem;font-weight:500;letter-spacing:-.02em}
 .bell .times .dash{color:var(--ink-3);margin:0 .35rem}
 .bell .note{font-size:.8125rem;color:var(--ink-2);margin-top:.15rem}
 
 .sq{width:.55rem;height:.55rem;flex:none;display:inline-block}
-.e .sq,.sq.e{background:var(--ellie)}
+.e .sq,.sq.e{background:var(--elle)}
 .c .sq,.sq.c{background:var(--callie)}
 .d .sq,.sq.d{background:var(--davey)}
-.e{color:var(--ellie)}
+.e{color:var(--elle)}
 .c{color:var(--callie)}
 .d{color:var(--davey)}
 
-/* ---------- section frame ---------- */
 section{padding-top:3.25rem}
-h2{
-  font-family:var(--disp);font-weight:600;
-  font-size:clamp(1.4rem,3vw,1.85rem);letter-spacing:-.015em;
-  margin:0 0 .3rem;text-wrap:balance
-}
+h2{font-family:var(--disp);font-weight:600;font-size:clamp(1.4rem,3vw,1.85rem);
+  letter-spacing:-.015em;margin:0 0 .3rem;text-wrap:balance}
 .sub{margin:0 0 1.5rem;color:var(--ink-2);max-width:44em;font-size:.9375rem}
 
-/* ---------- anchors ---------- */
 .anchors{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
   grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))}
 .anchor{background:var(--surface);padding:1.15rem 1.25rem}
-.anchor .day{
-  font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink-2)
-}
+.anchor .day{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2)}
 .anchor .act{font-family:var(--disp);font-size:1.2rem;font-weight:600;margin:.2rem 0 .4rem;letter-spacing:-.01em}
 .anchor .det{font-family:var(--mono);font-size:.8125rem;color:var(--ink-2);line-height:1.7}
 .anchor .det b{font-weight:500;color:var(--ink)}
+.anchor .det .dim{color:var(--ink-3)}
 
-/* ---------- season tabs ---------- */
-.tabs{
-  display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--rule-strong);
-  background:var(--surface);margin-bottom:0
-}
-.tab{
-  flex:1 1 11rem;appearance:none;background:none;border:0;
-  border-right:1px solid var(--rule);
+.tabs{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--rule-strong);background:var(--surface)}
+.tab{flex:1 1 11rem;appearance:none;background:none;border:0;border-right:1px solid var(--rule);
   padding:.85rem 1rem;text-align:left;cursor:pointer;color:var(--ink-2);
-  font-family:inherit;font-size:inherit;transition:background .12s ease,color .12s ease
-}
+  font-family:inherit;font-size:inherit;transition:background .12s ease,color .12s ease}
 .tab:last-child{border-right:0}
-.tab .tname{
-  display:block;font-family:var(--disp);font-weight:600;font-size:1.05rem;
-  letter-spacing:-.01em;color:inherit
-}
+.tab .tname{display:block;font-family:var(--disp);font-weight:600;font-size:1.05rem;
+  letter-spacing:-.01em;color:inherit}
 .tab .tdate{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.03em;margin-top:.1rem}
 .tab:hover{background:var(--shade);color:var(--ink)}
 .tab:focus-visible{outline:2px solid var(--focus);outline-offset:-3px}
 .tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
 .tab[aria-selected="true"] .tdate{color:var(--paper);opacity:.72}
 
-.panel-head{
-  border:1px solid var(--rule-strong);border-top:0;background:var(--sunken);
-  padding:.85rem 1.25rem;font-size:.9375rem;color:var(--ink-2)
-}
+.panel-head{border:1px solid var(--rule-strong);border-top:0;background:var(--sunken);
+  padding:.85rem 1.25rem;font-size:.9375rem;color:var(--ink-2)}
 .panel-head b{color:var(--ink);font-weight:600}
 
-/* ---------- week board ---------- */
 .week{border:1px solid var(--rule-strong);border-top:0;background:var(--surface)}
 .day-row{display:grid;grid-template-columns:9rem 1fr;border-top:1px solid var(--rule)}
 .day-row:first-child{border-top:0}
 .day-row.weekend{background:var(--sunken)}
-.dayname{
-  padding:1rem 1rem 1rem 1.25rem;
-  font-family:var(--disp);font-weight:600;font-size:1.15rem;letter-spacing:-.01em
-}
-.dayname .free{
-  display:block;font-family:var(--mono);font-size:.7rem;font-weight:400;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:.15rem
-}
+.dayname{padding:1rem 1rem 1rem 1.25rem;font-family:var(--disp);font-weight:600;
+  font-size:1.15rem;letter-spacing:-.01em}
+.dayname .free{display:block;font-family:var(--mono);font-size:.7rem;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:.15rem}
 .slots{list-style:none;margin:0;padding:0;border-left:1px solid var(--rule)}
-.slot{
-  display:grid;grid-template-columns:6.4rem 9.25rem 1fr;gap:.25rem 1rem;
-  padding:.7rem 1.25rem;border-top:1px solid var(--rule);align-items:baseline
-}
+.slot{display:grid;grid-template-columns:6.4rem 9.25rem 1fr;gap:.25rem 1rem;
+  padding:.7rem 1.25rem;border-top:1px solid var(--rule);align-items:baseline}
 .slot:first-child{border-top:0}
-.time{font-family:var(--mono);font-size:.875rem;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
-.who{
-  font-family:var(--mono);font-size:.75rem;font-weight:600;letter-spacing:.06em;
-  text-transform:uppercase;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap
-}
+.time{font-family:var(--mono);font-size:.875rem;font-weight:500;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.who{font-family:var(--mono);font-size:.75rem;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .who .plus{color:var(--ink-3);font-weight:400}
 .what{font-size:.9375rem}
 .what .meta{display:block;color:var(--ink-2);font-size:.8125rem;margin-top:.1rem}
 .empty{padding:.85rem 1.25rem;color:var(--ink-3);font-size:.9375rem;font-style:italic}
 
-.tag{
-  display:inline-block;font-family:var(--mono);font-size:.65rem;font-weight:500;
+.tag{display:inline-block;font-family:var(--mono);font-size:.65rem;font-weight:500;
   letter-spacing:.08em;text-transform:uppercase;padding:.1rem .4rem;
   border:1px solid var(--rule-strong);color:var(--ink-2);margin-left:.45rem;
-  vertical-align:.08em;white-space:nowrap
-}
+  vertical-align:.08em;white-space:nowrap}
 .tag.warn{border-color:var(--flag);color:var(--flag);background:var(--flag-bg)}
+.tag.good{border-color:var(--callie);color:var(--callie)}
 .slot.tentative .what{color:var(--ink-2)}
 
-/* ---------- timeline ---------- */
 .tl-scroll{overflow-x:auto;border:1px solid var(--rule-strong);background:var(--surface)}
 .tl{min-width:46rem;position:relative}
-.tl-months{
-  display:grid;grid-template-columns:13rem repeat(18,1fr);
-  border-bottom:1px solid var(--rule-strong);background:var(--sunken)
-}
+.tl-months{display:grid;grid-template-columns:13rem repeat(18,1fr);
+  border-bottom:1px solid var(--rule-strong);background:var(--sunken)}
 .tl-months .corner{padding:.55rem .9rem;font-family:var(--mono);font-size:.68rem;
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.tl-months .m{
-  grid-column:span 2;padding:.55rem .5rem;border-left:1px solid var(--rule);
+.tl-months .m{grid-column:span 2;padding:.55rem .5rem;border-left:1px solid var(--rule);
   font-family:var(--mono);font-size:.7rem;font-weight:500;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--ink-2);text-align:center
-}
+  text-transform:uppercase;color:var(--ink-2);text-align:center}
 .tl-row{display:grid;grid-template-columns:13rem repeat(18,1fr);
   border-top:1px solid var(--rule);align-items:center;min-height:2.3rem}
 .tl-months + .tl-row{border-top:0}
-.tl-lab{
-  padding:.4rem .9rem;font-size:.8125rem;display:flex;align-items:center;gap:.45rem;
-  line-height:1.3
-}
-.tl-lab .who2{font-family:var(--mono);font-size:.66rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.tl-lab{padding:.4rem .9rem;font-size:.8125rem;display:flex;align-items:center;gap:.45rem;line-height:1.3}
+.tl-lab .who2{font-family:var(--mono);font-size:.66rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase}
 .tl-grid{grid-column:2 / -1;grid-row:1;display:grid;grid-template-columns:repeat(18,1fr);height:100%}
 .tl-grid .cell{grid-row:1;grid-column:1 / -1;
   background:repeating-linear-gradient(to right,
     transparent 0, transparent calc(100%/9 - 1px),
     var(--rule) calc(100%/9 - 1px), var(--rule) calc(100%/9))}
-.bar{
-  grid-row:1;align-self:center;height:.85rem;margin:0 1px;
-  grid-column:var(--s) / var(--e);position:relative;z-index:1
-}
-.bar.e{background:var(--ellie)}
+.bar{grid-row:1;align-self:center;height:.85rem;margin:0 1px;
+  grid-column:var(--s) / var(--e);position:relative;z-index:1}
+.bar.e{background:var(--elle)}
 .bar.c{background:var(--callie)}
 .bar.d{background:var(--davey)}
 .bar.tbd{background:transparent;border:1px dashed currentColor;opacity:.85}
-.bar.tbd.e{color:var(--ellie)}
+.bar.tbd.e{color:var(--elle)}
 .bar.tbd.c{color:var(--callie)}
 .bar.tbd.d{color:var(--davey)}
-.today{
-  position:absolute;top:0;bottom:0;width:0;border-left:2px dotted var(--ink);
-  z-index:2;pointer-events:none
-}
+.today{position:absolute;top:0;bottom:0;width:0;border-left:2px dotted var(--ink);
+  z-index:2;pointer-events:none}
 .tl-note{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin-top:.6rem;letter-spacing:.02em}
 
-/* ---------- clashes / questions ---------- */
 .list{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
-.list > li{
-  border-bottom:1px solid var(--rule);padding:1rem 0;
-  display:grid;grid-template-columns:8.5rem 1fr;gap:.35rem 1.25rem;align-items:start
-}
-.list .when{
-  font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ink-2);padding-top:.15rem
-}
+.list > li{border-bottom:1px solid var(--rule);padding:1rem 0;
+  display:grid;grid-template-columns:8.5rem 1fr;gap:.35rem 1.25rem;align-items:start}
+.list .when{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-2);padding-top:.15rem}
 .list .body p{margin:0}
 .list .body p + p{margin-top:.4rem;color:var(--ink-2);font-size:.9375rem}
 .list .body strong{font-weight:600}
-.verdict{
-  font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;display:inline-block;margin-top:.5rem;
-  padding:.15rem .45rem;border:1px solid var(--flag);color:var(--flag);background:var(--flag-bg)
-}
+.verdict{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;display:inline-block;margin-top:.5rem;padding:.15rem .45rem;
+  border:1px solid var(--flag);color:var(--flag);background:var(--flag-bg)}
 .verdict.ok{border-color:var(--callie);color:var(--callie);background:transparent}
 
 ol.q{margin:0;padding:0 0 0 1.4rem}
@@ -278,10 +198,8 @@ ol.q li::marker{font-family:var(--mono);font-size:.8rem;color:var(--ink-3)}
 ol.q b{font-weight:600}
 ol.q .why{display:block;color:var(--ink-2);font-size:.9rem}
 
-footer{
-  margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
-  font-family:var(--mono);font-size:.75rem;color:var(--ink-2);letter-spacing:.02em
-}
+footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
+  font-family:var(--mono);font-size:.75rem;color:var(--ink-2);letter-spacing:.02em}
 
 .print-season{display:none}
 
@@ -294,19 +212,14 @@ footer{
   .list > li{grid-template-columns:1fr}
   .bell + .bell{border-left:0;border-top:1px solid var(--rule);padding-left:0}
 }
-
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important;animation:none!important}
-}
-
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
   body{background:#fff;color:#000;font-size:11pt}
-  .tabs,.tl-scroll{break-inside:avoid}
   .tabs{display:none}
   .panel[hidden]{display:block!important}
   .print-season{display:block;font-family:var(--mono);font-size:.75rem;font-weight:600;
     letter-spacing:.12em;text-transform:uppercase;padding:.6rem 0 .3rem}
-  .week{break-inside:avoid;margin-bottom:1.2rem}
+  .week,.tl-scroll{break-inside:avoid;margin-bottom:1.2rem}
   section{break-inside:avoid;padding-top:1.6rem}
 }
 </style>
@@ -316,13 +229,13 @@ footer{
 
 <header class="masthead">
   <p class="eyebrow">Family activity schedule &middot; August 2026 – April 2027</p>
-  <h1><span class="n">Ellie</span>, <span class="n">Callie</span> <span class="amp">&amp;</span> <span class="n">Davey</span></h1>
-  <p class="standfirst">One week at a time, split into the four stretches where the schedule actually changes. Three things never move — piano, gymnastics, tennis. Everything else follows the sports seasons.</p>
+  <h1><span class="n">Elle</span>, <span class="n">Callie</span> <span class="amp">&amp;</span> <span class="n">Davey</span></h1>
+  <p class="standfirst">One week at a time, split into the four stretches where the schedule actually changes. Piano and tennis hold all year; everything else follows the sports seasons.</p>
 </header>
 
 <div class="bells">
   <div class="bell e">
-    <div class="kid"><span class="sq"></span>Ellie &middot; school</div>
+    <div class="kid"><span class="sq"></span>Elle &middot; school</div>
     <div class="times">7:50 AM<span class="dash">–</span>3:30 PM</div>
     <div class="note">Out 30 min after the younger two.</div>
   </div>
@@ -339,30 +252,30 @@ footer{
 </div>
 
 <section>
-  <h2>The three that never change</h2>
-  <p class="sub">Whatever season it is, these run every week. Learn these three and the rest is just the sport on top.</p>
+  <h2>The weekly backbone</h2>
+  <p class="sub">These three afternoons run every week of the year. Only Thursday changes what it is — gymnastics hands over to dance in January.</p>
   <div class="anchors">
     <div class="anchor">
-      <div class="day">Tuesday</div>
+      <div class="day">Tuesday &middot; all year</div>
       <div class="act">Piano</div>
-      <div class="det"><span class="e"><b>4:00</b> Ellie</span><br><span class="c"><b>4:30</b> Callie</span><br><span style="color:var(--ink-3)">One trip, back to back</span></div>
+      <div class="det"><span class="c"><b>4:00</b> Callie</span><br><span class="e"><b>4:30</b> Elle</span><br><span class="dim">One trip, back to back</span></div>
     </div>
     <div class="anchor">
-      <div class="day">Thursday</div>
-      <div class="act">Gymnastics</div>
-      <div class="det"><b>4:30</b> <span class="e">Ellie</span> + <span class="c">Callie</span><br><span style="color:var(--ink-3)">Same slot, one drop-off</span></div>
+      <div class="day">Thursday &middot; hands over in Jan</div>
+      <div class="act">Gymnastics &rarr; Dance</div>
+      <div class="det"><b>4:30</b> Gymnastics <span class="dim">(to Jan)</span><br><b>6:30</b> Dance <span class="dim">(from Jan)</span><br><span class="dim">Both girls, never both classes</span></div>
     </div>
     <div class="anchor">
-      <div class="day">Friday</div>
+      <div class="day">Friday &middot; all year</div>
       <div class="act">Tennis</div>
-      <div class="det"><b>4:00</b> <span class="e">Ellie</span> + <span class="c">Callie</span> + <span class="d">Davey</span><br><span style="color:var(--ink-3)">All three together</span></div>
+      <div class="det"><b>4:00</b> <span class="e">Elle</span> + <span class="c">Callie</span> + <span class="d">Davey</span><br><span class="dim">All three together</span></div>
     </div>
   </div>
 </section>
 
 <section>
   <h2>The week, season by season</h2>
-  <p class="sub">Pick a stretch. The only things that really move between them are Ellie&rsquo;s sport, which night CCD lands on, and whether dance has started.</p>
+  <p class="sub">Pick a stretch. What moves between them: Elle&rsquo;s sport, which night CCD lands on, and whether Thursday is gymnastics or dance.</p>
 
   <div class="tabs" role="tablist" aria-label="Season">
     <button class="tab" role="tab" id="tab-1" aria-controls="p1" aria-selected="true">
@@ -375,62 +288,53 @@ footer{
       <span class="tname">Spring</span><span class="tdate">Jan 17 – April</span></button>
   </div>
 
-  <!-- ===================== PANEL 1 ===================== -->
+  <!-- ============ PANEL 1 ============ -->
   <div class="panel" id="p1" role="tabpanel" aria-labelledby="tab-1">
     <p class="print-season">Right now &middot; Aug 26 – Sep 5</p>
-    <div class="panel-head"><b>Volleyball season.</b> Monday nights are volleyball, so CCD sits on <b>Sunday morning</b>. Callie and Davey are both in fall soccer.</div>
+    <div class="panel-head"><b>Volleyball season, and CCD hasn&rsquo;t started yet.</b> That makes this the lightest stretch of the year — Sundays are completely free until September 20.</div>
     <div class="week">
-
       <div class="day-row weekend">
-        <div class="dayname">Sunday</div>
-        <ul class="slots">
-          <li class="slot"><span class="time">10:15 AM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">CCD<span class="meta">Until 11:15. On Sunday because Monday is volleyball.</span></span></li>
-        </ul>
+        <div class="dayname">Sunday<span class="free">free</span></div>
+        <div class="empty">Nothing scheduled — CCD doesn&rsquo;t begin until September 20.</div>
       </div>
-
       <div class="day-row">
         <div class="dayname">Monday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Spanish Club <span class="tag">optional</span><span class="meta">Ends 4:30 — the same minute volleyball starts.</span></span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Volleyball practice</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Tuesday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">Art Club <span class="tag warn">clashes with piano</span><span class="meta">3:30–4:30 sits right on top of the 4:00 lesson.</span></span></li>
-          <li class="slot"><span class="time">4:00 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">Art Club <span class="tag">optional</span><span class="meta">Ends 4:30, right as her piano starts. No overlap, but no travel time either.</span></span></li>
+          <li class="slot"><span class="time">4:00 PM</span><span class="who c"><span class="sq"></span>Callie</span>
             <span class="what">Piano</span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who c"><span class="sq"></span>Callie</span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Piano</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Wednesday</div>
         <ul class="slots">
-          <li class="slot"><span class="time">Afternoon</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot"><span class="time">Afternoon</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Volleyball game <span class="tag">time tbc</span></span></li>
           <li class="slot"><span class="time">6:00 PM</span><span class="who"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
             <span class="what">Soccer practice<span class="meta">Callie 6:00 or 6:30, Davey 6:00–6:30 — confirm whether it&rsquo;s one field or two.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Thursday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:45 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:45 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">LitWits <span class="tag warn">clashes with gymnastics</span><span class="meta">Runs to 4:45; gymnastics starts 4:30.</span></span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Ellie</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
             <span class="what">Gymnastics</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Friday</div>
         <ul class="slots">
@@ -438,73 +342,65 @@ footer{
             <span class="what">Tennis</span></li>
         </ul>
       </div>
-
       <div class="day-row weekend">
-        <div class="dayname">Saturday<span class="free">two-parent day</span></div>
+        <div class="dayname">Saturday</div>
         <ul class="slots">
-          <li class="slot"><span class="time">Morning</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot"><span class="time">Morning</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Volleyball game</span></li>
           <li class="slot"><span class="time">TBC</span><span class="who"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
             <span class="what">Soccer games <span class="tag">time tbc</span></span></li>
         </ul>
       </div>
-
     </div>
   </div>
 
-  <!-- ===================== PANEL 2 ===================== -->
+  <!-- ============ PANEL 2 ============ -->
   <div class="panel" id="p2" role="tabpanel" aria-labelledby="tab-2" hidden>
     <p class="print-season">Fall &middot; Sep 6 – Nov 8</p>
-    <div class="panel-head"><b>Volleyball is over; soccer takes over.</b> Monday nights are free, so CCD moves to <b>Monday afternoon</b> and Sundays open up. Ellie&rsquo;s soccer starts mid-September.</div>
+    <div class="panel-head"><b>Volleyball ends, soccer and CCD begin.</b> Elle&rsquo;s soccer starts mid-September, CCD starts September 20 — and with Monday nights free, CCD goes on <b>Monday</b>. Saturday mornings get crowded.</div>
     <div class="week">
-
       <div class="day-row weekend">
         <div class="dayname">Sunday<span class="free">free</span></div>
         <div class="empty">Nothing scheduled — CCD is on Monday this stretch.</div>
       </div>
-
       <div class="day-row">
         <div class="dayname">Monday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Spanish Club <span class="tag warn">tight against CCD</span><span class="meta">Ends 4:30, CCD starts 4:30. Only works if they&rsquo;re the same building.</span></span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">CCD<span class="meta">Until 5:30. Monday works now that volleyball has ended.</span></span></li>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">CCD <span class="tag">from Sep 20</span><span class="meta">Until 5:30. Monday works now that volleyball has ended.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Tuesday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">Art Club <span class="tag warn">clashes with piano</span></span></li>
-          <li class="slot"><span class="time">4:00 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">Art Club <span class="tag">optional</span><span class="meta">Ends right as her piano starts.</span></span></li>
+          <li class="slot"><span class="time">4:00 PM</span><span class="who c"><span class="sq"></span>Callie</span>
             <span class="what">Piano</span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who c"><span class="sq"></span>Callie</span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Piano</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Wednesday</div>
         <ul class="slots">
           <li class="slot"><span class="time">6:00 PM</span><span class="who"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
             <span class="what">Soccer practice</span></li>
-          <li class="slot tentative"><span class="time">TBC</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">TBC</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Soccer practice <span class="tag">day &amp; time tbc</span><span class="meta">Season runs mid-September to November — practice night not set yet.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Thursday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:45 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:45 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">LitWits <span class="tag warn">clashes with gymnastics</span></span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Ellie</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
             <span class="what">Gymnastics</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Friday</div>
         <ul class="slots">
@@ -512,76 +408,68 @@ footer{
             <span class="what">Tennis</span></li>
         </ul>
       </div>
-
       <div class="day-row weekend">
-        <div class="dayname">Saturday<span class="free">two-parent day</span></div>
+        <div class="dayname">Saturday<span class="free">two-driver day</span></div>
         <ul class="slots">
+          <li class="slot"><span class="time">Morning</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">Soccer games <span class="tag">from mid-Sept</span></span></li>
           <li class="slot"><span class="time">TBC</span><span class="who"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
-            <span class="what">Soccer games</span></li>
-          <li class="slot tentative"><span class="time">TBC</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">Soccer games <span class="tag">from mid-Sept</span><span class="meta">Three sets of games in one morning once Ellie&rsquo;s season starts.</span></span></li>
+            <span class="what">Soccer games<span class="meta">Three kids, three fields, one morning. This is the tightest stretch of the year.</span></span></li>
         </ul>
       </div>
-
     </div>
   </div>
 
-  <!-- ===================== PANEL 3 ===================== -->
+  <!-- ============ PANEL 3 ============ -->
   <div class="panel" id="p3" role="tabpanel" aria-labelledby="tab-3" hidden>
     <p class="print-season">Winter &middot; Nov 9 – Jan 16</p>
-    <div class="panel-head"><b>Volleyball is back, so CCD goes back to Sunday.</b> Soccer winds down through November. Dance joins Thursday nights in January.</div>
+    <div class="panel-head"><b>Volleyball is back, so CCD moves to Sunday.</b> Soccer winds down through November. In January, dance starts and gymnastics stops.</div>
     <div class="week">
-
       <div class="day-row weekend">
         <div class="dayname">Sunday</div>
         <ul class="slots">
-          <li class="slot"><span class="time">10:15 AM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">CCD<span class="meta">Until 11:15. Back on Sunday for the volleyball stretch.</span></span></li>
+          <li class="slot"><span class="time">10:15 AM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">CCD<span class="meta">Until 11:15. On Sunday because Monday is volleyball.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Monday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Spanish Club <span class="tag">optional</span><span class="meta">Ends 4:30, volleyball starts 4:30.</span></span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Volleyball practice</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Tuesday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">Art Club <span class="tag warn">clashes with piano</span></span></li>
-          <li class="slot"><span class="time">4:00 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">Art Club <span class="tag">optional</span></span></li>
+          <li class="slot"><span class="time">4:00 PM</span><span class="who c"><span class="sq"></span>Callie</span>
             <span class="what">Piano</span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who c"><span class="sq"></span>Callie</span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Piano</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Wednesday</div>
         <ul class="slots">
-          <li class="slot"><span class="time">Afternoon</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot"><span class="time">Afternoon</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Volleyball game <span class="tag">time tbc</span></span></li>
           <li class="slot tentative"><span class="time">6:00 PM</span><span class="who"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
             <span class="what">Soccer practice <span class="tag">until season ends</span><span class="meta">Drops off once fall soccer finishes — end date not set.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Thursday</div>
         <ul class="slots">
-          <li class="slot"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Ellie</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
-            <span class="what">Gymnastics</span></li>
-          <li class="slot tentative"><span class="time">6:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Ellie</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
-            <span class="what">Dance <span class="tag">from January</span><span class="meta">6:30–7:15. Makes Thursday a two-trip evening.</span></span></li>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+            <span class="what">Gymnastics <span class="tag">until dance starts</span><span class="meta">Last classes are in December — gymnastics ends when dance begins.</span></span></li>
+          <li class="slot tentative"><span class="time">6:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+            <span class="what">Dance <span class="tag">from January</span><span class="meta">6:30–7:15, replacing gymnastics. Thursday afternoons open up.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Friday</div>
         <ul class="slots">
@@ -589,71 +477,63 @@ footer{
             <span class="what">Tennis</span></li>
         </ul>
       </div>
-
       <div class="day-row weekend">
         <div class="dayname">Saturday</div>
         <ul class="slots">
-          <li class="slot"><span class="time">Morning</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">Volleyball game</span></li>
+          <li class="slot"><span class="time">Morning</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">Volleyball game <span class="tag warn">vs soccer in Nov</span><span class="meta">Soccer games are Saturday morning too — they collide until soccer ends.</span></span></li>
           <li class="slot tentative"><span class="time">TBC</span><span class="who d"><span class="sq"></span>Davey</span>
-            <span class="what">T-ball <span class="tag">if it starts now</span><span class="meta">You said &ldquo;end of the year&rdquo; — worth pinning down whether that&rsquo;s December or the end of the school year.</span></span></li>
+            <span class="what">T-ball <span class="tag">to verify</span></span></li>
         </ul>
       </div>
-
     </div>
   </div>
 
-  <!-- ===================== PANEL 4 ===================== -->
+  <!-- ============ PANEL 4 ============ -->
   <div class="panel" id="p4" role="tabpanel" aria-labelledby="tab-4" hidden>
     <p class="print-season">Spring &middot; Jan 17 – April</p>
-    <div class="panel-head"><b>Volleyball is done, so CCD returns to Monday.</b> Dance is running on Thursday nights, and Ellie&rsquo;s second soccer season picks up in February.</div>
+    <div class="panel-head"><b>Volleyball is done, so CCD returns to Monday</b> and runs through April 26. Thursday afternoons are free now that dance has replaced gymnastics — the one new opening in the whole year.</div>
     <div class="week">
-
       <div class="day-row weekend">
         <div class="dayname">Sunday<span class="free">free</span></div>
         <div class="empty">Nothing scheduled — CCD is back on Monday.</div>
       </div>
-
       <div class="day-row">
         <div class="dayname">Monday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Spanish Club <span class="tag warn">tight against CCD</span></span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">CCD<span class="meta">Until 5:30.</span></span></li>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">CCD<span class="meta">Until 5:30. Last class April 26.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Tuesday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
-            <span class="what">Art Club <span class="tag warn">clashes with piano</span></span></li>
-          <li class="slot"><span class="time">4:00 PM</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot tentative"><span class="time">3:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">Art Club <span class="tag">optional</span></span></li>
+          <li class="slot"><span class="time">4:00 PM</span><span class="who c"><span class="sq"></span>Callie</span>
             <span class="what">Piano</span></li>
-          <li class="slot"><span class="time">4:30 PM</span><span class="who c"><span class="sq"></span>Callie</span>
+          <li class="slot"><span class="time">4:30 PM</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Piano</span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Wednesday<span class="free">quiet</span></div>
         <ul class="slots">
           <li class="slot tentative"><span class="time">TBC</span><span class="who"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
-            <span class="what">Spring soccer? <span class="tag">not confirmed</span><span class="meta">You only mentioned a fall season for these two.</span></span></li>
+            <span class="what">Spring soccer? <span class="tag">not confirmed</span><span class="meta">You only mentioned a fall season for these two. Otherwise this is the emptiest evening of the week — the natural home for jujitsu.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
-        <div class="dayname">Thursday<span class="free">busiest night</span></div>
+        <div class="dayname">Thursday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">4:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Ellie</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
-            <span class="what">Gymnastics <span class="tag warn">still running?</span><span class="meta">Two hours before dance, or does dance replace it?</span></span></li>
-          <li class="slot"><span class="time">6:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Ellie</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+          <li class="slot tentative"><span class="time">3:45 PM</span><span class="who e"><span class="sq"></span>Elle</span>
+            <span class="what">LitWits <span class="tag good">fits now</span><span class="meta">With gymnastics gone, 3:45–4:45 is clear.</span></span></li>
+          <li class="slot"><span class="time">6:30 PM</span><span class="who"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
             <span class="what">Dance<span class="meta">Until 7:15.</span></span></li>
         </ul>
       </div>
-
       <div class="day-row">
         <div class="dayname">Friday</div>
         <ul class="slots">
@@ -661,24 +541,22 @@ footer{
             <span class="what">Tennis</span></li>
         </ul>
       </div>
-
       <div class="day-row weekend">
         <div class="dayname">Saturday</div>
         <ul class="slots">
-          <li class="slot tentative"><span class="time">TBC</span><span class="who e"><span class="sq"></span>Ellie</span>
+          <li class="slot"><span class="time">Morning</span><span class="who e"><span class="sq"></span>Elle</span>
             <span class="what">Soccer games <span class="tag">from February</span><span class="meta">Spring season runs February to April.</span></span></li>
           <li class="slot tentative"><span class="time">TBC</span><span class="who d"><span class="sq"></span>Davey</span>
-            <span class="what">T-ball / jujitsu <span class="tag">not scheduled</span></span></li>
+            <span class="what">T-ball / jujitsu <span class="tag">to verify</span></span></li>
         </ul>
       </div>
-
     </div>
   </div>
 </section>
 
 <section>
   <h2>The year on one line</h2>
-  <p class="sub">Solid bars are confirmed. Dashed bars are things you told me about but haven&rsquo;t pinned to dates yet.</p>
+  <p class="sub">Solid bars are confirmed. Dashed bars are things still to be pinned down.</p>
   <div class="tl-scroll">
     <div class="tl">
       <div class="tl-months">
@@ -689,106 +567,69 @@ footer{
       </div>
 
       <div class="tl-row">
-        <div class="tl-lab"><span class="sq e"></span><span>Volleyball <span class="who2 e">Ellie</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
+        <div class="tl-lab"><span class="sq e"></span><span>Volleyball <span class="who2 e">Elle</span></span></div>
+        <div class="tl-grid"><div class="cell"></div>
           <div class="bar e" style="--s:2;--e:4"></div>
-          <div class="bar e" style="--s:8;--e:12"></div>
-        </div>
+          <div class="bar e" style="--s:8;--e:12"></div></div>
       </div>
-
       <div class="tl-row">
-        <div class="tl-lab"><span class="sq e"></span><span>Soccer <span class="who2 e">Ellie</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
+        <div class="tl-lab"><span class="sq e"></span><span>Soccer <span class="who2 e">Elle</span></span></div>
+        <div class="tl-grid"><div class="cell"></div>
           <div class="bar e" style="--s:4;--e:9"></div>
-          <div class="bar e" style="--s:13;--e:19"></div>
-        </div>
+          <div class="bar e" style="--s:13;--e:19"></div></div>
       </div>
-
-      <div class="tl-row">
-        <div class="tl-lab"><span class="sq e"></span><span>CCD <span class="who2 e">Sundays</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar e" style="--s:2;--e:4"></div>
-          <div class="bar e" style="--s:8;--e:12"></div>
-        </div>
-      </div>
-
       <div class="tl-row">
         <div class="tl-lab"><span class="sq e"></span><span>CCD <span class="who2 e">Mondays</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar e" style="--s:3;--e:8"></div>
-          <div class="bar e" style="--s:12;--e:19"></div>
-        </div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar e" style="--s:4;--e:8"></div>
+          <div class="bar e" style="--s:12;--e:19"></div></div>
       </div>
-
+      <div class="tl-row">
+        <div class="tl-lab"><span class="sq e"></span><span>CCD <span class="who2 e">Sundays</span></span></div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar e" style="--s:8;--e:12"></div></div>
+      </div>
       <div class="tl-row">
         <div class="tl-lab"><span class="sq c"></span><span>Soccer <span class="who2 c">Callie</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
+        <div class="tl-grid"><div class="cell"></div>
           <div class="bar c" style="--s:1;--e:8"></div>
-          <div class="bar tbd c" style="--s:8;--e:9"></div>
-        </div>
+          <div class="bar tbd c" style="--s:8;--e:9"></div></div>
       </div>
-
       <div class="tl-row">
         <div class="tl-lab"><span class="sq d"></span><span>Soccer <span class="who2 d">Davey</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
+        <div class="tl-grid"><div class="cell"></div>
           <div class="bar d" style="--s:1;--e:8"></div>
-          <div class="bar tbd d" style="--s:8;--e:9"></div>
-        </div>
+          <div class="bar tbd d" style="--s:8;--e:9"></div></div>
       </div>
-
       <div class="tl-row">
-        <div class="tl-lab"><span class="sq e"></span><span>Piano <span class="who2">Tue &middot; both girls</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar e" style="--s:1;--e:19"></div>
-        </div>
+        <div class="tl-lab"><span class="sq c"></span><span>Piano <span class="who2">Tue &middot; both girls</span></span></div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar c" style="--s:1;--e:19"></div></div>
       </div>
-
       <div class="tl-row">
-        <div class="tl-lab"><span class="sq e"></span><span>Gymnastics <span class="who2">Thu &middot; both girls</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar e" style="--s:1;--e:12"></div>
-          <div class="bar tbd e" style="--s:12;--e:19"></div>
-        </div>
+        <div class="tl-lab"><span class="sq c"></span><span>Gymnastics <span class="who2">Thu &middot; both girls</span></span></div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar c" style="--s:1;--e:11"></div></div>
       </div>
-
       <div class="tl-row">
         <div class="tl-lab"><span class="sq c"></span><span>Dance <span class="who2">Thu &middot; both girls</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar c" style="--s:11;--e:19"></div>
-        </div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar c" style="--s:11;--e:19"></div></div>
       </div>
-
       <div class="tl-row">
         <div class="tl-lab"><span class="sq d"></span><span>Tennis <span class="who2">Fri &middot; all three</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar d" style="--s:1;--e:19"></div>
-        </div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar d" style="--s:1;--e:19"></div></div>
       </div>
-
       <div class="tl-row">
         <div class="tl-lab"><span class="sq d"></span><span>T-ball <span class="who2 d">Davey</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar tbd d" style="--s:10;--e:19"></div>
-        </div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar tbd d" style="--s:10;--e:19"></div></div>
       </div>
-
       <div class="tl-row">
         <div class="tl-lab"><span class="sq d"></span><span>Jujitsu <span class="who2 d">Davey</span></span></div>
-        <div class="tl-grid">
-          <div class="cell" style="grid-column:1/-1"></div>
-          <div class="bar tbd d" style="--s:1;--e:19"></div>
-        </div>
+        <div class="tl-grid"><div class="cell"></div>
+          <div class="bar tbd d" style="--s:1;--e:19"></div></div>
       </div>
 
       <div class="today" style="left:calc(13rem + (100% - 13rem) * 0.093)"></div>
@@ -799,53 +640,54 @@ footer{
 
 <section>
   <h2>Where the week pinches</h2>
-  <p class="sub">Four places the schedule collides, and what I&rsquo;d do about each.</p>
+  <p class="sub">Six places the schedule collides, and what I&rsquo;d do about each.</p>
   <ul class="list">
     <li>
-      <span class="when">Mon &amp; Sun</span>
+      <span class="when">Saturday AM</span>
       <div class="body">
-        <p><strong>CCD follows volleyball — and it works.</strong> Your instinct was right. Monday CCD (4:30–5:30) and Monday volleyball practice (4:30) are the same hour, so they can never coexist.</p>
-        <p>Sunday CCD Aug 26–Sep 5 and again Nov 9–Jan 16. Monday CCD Sep 6–Nov 8 and Jan 17 onward. That&rsquo;s two switches a year, both on a clean season boundary.</p>
-        <span class="verdict ok">No change needed</span>
+        <p><strong>Elle&rsquo;s soccer and volleyball games are both Saturday morning.</strong> Volleyball starts November 9 and soccer runs &ldquo;through November,&rdquo; so for up to three weeks she is booked into two games at the same time — not just a busy day, an actual double-booking.</p>
+        <p>This is the one thing on the board that can&rsquo;t be solved by driving faster. Get the soccer end date, and if it overlaps, decide now which games she misses.</p>
+        <span class="verdict">Confirm the soccer end date</span>
       </div>
     </li>
     <li>
-      <span class="when">Tuesday</span>
+      <span class="when">Sep – Nov</span>
       <div class="body">
-        <p><strong>Art Club can&rsquo;t coexist with piano at 4:00.</strong> The club runs 3:30–4:30 and Ellie&rsquo;s lesson is at 4:00 — a straight 30-minute overlap, every week, all year.</p>
-        <p>The cheap fix: move Ellie&rsquo;s piano to about 5:00 and keep Callie at 4:30. You&rsquo;d still make one trip, just with the girls in the other order. Otherwise Art Club is out.</p>
-        <span class="verdict">Move piano or drop Art Club</span>
+        <p><strong>All three kids have Saturday-morning soccer games.</strong> From mid-September, Elle, Callie and Davey are on three different fields at overlapping times.</p>
+        <p>Plan two drivers for these ten weeks, and ask each coach for the game schedule the day it&rsquo;s published.</p>
+        <span class="verdict">Needs two adults</span>
+      </div>
+    </li>
+    <li>
+      <span class="when">Mon &amp; Sun</span>
+      <div class="body">
+        <p><strong>Your CCD plan works, and it&rsquo;s only two switches.</strong> Monday CCD and Monday volleyball are both 4:30, so they can never share a week.</p>
+        <p>With the season running Sept 20 – Apr 26: <strong>Mondays</strong> Sept 20 – Nov 8, <strong>Sundays</strong> Nov 9 – Jan 16, <strong>Mondays</strong> Jan 17 – Apr 26. Both switches land on a volleyball boundary.</p>
+        <span class="verdict ok">No change needed</span>
       </div>
     </li>
     <li>
       <span class="when">Thursday</span>
       <div class="body">
-        <p><strong>LitWits can&rsquo;t coexist with gymnastics either.</strong> 3:45–4:45 against a 4:30 gymnastics start, and gymnastics is the one slot where both girls go at once — much more expensive to move.</p>
-        <p>And from January, Thursday already carries gymnastics at 4:30 plus dance at 6:30. That&rsquo;s the fullest evening of the week before LitWits is even in it.</p>
-        <span class="verdict">LitWits is the one to skip</span>
+        <p><strong>LitWits is blocked until January, then free.</strong> It runs 3:45–4:45 against a 4:30 gymnastics start — but once dance takes over in January, gymnastics stops and Thursday afternoon empties out.</p>
+        <p>So it isn&rsquo;t a yes or no, it&rsquo;s a when: sign Elle up for the spring session, not the fall one.</p>
+        <span class="verdict ok">Works from January</span>
+      </div>
+    </li>
+    <li>
+      <span class="when">Tuesday</span>
+      <div class="body">
+        <p><strong>Art Club fits now that Elle&rsquo;s piano is at 4:30.</strong> With Callie at 4:00 and Elle behind her, the club&rsquo;s 3:30–4:30 slot no longer overlaps a lesson — it just runs right up against one.</p>
+        <p>Zero travel time between the two, so it only works if the club and the piano lesson are essentially in the same place.</p>
+        <span class="verdict">Check the travel time</span>
       </div>
     </li>
     <li>
       <span class="when">Monday</span>
       <div class="body">
-        <p><strong>Spanish Club is the only club that fits — barely.</strong> It ends at 4:30 and whatever Ellie has on Monday (volleyball or CCD) starts at 4:30, so there&rsquo;s zero travel time.</p>
-        <p>Workable only if the club and the Monday activity are in the same building. If they aren&rsquo;t, none of the three clubs fit without moving something.</p>
-        <span class="verdict">Check the walking distance</span>
-      </div>
-    </li>
-    <li>
-      <span class="when">Saturday</span>
-      <div class="body">
-        <p><strong>Mid-September to November is the crunch.</strong> Ellie, Callie and Davey all have soccer games on the same mornings, at three different fields, at times nobody has given you yet.</p>
-        <p>This is the stretch to plan two drivers for, and the first thing to ask each coach about when schedules come out.</p>
-        <span class="verdict">Needs two adults</span>
-      </div>
-    </li>
-    <li>
-      <span class="when">November</span>
-      <div class="body">
-        <p><strong>Soccer and volleyball may overlap.</strong> Ellie&rsquo;s soccer runs &ldquo;through November&rdquo; and volleyball starts November 9 — so up to three weeks where she&rsquo;d be in both, with volleyball taking Monday, Wednesday and Saturday.</p>
-        <span class="verdict">Confirm the soccer end date</span>
+        <p><strong>Spanish Club has the same zero-gap problem.</strong> It ends at 4:30 and whatever Elle has on Monday — volleyball or CCD — starts at 4:30.</p>
+        <p>Of the three clubs, this is the one with the least slack, because it butts against something every single week of the year.</p>
+        <span class="verdict">Check the travel time</span>
       </div>
     </li>
   </ul>
@@ -853,23 +695,23 @@ footer{
 
 <section>
   <h2>What I still need from you</h2>
-  <p class="sub">I filled in everything you gave me. These are the gaps — answer any of them and I&rsquo;ll update the schedule.</p>
+  <p class="sub">Everything you&rsquo;ve told me is in. These are the remaining gaps — answer any of them and I&rsquo;ll update the schedule.</p>
   <ol class="q">
-    <li><b>Are the names right?</b> <span class="why">You said &ldquo;Navy&rdquo; but spelled D-A-V-E-Y, so I used Davey. And I read the first spelling as Ellie — tell me if either is off.</span></li>
-    <li><b>Ellie&rsquo;s soccer — which days?</b> <span class="why">Practice night and game day for both the fall season and the February–April season. It&rsquo;s the biggest blank on the board.</span></li>
-    <li><b>When exactly does Ellie&rsquo;s fall soccer end?</b> <span class="why">Volleyball starts November 9; if soccer runs past that she&rsquo;s doing both.</span></li>
+    <li><b>When does Elle&rsquo;s fall soccer end?</b> <span class="why">The one that matters most — volleyball starts Nov 9 and both play Saturday mornings.</span></li>
+    <li><b>Which night is Elle&rsquo;s soccer practice?</b> <span class="why">Still the biggest blank on the board, for both the fall and February–April seasons. Games on Saturday morning are locked in.</span></li>
     <li><b>When does Callie and Davey&rsquo;s soccer season end?</b> <span class="why">I&rsquo;ve drawn it fading out through November as a guess.</span></li>
-    <li><b>Callie&rsquo;s piano — 4:00 or 4:30?</b> <span class="why">You said &ldquo;four, four thirty.&rdquo; I put her at 4:30 behind Ellie so it&rsquo;s one trip.</span></li>
-    <li><b>Does gymnastics continue once dance starts in January?</b> <span class="why">Right now I&rsquo;ve got both on Thursday — 4:30 and 6:30.</span></li>
-    <li><b>T-ball: &ldquo;end of the year&rdquo; — December, or end of the school year?</b> <span class="why">Changes whether it lands in the winter or spring block.</span></li>
-    <li><b>Jujitsu — any day or time on offer yet?</b> <span class="why">Based on the rest of the week, Wednesday is Davey&rsquo;s emptiest afternoon once soccer ends.</span></li>
+    <li><b>T-ball timing</b> <span class="why">You&rsquo;re verifying. Whenever you know, tell me the start date and the practice/game days.</span></li>
+    <li><b>Jujitsu — any day or time on offer?</b> <span class="why">Wednesday is Davey&rsquo;s emptiest evening once soccer ends, if you get a choice.</span></li>
+    <li><b>What date in January does dance start?</b> <span class="why">It&rsquo;s also the date gymnastics ends, so it moves two things at once.</span></li>
     <li><b>Wednesday soccer: one field or two?</b> <span class="why">Callie at 6:00 or 6:30 and Davey at 6:00–6:30 is either one easy trip or two overlapping ones.</span></li>
-    <li><b>Is Friday tennis at 4:00 for all three?</b> <span class="why">You gave me the time for Ellie and said &ldquo;also Fridays&rdquo; for the other two.</span></li>
+    <li><b>Is Friday tennis at 4:00 for all three?</b> <span class="why">You gave me the time for Elle and said &ldquo;also Fridays&rdquo; for the other two.</span></li>
+    <li><b>Callie and Davey&rsquo;s Saturday game times?</b> <span class="why">Needed before I can tell you whether one driver can cover the morning.</span></li>
+    <li><b>Do Callie and Davey have a spring soccer season?</b> <span class="why">You only mentioned the fall one. It would fill their quiet Wednesday.</span></li>
   </ol>
 </section>
 
 <footer>
-  Built from your notes on 26 August 2026 &middot; times unconfirmed by a coach or program are marked TBC
+  Updated 26 August 2026 &middot; times unconfirmed by a coach or program are marked TBC
 </footer>
 
 </div>
