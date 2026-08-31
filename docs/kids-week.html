@@ -74,6 +74,8 @@ h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
 .drow{display:grid;grid-template-columns:7.5rem 5.5rem 1fr;gap:.2rem 1rem;
   padding:.7rem 1.25rem;border-top:1px solid var(--rule);align-items:baseline}
 .drow.flag{background:var(--flag-bg)}
+.drow.split{background:var(--sunken)}
+.drow.split .dtime{color:var(--ink)}
 .dday{font-family:var(--disp);font-weight:600;font-size:1rem;letter-spacing:-.01em}
 .dday small{display:block;font-family:var(--mono);font-size:.65rem;font-weight:400;
   letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:.05rem}
@@ -188,8 +190,8 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
 
 <section class="dinner">
   <h3>Dinner, worked backwards</h3>
-  <p class="sub">Your everyday meal at home, each night set by whoever gets home last. One time covers almost the whole week — only two nights genuinely fight it. The standing dinner at your husband&rsquo;s family is a separate thing and takes over whichever night it falls on.</p>
-  <div class="drule">6:00 PM, five nights a week<span>Wednesday and spring Thursdays are the exceptions</span></div>
+  <p class="sub">Your everyday meal at home, each night set by whoever gets home last. One time covers most of the week: Wednesday splits into two sittings while Callie has soccer, and spring Thursdays move early to clear dance. The standing dinner at your husband&rsquo;s family is a separate thing and takes over whichever night it falls on.</p>
+  <div class="drule">6:00 PM, five nights a week<span>Wednesday splits in two &middot; spring Thursdays go early</span></div>
   <ul class="dtable">
     <li class="drow"><span class="dday">Sunday</span><span class="dtime">6:00</span>
       <span class="dwhy">Home by noon after church, nothing else all day. The easiest night of the week to make it a real one.</span></li>
@@ -197,8 +199,8 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
       <span class="dwhy">Elle is in at 3:30, or nearer 5:45 in volleyball weeks. <b>While Callie has soccer this is the night at his family&rsquo;s</b>, so their time replaces yours — and in volleyball weeks that is tight if they eat at 6:00.</span></li>
     <li class="drow"><span class="dday">Tuesday</span><span class="dtime">6:00</span>
       <span class="dwhy">Elle&rsquo;s piano ends around 5:00, home by 5:15. Comfortable.</span></li>
-    <li class="drow flag"><span class="dday">Wednesday<small>Callie in season</small></span><span class="dtime">7:15</span>
-      <span class="dwhy"><b>The one night it doesn&rsquo;t work.</b> Callie starts at 6:00 and isn&rsquo;t home much before 7:15 — late for Davey, who finished at 5:30. Feed him earlier, or keep something warm and eat late together. It is also why the dinner at his family&rsquo;s has to sit on Monday during her seasons.</span></li>
+    <li class="drow split"><span class="dday">Wednesday<small>Callie in season</small></span><span class="dtime">6:00<br>&amp; 7:15</span>
+      <span class="dwhy"><b>Two sittings, by design.</b> Elle and Davey eat at 6:00 — he is back from practice at 5:30. Callie eats around 7:15 when she gets in, with whoever drove her. Trying to hold everyone until 7:15 would put Davey more than two hours past his usual, so this is the sensible night to split. It is also why the dinner at his family&rsquo;s sits on Monday during her seasons.</span></li>
     <li class="drow"><span class="dday">Wednesday<small>Callie off-season</small></span><span class="dtime">6:00</span>
       <span class="dwhy">Davey is done at 5:30 and nothing follows. <b>From roughly November to February this is the night at his family&rsquo;s</b> — leaving right after his practice.</span></li>
     <li class="drow"><span class="dday">Thursday<small>Sept – Dec</small></span><span class="dtime">6:00</span>
