@@ -11,7 +11,7 @@
 *,*::before,*::after{box-sizing:border-box}
 
 :root{
-  --paper:#F1F3EF; --surface:#FBFCF9; --sunken:#E6EAE3;
+  --paper:#F1F3EF; --surface:#FBFCF9; --sunken:#E6EAE3; --swap:#EDF0EA;
   --ink:#161B20; --ink-2:#59636D; --ink-3:#8A939B;
   --rule:#D6DBD3; --rule-strong:#B4BCB0;
   --elle:#B8371F; --callie:#15665A; --davey:#54499E;
@@ -22,7 +22,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#12161A; --surface:#191E23; --sunken:#0D1114;
+    --paper:#12161A; --surface:#191E23; --sunken:#0D1114; --swap:#1F252B;
     --ink:#E9ECE7; --ink-2:#9AA4AC; --ink-3:#6E7880;
     --rule:#2B3238; --rule-strong:#434B53;
     --elle:#F28466; --callie:#57C1AC; --davey:#A79DEE;
@@ -30,7 +30,7 @@
   }
 }
 :root[data-theme="dark"]{
-  --paper:#12161A; --surface:#191E23; --sunken:#0D1114;
+  --paper:#12161A; --surface:#191E23; --sunken:#0D1114; --swap:#1F252B;
   --ink:#E9ECE7; --ink-2:#9AA4AC; --ink-3:#6E7880;
   --rule:#2B3238; --rule-strong:#434B53;
   --elle:#F28466; --callie:#57C1AC; --davey:#A79DEE;
@@ -39,15 +39,14 @@
 
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
   font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-.wrap{max-width:66rem;margin:0 auto;padding:0 1.25rem 5rem}
+.wrap{max-width:68rem;margin:0 auto;padding:0 1.25rem 5rem}
 
-/* masthead */
 .masthead{padding:3rem 0 1.6rem;border-bottom:2px solid var(--ink)}
 .eyebrow{font-family:var(--mono);font-size:.75rem;font-weight:500;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-2);margin:0 0 .9rem}
 h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
   line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance}
-.standfirst{margin:.9rem 0 0;max-width:36em;color:var(--ink-2);font-size:1.0625rem}
+.standfirst{margin:.9rem 0 0;max-width:38em;color:var(--ink-2);font-size:1.0625rem}
 
 /* season key */
 .key{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
@@ -57,35 +56,14 @@ h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
 .key-cell .kdate{font-family:var(--mono);font-size:.72rem;color:var(--ink-2);margin-top:.1rem}
 .key-cell .ksport{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--ink-3);margin-top:.3rem}
-.key-note{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.6rem 0 0}
 
-/* dinner */
-.dinner{margin-top:2.5rem}
-.dinner h3{font-family:var(--disp);font-weight:600;font-size:clamp(1.4rem,3vw,1.8rem);
-  letter-spacing:-.015em;margin:0 0 .3rem}
-.dinner .sub{margin:0 0 1.2rem;color:var(--ink-2);max-width:44em;font-size:.9375rem}
-.drule{border:1px solid var(--ink);background:var(--ink);color:var(--paper);
-  padding:1rem 1.25rem;font-family:var(--disp);font-size:clamp(1.15rem,2.4vw,1.4rem);
-  font-weight:600;letter-spacing:-.01em}
-.drule span{display:block;font-family:var(--mono);font-size:.75rem;font-weight:400;
-  letter-spacing:.06em;text-transform:uppercase;opacity:.72;margin-top:.3rem}
-.dtable{list-style:none;margin:0;padding:0;border:1px solid var(--rule-strong);border-top:0;
-  background:var(--surface)}
-.drow{display:grid;grid-template-columns:7.5rem 5.5rem 1fr;gap:.2rem 1rem;
-  padding:.7rem 1.25rem;border-top:1px solid var(--rule);align-items:baseline}
-.drow.flag{background:var(--flag-bg)}
-.drow.split{background:var(--sunken)}
-.drow.split .dtime{color:var(--ink)}
-.dday{font-family:var(--disp);font-weight:600;font-size:1rem;letter-spacing:-.01em}
-.dday small{display:block;font-family:var(--mono);font-size:.65rem;font-weight:400;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:.05rem}
-.dtime{font-family:var(--mono);font-size:1rem;font-weight:600;
-  font-variant-numeric:tabular-nums;white-space:nowrap}
-.drow.flag .dtime{color:var(--flag)}
-.dwhy{font-size:.875rem;color:var(--ink-2)}
-.dwhy b{color:var(--ink);font-weight:600}
-.dnote{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.7rem 0 0;line-height:1.6}
-@media (max-width:640px){.drow{grid-template-columns:1fr auto}.dwhy{grid-column:1 / -1}}
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-top:1rem;
+  font-family:var(--mono);font-size:.72rem;color:var(--ink-2);align-items:center}
+.legend .chip{display:inline-flex;align-items:center;gap:.45rem}
+.legend .box{width:1.6rem;height:.9rem;border:1px solid var(--rule-strong);display:inline-block}
+.legend .box.plain{background:var(--surface)}
+.legend .box.tint{background:var(--swap)}
 
 /* day blocks */
 .day{border:1px solid var(--rule-strong);background:var(--surface);margin-top:1.5rem}
@@ -95,27 +73,24 @@ h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
   letter-spacing:-.015em;margin:0}
 .dayhead .gist{color:var(--ink-2);font-size:.875rem}
 
-.lane-label{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink-3);padding:.7rem 1.25rem .1rem}
-.lane.season{background:var(--sunken);border-top:1px solid var(--rule-strong)}
-
 .items{list-style:none;margin:0;padding:0}
-.row{display:grid;gap:.2rem 1rem;padding:.6rem 1.25rem;border-top:1px solid var(--rule);
-  align-items:baseline;grid-template-columns:5.6rem 9.25rem 1fr}
-.lane.season .row{grid-template-columns:11.5rem 5.6rem 9.25rem 1fr}
+.row{display:grid;gap:.2rem 1rem;padding:.55rem 1.25rem;border-top:1px solid var(--rule);
+  align-items:baseline;grid-template-columns:11rem 5.6rem 9.25rem 1fr}
 .items .row:first-child{border-top:0}
-.lane-label + .items .row:first-child{border-top:1px solid var(--rule)}
+.row.swap{background:var(--swap)}
 
 .when{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.02em;
   color:var(--ink);line-height:1.35}
+.when.always{font-weight:400;color:var(--ink-3)}
 .when .wd{display:block;font-weight:400;color:var(--ink-2);font-size:.68rem;margin-top:.1rem}
 .t{font-family:var(--mono);font-size:.875rem;font-weight:500;
   font-variant-numeric:tabular-nums;white-space:nowrap}
+.t.soft{color:var(--ink-2);font-weight:400}
 .w{font-family:var(--mono);font-size:.75rem;font-weight:600;letter-spacing:.06em;
   text-transform:uppercase;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
 .w .plus{color:var(--ink-3);font-weight:400}
 .a{font-size:.9375rem}
-.a .note{display:block;color:var(--ink-2);font-size:.8125rem;font-style:normal;margin-top:.1rem}
+.a .note{display:block;color:var(--ink-2);font-size:.8125rem;margin-top:.1rem}
 
 .sq{width:.55rem;height:.55rem;flex:none;display:inline-block}
 .sq.e{background:var(--elle)} .sq.c{background:var(--callie)} .sq.d{background:var(--davey)}
@@ -126,31 +101,34 @@ h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
   color:var(--ink-2);margin-left:.45rem;vertical-align:.08em;white-space:nowrap}
 .tag.warn{border-color:var(--flag);color:var(--flag);background:var(--flag-bg)}
 .tag.good{border-color:var(--callie);color:var(--callie)}
-.none{padding:.7rem 1.25rem;color:var(--ink-3);font-size:.9375rem;font-style:italic;
-  border-top:1px solid var(--rule)}
+.tag.meal{border-color:var(--ink);color:var(--ink)}
 
-/* closing list */
 section.closing{padding-top:3.25rem}
 h3{font-family:var(--disp);font-weight:600;font-size:1.5rem;letter-spacing:-.015em;margin:0 0 .3rem}
-.sub{margin:0 0 1.4rem;color:var(--ink-2);max-width:44em;font-size:.9375rem}
+.sub{margin:0 0 1.4rem;color:var(--ink-2);max-width:46em;font-size:.9375rem}
 ol.q{margin:0;padding:0 0 0 1.4rem}
 ol.q li{margin-bottom:.65rem;padding-left:.25rem}
 ol.q li::marker{font-family:var(--mono);font-size:.8rem;color:var(--ink-3)}
 ol.q b{font-weight:600}
 ol.q .why{display:block;color:var(--ink-2);font-size:.9rem}
 
+.callout{border:1px solid var(--flag);background:var(--flag-bg);padding:1rem 1.25rem;
+  margin-top:1.5rem;font-size:.9375rem;color:var(--ink)}
+.callout b{font-weight:600}
+
 footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
   font-family:var(--mono);font-size:.75rem;color:var(--ink-2)}
 
-@media (max-width:820px){
-  .row,.lane.season .row{grid-template-columns:1fr}
-  .when{color:var(--ink-2)}
-  .lane.season .row .when{order:-1}
+@media (max-width:900px){
+  .row{grid-template-columns:5.6rem 1fr}
+  .when{grid-column:1 / -1;order:-1;color:var(--ink-2)}
+  .when.always{display:none}
+  .a{grid-column:1 / -1}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
-  body{background:#fff;color:#000;font-size:10.5pt}
-  .day{break-inside:avoid;margin-top:.9rem}
+  body{background:#fff;color:#000;font-size:10pt}
+  .day{break-inside:avoid;margin-top:.8rem}
   section.closing{break-inside:avoid}
 }
 </style>
@@ -161,240 +139,248 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
 <header class="masthead">
   <p class="eyebrow">Elle, Callie &amp; Davey &middot; August 2026 – April 2027</p>
   <h1>One Week, All Year</h1>
-  <p class="standfirst">Every day on one page. The top of each day is what happens every single week; below it, the things that swap in and out, each sitting next to the dates it applies.</p>
+  <p class="standfirst">Every day start to finish — drop-off, pickups, activities and dinner. Plain rows happen every week; shaded rows swap with the season and carry the dates they apply.</p>
 </header>
 
 <div class="key">
-  <div class="key-cell">
-    <div class="kname">Right now</div>
-    <div class="kdate">Aug 26 – Sep 5</div>
-    <div class="ksport">Volleyball</div>
-  </div>
-  <div class="key-cell">
-    <div class="kname">Fall</div>
-    <div class="kdate">Sep 6 – Nov 8</div>
-    <div class="ksport">Soccer</div>
-  </div>
-  <div class="key-cell">
-    <div class="kname">Winter</div>
-    <div class="kdate">Nov 9 – Jan 16</div>
-    <div class="ksport">Volleyball</div>
-  </div>
-  <div class="key-cell">
-    <div class="kname">Spring</div>
-    <div class="kdate">Jan 17 – April</div>
-    <div class="ksport">Soccer</div>
-  </div>
+  <div class="key-cell"><div class="kname">Right now</div><div class="kdate">Aug 26 – Sep 5</div><div class="ksport">Volleyball</div></div>
+  <div class="key-cell"><div class="kname">Fall</div><div class="kdate">Sep 6 – Nov 8</div><div class="ksport">Soccer</div></div>
+  <div class="key-cell"><div class="kname">Winter</div><div class="kdate">Nov 9 – Jan 16</div><div class="ksport">Volleyball</div></div>
+  <div class="key-cell"><div class="kname">Spring</div><div class="kdate">Jan 17 – April</div><div class="ksport">Soccer</div></div>
 </div>
-<p class="key-note">School: Elle 7:50–3:30 &middot; Callie &amp; Davey 8:00–3:00</p>
-
-<section class="dinner">
-  <h3>Dinner, worked backwards</h3>
-  <p class="sub">Your everyday meal at home, each night set by whoever gets home last. One time covers most of the week: on Wednesdays in Callie&rsquo;s season she eats early and the other two eat at 6:00, and spring Thursdays move early to clear dance. The standing dinner at your husband&rsquo;s family is a separate thing and takes over whichever night it falls on.</p>
-  <div class="drule">6:00 PM, five nights a week<span>Callie eats early on Wednesdays &middot; spring Thursdays go early for everyone</span></div>
-  <ul class="dtable">
-    <li class="drow"><span class="dday">Sunday</span><span class="dtime">6:00</span>
-      <span class="dwhy">Home by noon after church, nothing else all day. The easiest night of the week to make it a real one.</span></li>
-    <li class="drow"><span class="dday">Monday</span><span class="dtime">6:00</span>
-      <span class="dwhy">Elle is in at 3:30, or nearer 5:45 in volleyball weeks. <b>While Callie has soccer this is the night at his family&rsquo;s</b> — the sensible choice, since Wednesday can&rsquo;t seat all five at once. Their time replaces yours, and in volleyball weeks that is tight if they eat at 6:00.</span></li>
-    <li class="drow"><span class="dday">Tuesday</span><span class="dtime">6:00</span>
-      <span class="dwhy">Elle&rsquo;s piano ends around 5:00, home by 5:15. Comfortable.</span></li>
-    <li class="drow split"><span class="dday">Wednesday<small>Callie in season</small></span><span class="dtime">4:30<br>&amp; 6:00</span>
-      <span class="dwhy"><b>Callie eats first, before any of the driving starts.</b> She is home at 3:15 with nothing until 6:00, and the car leaves for Davey around 4:50 — so 4:30 is a real window, and it puts a comfortable ninety minutes between her meal and kickoff. Elle and Davey then eat at 6:00 once he is back. Nobody waits until 7:15, and Callie just needs a snack when she gets in around 7:15.</span></li>
-    <li class="drow split"><span class="dday"><small>if she&rsquo;s at 6:30</small></span><span class="dtime">5:00<br>&amp; 6:00</span>
-      <span class="dwhy">If Callie&rsquo;s practice turns out to be 6:30 rather than 6:00, she has room to eat at 5:00 instead and the whole evening loosens up.</span></li>
-    <li class="drow"><span class="dday">Wednesday<small>Callie off-season</small></span><span class="dtime">6:00</span>
-      <span class="dwhy">Davey is done at 5:30 and nothing follows. <b>From roughly November to February this is the night at his family&rsquo;s</b> — leaving right after his practice.</span></li>
-    <li class="drow"><span class="dday">Thursday<small>Sept – Dec</small></span><span class="dtime">6:00</span>
-      <span class="dwhy">Gymnastics ends about 5:30 and Elle is out of LitWits at 4:45. Everyone in by 5:45.</span></li>
-    <li class="drow flag"><span class="dday">Thursday<small>Jan – April</small></span><span class="dtime">5:30</span>
-      <span class="dwhy"><b>Eat early, not late.</b> Dance runs 6:30–7:15, so otherwise you&rsquo;d sit down at 7:30. Elle is back from LitWits by 5:00 — eat at 5:30 and leave at 6:15.</span></li>
-    <li class="drow"><span class="dday">Friday</span><span class="dtime">6:00</span>
-      <span class="dwhy">Tennis ends around 5:00 for all three, home by 5:15.</span></li>
-    <li class="drow"><span class="dday">Saturday</span><span class="dtime">6:00</span>
-      <span class="dwhy">Games are all morning, so the evening is clear whatever the season.</span></li>
-  </ul>
-  <p class="dnote">Assumes piano runs 30 minutes and gymnastics, tennis, volleyball and soccer practices about an hour. Give me the real lengths and these tighten up. Elle&rsquo;s soccer practice night is still unassigned — wherever it lands, that evening needs re-checking.</p>
-</section>
+<div class="legend">
+  <span class="chip"><span class="box plain"></span>Every week, all year</span>
+  <span class="chip"><span class="box tint"></span>Swaps with the season</span>
+  <span class="chip">Bells: Elle 7:50–3:30 &middot; Callie &amp; Davey 8:00–3:00</span>
+</div>
 
 <!-- ================= SUNDAY ================= -->
 <div class="day">
-  <div class="dayhead"><h2>Sunday</h2><span class="gist">Church, and CCD once the season starts. Afternoons stay free.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <ul class="items">
-      <li class="row"><span class="t">11:00 AM</span>
-        <span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
-        <span class="a">Church<span class="note">Elle joins at 11:15 from CCD — same building, no driving.</span></span></li>
-    </ul>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <ul class="items">
-      <li class="row"><span class="when">CCD season<span class="wd">Sep 20 – late Apr</span></span>
-        <span class="t">10:15 AM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">CCD<span class="note">To 11:15. Dropped 45 minutes before the rest of you arrive for Mass.</span></span></li>
-    </ul>
-  </div>
+  <div class="dayhead"><h2>Sunday</h2><span class="gist">Church and CCD, then the afternoon is yours — the only open block in the week.</span></div>
+  <ul class="items">
+    <li class="row swap"><span class="when">CCD season<span class="wd">Sep 20 – late Apr</span></span>
+      <span class="t">10:15 AM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Drop at CCD<span class="note">Runs to 11:15, in the same building as Mass.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">11:00 AM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Church<span class="note">Elle joins at 11:15 straight from CCD — she walks over, no second trip.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t soft">~12:00</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Home<span class="note">Nothing else scheduled all day.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home <span class="tag meal">easiest night</span></span></li>
+  </ul>
 </div>
 
 <!-- ================= MONDAY ================= -->
 <div class="day">
   <div class="dayhead"><h2>Monday</h2><span class="gist">The lightest weekday. Only volleyball touches it, and only in season.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <div class="none">Nothing — Elle is out at 3:30, the younger two at 3:00.</div>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <ul class="items">
-      <li class="row"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
-        <span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Volleyball practice<span class="note">At the school — she goes straight there from her last class.</span></span></li>
-      <li class="row"><span class="when">While Callie has Wed soccer<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
-        <span class="t">Evening</span>
-        <span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
-        <span class="a">Family dinner &middot; his family<span class="note">Not the everyday meal — the standing dinner with your husband&rsquo;s family. Here while Callie has Wednesday soccer; moves to Wednesday when she doesn&rsquo;t.</span></span></li>
-    </ul>
-  </div>
+  <ul class="items">
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">7:45 AM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
+      <span class="a">School drop-off<span class="note">Elle&rsquo;s bell 7:50, Callie and Davey&rsquo;s 8:00.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:00 PM</span><span class="w"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
+      <span class="a">Pickup</span></li>
+    <li class="row swap"><span class="when">No volleyball<span class="wd">Sep 6 – Nov 8 &middot; Jan 17 – Apr</span></span>
+      <span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup<span class="note">Everyone home by 3:45 and nothing after it.</span></span></li>
+    <li class="row swap"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
+      <span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Volleyball practice<span class="note">At the school, so she stays put after the 3:30 bell — no pickup and re-drop.</span></span></li>
+    <li class="row swap"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
+      <span class="t soft">~5:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup from practice <span class="tag">length tbc</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s off-season<span class="wd">Roughly Nov – Feb</span></span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home</span></li>
+    <li class="row swap"><span class="when">While Callie has Wed soccer<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t soft">Evening</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at his family&rsquo;s <span class="tag">their time</span><span class="note">The standing dinner with your husband&rsquo;s family, not the everyday meal. In volleyball weeks Elle isn&rsquo;t home until about 5:45 — tight if they eat at 6:00.</span></span></li>
+  </ul>
 </div>
 
 <!-- ================= TUESDAY ================= -->
 <div class="day">
   <div class="dayhead"><h2>Tuesday</h2><span class="gist">Identical every week of the year — the only day that never moves.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <ul class="items">
-      <li class="row"><span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Art Club<span class="note">To 4:30, at school.</span></span></li>
-      <li class="row"><span class="t">4:00 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
-        <span class="a">Piano</span></li>
-      <li class="row"><span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Piano <span class="tag warn">runs into Art Club</span><span class="note">Ask to move Elle to 4:45 or 5:00 and leave Callie at 4:00 — same single trip.</span></span></li>
-    </ul>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <div class="none">Nothing — Tuesday is the same all year.</div>
-  </div>
+  <ul class="items">
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">7:45 AM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
+      <span class="a">School drop-off</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:00 PM</span><span class="w"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
+      <span class="a">Pickup<span class="note">Straight on to Callie&rsquo;s lesson.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Art Club<span class="note">To 4:30, at school — she stays after the bell.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">4:00 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Piano<span class="note">To 4:30.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup from Art Club, on to piano <span class="tag warn">no travel time</span><span class="note">Club ends 4:30 and her lesson starts 4:30 elsewhere. Ask to move Elle to 4:45 or 5:00 and leave Callie at 4:00 — same single trip, no lateness.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t soft">~5:15 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Home</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home</span></li>
+  </ul>
 </div>
 
 <!-- ================= WEDNESDAY ================= -->
 <div class="day">
-  <div class="dayhead"><h2>Wednesday</h2><span class="gist">Davey&rsquo;s soccer never stops; the rest of the evening depends on Callie&rsquo;s season.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <ul class="items">
-      <li class="row"><span class="t">5:00 PM</span><span class="w d"><span class="sq d"></span>Davey</span>
-        <span class="a">Soccer practice<span class="note">To 5:30. Year-round — the only sport with no off-season.</span></span></li>
-    </ul>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <ul class="items">
-      <li class="row"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
-        <span class="t">Afternoon</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Volleyball game <span class="tag">time tbc</span></span></li>
-      <li class="row"><span class="when">Elle&rsquo;s soccer seasons<span class="wd">Mid-Sep – Nov &middot; Feb – Apr</span></span>
-        <span class="t">TBC</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Soccer practice <span class="tag">night not set</span><span class="note">The biggest blank on the board — it may not land on Wednesday at all.</span></span></li>
-      <li class="row"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
-        <span class="t">6:00 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
-        <span class="a">Soccer practice <span class="tag good">one driver</span><span class="note">Different field from Davey, but a clear 30 minutes after he finishes.</span></span></li>
-      <li class="row"><span class="when">While Callie&rsquo;s Weds are free<span class="wd">Roughly Nov – Feb</span></span>
-        <span class="t">Evening</span>
-        <span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
-        <span class="a">Family dinner &middot; his family<span class="note">The standing dinner with your husband&rsquo;s family, swapping over from Monday as soon as Callie&rsquo;s Wednesdays are free.</span></span></li>
-    </ul>
-  </div>
+  <div class="dayhead"><h2>Wednesday</h2><span class="gist">The busiest evening. Davey&rsquo;s soccer never stops; the rest turns on Callie&rsquo;s season.</span></div>
+  <ul class="items">
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">7:45 AM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
+      <span class="a">School drop-off</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:00 PM</span><span class="w"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
+      <span class="a">Pickup</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup</span></li>
+    <li class="row swap"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
+      <span class="t soft">Afternoon</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Volleyball game <span class="tag">time tbc</span><span class="note">The only weekday commitment I can&rsquo;t place — it may cut across the pickups above.</span></span></li>
+    <li class="row swap"><span class="when">Elle&rsquo;s soccer seasons<span class="wd">Mid-Sep – Nov &middot; Feb – Apr</span></span>
+      <span class="t soft">TBC</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Soccer practice <span class="tag">night not set</span><span class="note">Pencilled here, but it could land on any weekday.</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t">4:30 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Early dinner <span class="tag meal">eats first</span><span class="note">Before any driving starts, and ninety minutes clear of kickoff. If her practice is 6:30 she can eat at 5:00 instead.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t soft">~4:50 PM</span><span class="w d"><span class="sq d"></span>Davey</span>
+      <span class="a">Leave for soccer</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">5:00 PM</span><span class="w d"><span class="sq d"></span>Davey</span>
+      <span class="a">Soccer practice<span class="note">To 5:30. Year-round — the only sport with no off-season.</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t soft">~5:45 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Leave for soccer <span class="tag good">one driver</span><span class="note">Different field from Davey&rsquo;s, but he finished at 5:30 — it&rsquo;s a relay, not two cars.</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t">6:00 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Soccer practice <span class="tag">6:00 or 6:30?</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
+      <span class="a">Dinner at home <span class="tag meal">second sitting</span><span class="note">Callie already ate at 4:30 — she just needs a snack when she gets in.</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t soft">~7:15 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Home from practice</span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s off-season<span class="wd">Roughly Nov – Feb</span></span>
+      <span class="t soft">Evening</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at his family&rsquo;s <span class="tag">their time</span><span class="note">Wednesday takes over as the in-laws night once Callie&rsquo;s evenings are free. Leave straight after Davey finishes at 5:30.</span></span></li>
+  </ul>
 </div>
 
 <!-- ================= THURSDAY ================= -->
 <div class="day">
   <div class="dayhead"><h2>Thursday</h2><span class="gist">Elle alternates LitWits and gymnastics by month; both girls move to dance in January.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <div class="none">Nothing fixed — the whole day turns over in January.</div>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <ul class="items">
-      <li class="row"><span class="when">Every week<span class="wd">September – December</span></span>
-        <span class="t">4:30 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
-        <span class="a">Gymnastics<span class="note">Every Thursday, whatever Elle is doing that month. Three fall Thursdays are holidays — Nov 26, Dec 24 and Dec 31 — so check whether classes run.</span></span></li>
-      <li class="row"><span class="when">Elle&rsquo;s LitWits months<span class="wd">September &middot; November</span></span>
-        <span class="t">3:45 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">LitWits <span class="tag warn">two pickups &times;4</span><span class="note">To 4:45, every Thursday that month — Sep 3, 10, 17, 24 and Nov 5, 12, 19, 26. Elle skips gymnastics entirely; Callie still goes at 4:30, so all eight need two collections.</span></span></li>
-      <li class="row"><span class="when">Elle&rsquo;s gymnastics months<span class="wd">October &middot; December</span></span>
-        <span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Gymnastics <span class="tag good">one trip</span><span class="note">She joins Callie, so all ten October and December Thursdays are a single drop-off.</span></span></li>
-      <li class="row"><span class="when">Once dance starts<span class="wd">January – April</span></span>
-        <span class="t">3:45 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">LitWits <span class="tag good">every month</span><span class="note">Gymnastics is over, so no more alternating.</span></span></li>
-      <li class="row"><span class="when">Once dance starts<span class="wd">January – April</span></span>
-        <span class="t">6:30 PM</span>
-        <span class="w"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
-        <span class="a">Dance<span class="note">To 7:15. Replaces gymnastics — the girls never do both.</span></span></li>
-    </ul>
-  </div>
+  <ul class="items">
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">7:45 AM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
+      <span class="a">School drop-off</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:00 PM</span><span class="w"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
+      <span class="a">Pickup</span></li>
+    <li class="row swap"><span class="when">Elle&rsquo;s LitWits months<span class="wd">Sept &middot; Nov, then every month Jan – Apr</span></span>
+      <span class="t">3:45 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">LitWits<span class="note">To 4:45, at school — she stays after the bell. Every Thursday that month.</span></span></li>
+    <li class="row swap"><span class="when">Elle&rsquo;s gymnastics months<span class="wd">October &middot; December</span></span>
+      <span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup<span class="note">Straight on to gymnastics with Callie.</span></span></li>
+    <li class="row swap"><span class="when">Gymnastics runs<span class="wd">September – December</span></span>
+      <span class="t">4:30 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Gymnastics<span class="note">To about 5:30. Every Thursday, whatever Elle is doing that month.</span></span></li>
+    <li class="row swap"><span class="when">Elle&rsquo;s gymnastics months<span class="wd">October &middot; December</span></span>
+      <span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Gymnastics <span class="tag good">one trip</span><span class="note">She joins Callie, so October and December Thursdays are a single drop-off.</span></span></li>
+    <li class="row swap"><span class="when">Sept &amp; November only<span class="wd">Sep 3, 10, 17, 24<br>Nov 5, 12, 19, 26</span></span>
+      <span class="t">4:45 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup from LitWits <span class="tag warn">two pickups</span><span class="note">Callie is still at gymnastics until 5:30, so these eight Thursdays need two collections. Nov 26 is Thanksgiving — probably neither runs.</span></span></li>
+    <li class="row swap"><span class="when">Gymnastics runs<span class="wd">September – December</span></span>
+      <span class="t soft">~5:30 PM</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Pickup from gymnastics <span class="tag">length tbc</span></span></li>
+    <li class="row swap"><span class="when">While gymnastics runs<span class="wd">September – December</span></span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home</span></li>
+    <li class="row swap"><span class="when">Once dance starts<span class="wd">January – April</span></span>
+      <span class="t">5:30 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home <span class="tag meal">eat early</span><span class="note">Dance is 6:30, so eating after would mean sitting down at 7:30. Elle is back from LitWits by 5:00.</span></span></li>
+    <li class="row swap"><span class="when">Once dance starts<span class="wd">January – April</span></span>
+      <span class="t soft">~6:15 PM</span><span class="w"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+      <span class="a">Leave for dance</span></li>
+    <li class="row swap"><span class="when">Once dance starts<span class="wd">January – April</span></span>
+      <span class="t">6:30 PM</span><span class="w"><span class="sq e"></span><span class="e">Elle</span> <span class="plus">+</span> <span class="sq c"></span><span class="c">Callie</span></span>
+      <span class="a">Dance<span class="note">To 7:15. Replaces gymnastics — the girls never do both.</span></span></li>
+  </ul>
 </div>
 
 <!-- ================= FRIDAY ================= -->
 <div class="day">
   <div class="dayhead"><h2>Friday</h2><span class="gist">One trip, all three kids, every week of the year.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <ul class="items">
-      <li class="row"><span class="t">4:00 PM</span>
-        <span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
-        <span class="a">Tennis</span></li>
-    </ul>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <div class="none">Nothing — Friday is the same all year.</div>
-  </div>
+  <ul class="items">
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">7:45 AM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
+      <span class="a">School drop-off</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:00 PM</span><span class="w"><span class="sq c"></span><span class="c">Callie</span> <span class="plus">+</span> <span class="sq d"></span><span class="d">Davey</span></span>
+      <span class="a">Pickup</span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Pickup<span class="note">Straight on to tennis with the other two.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">4:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>All three</span>
+      <span class="a">Tennis <span class="tag good">one trip</span><span class="note">To about 5:00 — the easiest afternoon of the week.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home</span></li>
+  </ul>
 </div>
 
 <!-- ================= SATURDAY ================= -->
 <div class="day">
-  <div class="dayhead"><h2>Saturday</h2><span class="gist">Games morning. Nothing is fixed and almost everything overlaps.</span></div>
-  <div class="lane">
-    <div class="lane-label">Every week</div>
-    <div class="none">Nothing fixed — it depends entirely on who is in season.</div>
-  </div>
-  <div class="lane season">
-    <div class="lane-label">Swaps in and out</div>
-    <ul class="items">
-      <li class="row"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
-        <span class="t">Morning</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Volleyball game <span class="tag warn">clashes in Nov</span><span class="note">Her soccer games are Saturday morning too. If soccer runs past Nov 9 she is double-booked.</span></span></li>
-      <li class="row"><span class="when">Elle&rsquo;s soccer seasons<span class="wd">Mid-Sep – Nov &middot; Feb – Apr</span></span>
-        <span class="t">Morning</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Soccer game</span></li>
-      <li class="row"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
-        <span class="t">TBC</span><span class="w c"><span class="sq c"></span>Callie</span>
-        <span class="a">Soccer game <span class="tag warn">two drivers</span><span class="note">Different field from Elle&rsquo;s, overlapping times.</span></span></li>
-      <li class="row"><span class="when">To verify<span class="wd">Timing unknown</span></span>
-        <span class="t">TBC</span><span class="w d"><span class="sq d"></span>Davey</span>
-        <span class="a">T-ball<span class="note">He has no Saturday soccer games at all, so the day is wide open for him.</span></span></li>
-    </ul>
-  </div>
+  <div class="dayhead"><h2>Saturday</h2><span class="gist">Games morning, nothing fixed, and almost everything overlaps. Evenings are clear.</span></div>
+  <ul class="items">
+    <li class="row swap"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
+      <span class="t soft">Morning</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Volleyball game <span class="tag warn">clashes in Nov</span><span class="note">Her soccer games are Saturday morning too — if soccer runs past Nov 9 she is double-booked.</span></span></li>
+    <li class="row swap"><span class="when">Elle&rsquo;s soccer seasons<span class="wd">Mid-Sep – Nov &middot; Feb – Apr</span></span>
+      <span class="t soft">Morning</span><span class="w e"><span class="sq e"></span>Elle</span>
+      <span class="a">Soccer game <span class="tag">time tbc</span></span></li>
+    <li class="row swap"><span class="when">Callie&rsquo;s soccer seasons<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
+      <span class="t soft">Morning</span><span class="w c"><span class="sq c"></span>Callie</span>
+      <span class="a">Soccer game <span class="tag warn">two drivers</span><span class="note">Different field from Elle&rsquo;s, overlapping times. Davey has no games, so he rides with either of you.</span></span></li>
+    <li class="row swap"><span class="when">To verify<span class="wd">Timing unknown</span></span>
+      <span class="t soft">TBC</span><span class="w d"><span class="sq d"></span>Davey</span>
+      <span class="a">T-ball<span class="note">His Saturdays are otherwise completely open.</span></span></li>
+    <li class="row"><span class="when always">Every week</span>
+      <span class="t">6:00 PM</span><span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
+      <span class="a">Dinner at home<span class="note">Whatever the morning held, the evening is always clear.</span></span></li>
+  </ul>
+</div>
+
+<div class="callout">
+  <b>One assumption worth checking:</b> I&rsquo;ve written the mornings as a single 7:45 run on the basis that all three are on one campus — the ten-minute bell gap reads like a staggered start. If Callie and Davey are at a different school, 7:50 and 8:00 drop-offs need either two runs or two drivers, and every weekday morning above changes.
 </div>
 
 <section class="closing">
   <h3>Still to pin down</h3>
-  <p class="sub">The blanks that would move something on this page. The first two change the shape of the week; the third sets every dinner time.</p>
+  <p class="sub">The blanks that would move something on this page. The first two change the shape of the week; the next two set the times above.</p>
   <ol class="q">
-    <li><b>When does Elle&rsquo;s fall soccer end?</b> <span class="why">Volleyball starts Nov 9 and both play Saturday mornings — this is the one real double-booking on the board.</span></li>
-    <li><b>Which night is Elle&rsquo;s soccer practice?</b> <span class="why">Both seasons. I have it pencilled on Wednesday but it could land anywhere.</span></li>
+    <li><b>When does Elle&rsquo;s fall soccer end?</b> <span class="why">Volleyball starts Nov 9 and both play Saturday mornings — the one real double-booking on the board.</span></li>
+    <li><b>Which night is Elle&rsquo;s soccer practice?</b> <span class="why">Both seasons. Pencilled on Wednesday, but it could land anywhere.</span></li>
+    <li><b>Are all three at the same school?</b> <span class="why">Decides whether the morning is one run or two.</span></li>
+    <li><b>How long does each activity actually run?</b> <span class="why">Piano, gymnastics, tennis, volleyball practice and both soccer practices. Every pickup and dinner time above rests on an estimate.</span></li>
     <li><b>What time does dinner at his family&rsquo;s start, and how far is it?</b> <span class="why">In volleyball weeks Elle isn&rsquo;t home until about 5:45, so a 6:00 sit-down elsewhere would be a scramble.</span></li>
-    <li><b>How long does each activity actually run?</b> <span class="why">Piano, gymnastics, tennis, volleyball practice and both soccer practices. Every dinner time above is built on an estimate of these.</span></li>
-    <li><b>Callie&rsquo;s soccer start and end dates.</b> <span class="why">Three things now: her Wednesday practices, which night family dinner falls on, and when Wednesday dinner moves from 7:15 back to 6:00.</span></li>
+    <li><b>Callie&rsquo;s soccer start and end dates.</b> <span class="why">Three things: her Wednesday practices, which night the in-laws dinner falls on, and when Wednesday goes back to one sitting.</span></li>
     <li><b>Elle and Callie&rsquo;s Saturday game times.</b> <span class="why">Needed before I can say whether one driver could ever cover the morning.</span></li>
-    <li><b>What date in January does dance start?</b> <span class="why">It&rsquo;s also the date gymnastics ends.</span></li>
+    <li><b>Is Callie&rsquo;s Wednesday practice 6:00 or 6:30?</b> <span class="why">6:30 gives a full hour between the two fields, and lets her eat at 5:00 instead of 4:30.</span></li>
+    <li><b>What time are the Wednesday volleyball games?</b> <span class="why">The only weekday commitment I can&rsquo;t place on the timeline.</span></li>
+    <li><b>What date in January does dance start?</b> <span class="why">It&rsquo;s also the date gymnastics ends, so it moves two things at once.</span></li>
     <li><b>T-ball timing, and a day for jujitsu.</b> <span class="why">Davey&rsquo;s free afternoons are Monday, Tuesday, Thursday and the whole weekend.</span></li>
-    <li><b>Is Callie&rsquo;s Wednesday practice 6:00 or 6:30?</b> <span class="why">6:30 would give you a full hour between the two fields instead of 30 minutes.</span></li>
     <li><b>Is April 26 the last CCD class on the Sunday track?</b> <span class="why">April 26 is a Monday, so the final Sunday is probably the 25th.</span></li>
   </ol>
 </section>
