@@ -59,6 +59,32 @@ h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
   text-transform:uppercase;color:var(--ink-3);margin-top:.3rem}
 .key-note{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.6rem 0 0}
 
+/* dinner */
+.dinner{margin-top:2.5rem}
+.dinner h3{font-family:var(--disp);font-weight:600;font-size:clamp(1.4rem,3vw,1.8rem);
+  letter-spacing:-.015em;margin:0 0 .3rem}
+.dinner .sub{margin:0 0 1.2rem;color:var(--ink-2);max-width:44em;font-size:.9375rem}
+.drule{border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  padding:1rem 1.25rem;font-family:var(--disp);font-size:clamp(1.15rem,2.4vw,1.4rem);
+  font-weight:600;letter-spacing:-.01em}
+.drule span{display:block;font-family:var(--mono);font-size:.75rem;font-weight:400;
+  letter-spacing:.06em;text-transform:uppercase;opacity:.72;margin-top:.3rem}
+.dtable{list-style:none;margin:0;padding:0;border:1px solid var(--rule-strong);border-top:0;
+  background:var(--surface)}
+.drow{display:grid;grid-template-columns:7.5rem 5.5rem 1fr;gap:.2rem 1rem;
+  padding:.7rem 1.25rem;border-top:1px solid var(--rule);align-items:baseline}
+.drow.flag{background:var(--flag-bg)}
+.dday{font-family:var(--disp);font-weight:600;font-size:1rem;letter-spacing:-.01em}
+.dday small{display:block;font-family:var(--mono);font-size:.65rem;font-weight:400;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:.05rem}
+.dtime{font-family:var(--mono);font-size:1rem;font-weight:600;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.drow.flag .dtime{color:var(--flag)}
+.dwhy{font-size:.875rem;color:var(--ink-2)}
+.dwhy b{color:var(--ink);font-weight:600}
+.dnote{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.7rem 0 0;line-height:1.6}
+@media (max-width:640px){.drow{grid-template-columns:1fr auto}.dwhy{grid-column:1 / -1}}
+
 /* day blocks */
 .day{border:1px solid var(--rule-strong);background:var(--surface);margin-top:1.5rem}
 .dayhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem .9rem;
@@ -160,6 +186,33 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
 </div>
 <p class="key-note">School: Elle 7:50–3:30 &middot; Callie &amp; Davey 8:00–3:00</p>
 
+<section class="dinner">
+  <h3>Dinner, worked backwards</h3>
+  <p class="sub">Your everyday meal at home, each night set by whoever gets home last. One time covers almost the whole week — only two nights genuinely fight it. The standing dinner at your husband&rsquo;s family is a separate thing and takes over whichever night it falls on.</p>
+  <div class="drule">6:00 PM, five nights a week<span>Wednesday and spring Thursdays are the exceptions</span></div>
+  <ul class="dtable">
+    <li class="drow"><span class="dday">Sunday</span><span class="dtime">6:00</span>
+      <span class="dwhy">Home by noon after church, nothing else all day. The easiest night of the week to make it a real one.</span></li>
+    <li class="drow"><span class="dday">Monday</span><span class="dtime">6:00</span>
+      <span class="dwhy">Elle is in at 3:30, or nearer 5:45 in volleyball weeks. <b>While Callie has soccer this is the night at his family&rsquo;s</b>, so their time replaces yours — and in volleyball weeks that is tight if they eat at 6:00.</span></li>
+    <li class="drow"><span class="dday">Tuesday</span><span class="dtime">6:00</span>
+      <span class="dwhy">Elle&rsquo;s piano ends around 5:00, home by 5:15. Comfortable.</span></li>
+    <li class="drow flag"><span class="dday">Wednesday<small>Callie in season</small></span><span class="dtime">7:15</span>
+      <span class="dwhy"><b>The one night it doesn&rsquo;t work.</b> Callie starts at 6:00 and isn&rsquo;t home much before 7:15 — late for Davey, who finished at 5:30. Feed him earlier, or keep something warm and eat late together. It is also why the dinner at his family&rsquo;s has to sit on Monday during her seasons.</span></li>
+    <li class="drow"><span class="dday">Wednesday<small>Callie off-season</small></span><span class="dtime">6:00</span>
+      <span class="dwhy">Davey is done at 5:30 and nothing follows. <b>From roughly November to February this is the night at his family&rsquo;s</b> — leaving right after his practice.</span></li>
+    <li class="drow"><span class="dday">Thursday<small>Sept – Dec</small></span><span class="dtime">6:00</span>
+      <span class="dwhy">Gymnastics ends about 5:30 and Elle is out of LitWits at 4:45. Everyone in by 5:45.</span></li>
+    <li class="drow flag"><span class="dday">Thursday<small>Jan – April</small></span><span class="dtime">5:30</span>
+      <span class="dwhy"><b>Eat early, not late.</b> Dance runs 6:30–7:15, so otherwise you&rsquo;d sit down at 7:30. Elle is back from LitWits by 5:00 — eat at 5:30 and leave at 6:15.</span></li>
+    <li class="drow"><span class="dday">Friday</span><span class="dtime">6:00</span>
+      <span class="dwhy">Tennis ends around 5:00 for all three, home by 5:15.</span></li>
+    <li class="drow"><span class="dday">Saturday</span><span class="dtime">6:00</span>
+      <span class="dwhy">Games are all morning, so the evening is clear whatever the season.</span></li>
+  </ul>
+  <p class="dnote">Assumes piano runs 30 minutes and gymnastics, tennis, volleyball and soccer practices about an hour. Give me the real lengths and these tighten up. Elle&rsquo;s soccer practice night is still unassigned — wherever it lands, that evening needs re-checking.</p>
+</section>
+
 <!-- ================= SUNDAY ================= -->
 <div class="day">
   <div class="dayhead"><h2>Sunday</h2><span class="gist">Church, and CCD once the season starts. Afternoons stay free.</span></div>
@@ -183,24 +236,21 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
 
 <!-- ================= MONDAY ================= -->
 <div class="day">
-  <div class="dayhead"><h2>Monday</h2><span class="gist">Spanish Club at school, then whatever the season puts at 4:30.</span></div>
+  <div class="dayhead"><h2>Monday</h2><span class="gist">The lightest weekday. Only volleyball touches it, and only in season.</span></div>
   <div class="lane">
     <div class="lane-label">Every week</div>
-    <ul class="items">
-      <li class="row"><span class="t">3:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Spanish Club<span class="note">To 4:30, at school.</span></span></li>
-    </ul>
+    <div class="none">Nothing — Elle is out at 3:30, the younger two at 3:00.</div>
   </div>
   <div class="lane season">
     <div class="lane-label">Swaps in and out</div>
     <ul class="items">
       <li class="row"><span class="when">Volleyball weeks<span class="wd">Aug 26 – Sep 5<br>Nov 9 – Jan 16</span></span>
         <span class="t">4:30 PM</span><span class="w e"><span class="sq e"></span>Elle</span>
-        <span class="a">Volleyball practice <span class="tag good">same building</span><span class="note">Spanish Club ends 4:30 at the school and practice is there too — she walks over about five minutes late.</span></span></li>
+        <span class="a">Volleyball practice<span class="note">At the school — she goes straight there from her last class.</span></span></li>
       <li class="row"><span class="when">While Callie has Wed soccer<span class="wd">Now – Nov &middot; Feb – Apr</span></span>
         <span class="t">Evening</span>
         <span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
-        <span class="a">Family dinner<span class="note">Here while Callie has Wednesday soccer. Moves to Wednesday when she doesn&rsquo;t.</span></span></li>
+        <span class="a">Family dinner &middot; his family<span class="note">Not the everyday meal — the standing dinner with your husband&rsquo;s family. Here while Callie has Wednesday soccer; moves to Wednesday when she doesn&rsquo;t.</span></span></li>
     </ul>
   </div>
 </div>
@@ -250,7 +300,7 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
       <li class="row"><span class="when">While Callie&rsquo;s Weds are free<span class="wd">Roughly Nov – Feb</span></span>
         <span class="t">Evening</span>
         <span class="w"><span class="sq e"></span><span class="sq c"></span><span class="sq d"></span>Family</span>
-        <span class="a">Family dinner<span class="note">Swaps over from Monday as soon as Callie&rsquo;s Wednesdays are free.</span></span></li>
+        <span class="a">Family dinner &middot; his family<span class="note">The standing dinner with your husband&rsquo;s family, swapping over from Monday as soon as Callie&rsquo;s Wednesdays are free.</span></span></li>
     </ul>
   </div>
 </div>
@@ -330,13 +380,14 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
 
 <section class="closing">
   <h3>Still to pin down</h3>
-  <p class="sub">The blanks that would move something on this page. The first two change the shape of the week.</p>
+  <p class="sub">The blanks that would move something on this page. The first two change the shape of the week; the third sets every dinner time.</p>
   <ol class="q">
     <li><b>When does Elle&rsquo;s fall soccer end?</b> <span class="why">Volleyball starts Nov 9 and both play Saturday mornings — this is the one real double-booking on the board.</span></li>
     <li><b>Which night is Elle&rsquo;s soccer practice?</b> <span class="why">Both seasons. I have it pencilled on Wednesday but it could land anywhere.</span></li>
-    <li><b>Callie&rsquo;s soccer start and end dates.</b> <span class="why">These drive two things: her Wednesday practices, and which night family dinner falls on.</span></li>
+    <li><b>What time does dinner at his family&rsquo;s start, and how far is it?</b> <span class="why">In volleyball weeks Elle isn&rsquo;t home until about 5:45, so a 6:00 sit-down elsewhere would be a scramble.</span></li>
+    <li><b>How long does each activity actually run?</b> <span class="why">Piano, gymnastics, tennis, volleyball practice and both soccer practices. Every dinner time above is built on an estimate of these.</span></li>
+    <li><b>Callie&rsquo;s soccer start and end dates.</b> <span class="why">Three things now: her Wednesday practices, which night family dinner falls on, and when Wednesday dinner moves from 7:15 back to 6:00.</span></li>
     <li><b>Elle and Callie&rsquo;s Saturday game times.</b> <span class="why">Needed before I can say whether one driver could ever cover the morning.</span></li>
-    <li><b>What time is family dinner?</b> <span class="why">On a Wednesday it has to clear Callie&rsquo;s 6:00 practice.</span></li>
     <li><b>What date in January does dance start?</b> <span class="why">It&rsquo;s also the date gymnastics ends.</span></li>
     <li><b>T-ball timing, and a day for jujitsu.</b> <span class="why">Davey&rsquo;s free afternoons are Monday, Tuesday, Thursday and the whole weekend.</span></li>
     <li><b>Is Callie&rsquo;s Wednesday practice 6:00 or 6:30?</b> <span class="why">6:30 would give you a full hour between the two fields instead of 30 minutes.</span></li>
