@@ -103,6 +103,41 @@ h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.2rem,6vw,3.4rem);
 .tag.good{border-color:var(--callie);color:var(--callie)}
 .tag.meal{border-color:var(--ink);color:var(--ink)}
 
+/* four-pillar matrix */
+section.pillars{padding-top:3.25rem}
+.mx{display:grid;grid-template-columns:10rem repeat(3,1fr);gap:1px;
+  background:var(--rule);border:1px solid var(--rule-strong);margin-top:1.25rem;overflow-x:auto}
+.mx > *{background:var(--surface);padding:.8rem .9rem}
+.mx .hd{background:var(--sunken);font-family:var(--mono);font-size:.72rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:.45rem}
+.mx .rl{background:var(--sunken);font-family:var(--disp);font-weight:600;font-size:.95rem;
+  letter-spacing:-.01em;display:flex;align-items:center}
+.cell .st{font-family:var(--mono);font-size:.65rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;display:block;margin-bottom:.25rem}
+.cell.ok .st{color:var(--callie)}
+.cell.over .st{color:var(--flag)}
+.cell.gap{background:var(--flag-bg)}
+.cell.gap .st{color:var(--flag)}
+.cell .v{font-size:.875rem;line-height:1.45}
+.cell .v em{font-style:normal;color:var(--ink-2);font-size:.8125rem;display:block;margin-top:.15rem}
+.mx-note{font-family:var(--mono);font-size:.72rem;color:var(--ink-3);margin:.7rem 0 0;line-height:1.6}
+
+.moves{list-style:none;margin:1.75rem 0 0;padding:0;border-top:1px solid var(--rule)}
+.moves > li{border-bottom:1px solid var(--rule);padding:1rem 0;
+  display:grid;grid-template-columns:7.5rem 1fr;gap:.35rem 1.25rem;align-items:start}
+.moves .cost{font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-2);padding-top:.15rem}
+.moves .cost.free{color:var(--callie)}
+.moves .cost.cut{color:var(--flag)}
+.moves p{margin:0}
+.moves p + p{margin-top:.4rem;color:var(--ink-2);font-size:.9375rem}
+.moves b{font-weight:600}
+@media (max-width:760px){
+  .mx{grid-template-columns:1fr;min-width:0}
+  .mx .rl{border-top:2px solid var(--rule-strong)}
+  .moves > li{grid-template-columns:1fr}
+}
+
 section.closing{padding-top:3.25rem}
 h3{font-family:var(--disp);font-weight:600;font-size:1.5rem;letter-spacing:-.015em;margin:0 0 .3rem}
 .sub{margin:0 0 1.4rem;color:var(--ink-2);max-width:46em;font-size:.9375rem}
@@ -387,6 +422,69 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
 </div>
 
 
+
+<section class="pillars">
+  <h3>The four-pillar check</h3>
+  <p class="sub">One competitive sport, one artistic outlet, one instrument, one faith or service activity — each. Here is where the schedule above actually lands. Callie is one short, Elle is carrying too much, and Davey has three empty pillars.</p>
+  <div class="mx">
+    <div class="hd"></div>
+    <div class="hd e"><span class="sq e"></span>Elle</div>
+    <div class="hd c"><span class="sq c"></span>Callie</div>
+    <div class="hd d"><span class="sq d"></span>Davey</div>
+
+    <div class="rl">Competitive sport</div>
+    <div class="cell over"><span class="st">Two, alternating</span>
+      <div class="v">Volleyball &amp; soccer<em>Never at once except the November overlap — arguably one at a time, but two commitments to run.</em></div></div>
+    <div class="cell ok"><span class="st">One</span>
+      <div class="v">Soccer<em>Fall and spring seasons.</em></div></div>
+    <div class="cell ok"><span class="st">One</span>
+      <div class="v">Soccer<em>Year-round, practice only — no games.</em></div></div>
+
+    <div class="rl">Artistic outlet</div>
+    <div class="cell over"><span class="st">Three</span>
+      <div class="v">Art Club, LitWits, gymnastics &rarr; dance<em>The most over-subscribed pillar on the board.</em></div></div>
+    <div class="cell ok"><span class="st">One</span>
+      <div class="v">Gymnastics &rarr; dance<em>Hands over in January — one at a time.</em></div></div>
+    <div class="cell gap"><span class="st">Nothing yet</span>
+      <div class="v">&mdash;</div></div>
+
+    <div class="rl">Instrument</div>
+    <div class="cell ok"><span class="st">One</span>
+      <div class="v">Piano<em>Tuesdays 4:30.</em></div></div>
+    <div class="cell ok"><span class="st">One</span>
+      <div class="v">Piano<em>Tuesdays 4:00.</em></div></div>
+    <div class="cell gap"><span class="st">Nothing yet</span>
+      <div class="v">&mdash;</div></div>
+
+    <div class="rl">Faith &amp; service</div>
+    <div class="cell ok"><span class="st">One</span>
+      <div class="v">CCD<em>Sundays 10:15.</em></div></div>
+    <div class="cell gap"><span class="st">Nothing yet</span>
+      <div class="v">&mdash;<em>Family Mass, but nothing of her own.</em></div></div>
+    <div class="cell gap"><span class="st">Nothing yet</span>
+      <div class="v">&mdash;<em>Family Mass, but nothing of his own.</em></div></div>
+  </div>
+  <p class="mx-note">Tennis sits outside all four — half-hour lessons with no matches read as skill-building, not a competitive commitment. If you count it as their sport instead, then volleyball, soccer and gymnastics all become extras and the picture changes completely.</p>
+
+  <h3 style="margin-top:2.5rem">Filling the gaps, cheapest first</h3>
+  <p class="sub">Four of the five moves below cost you no new trips at all, because they slot into things you are already driving to.</p>
+  <ul class="moves">
+    <li><span class="cost free">No new trip</span>
+      <div><p><b>Callie and Davey join CCD on Sundays at 10:15.</b> You are already dropping Elle there and coming back for Mass at 11:00 in the same building. Three children in the same hour, same building, zero extra driving — and it fills the one pillar Callie is missing and one of Davey&rsquo;s three.</p>
+      <p>The only question is whether Davey is old enough; most programmes start around first grade.</p></div></li>
+    <li><span class="cost free">No new trip</span>
+      <div><p><b>Davey takes the 5:00 piano slot on Tuesdays.</b> Callie is at 4:00 and Elle at 4:30, so a third half-hour lesson runs to 5:30 and you make exactly the same single trip. That fills his instrument pillar for thirty extra minutes on a day you are already there.</p></div></li>
+    <li><span class="cost cut">A decision</span>
+      <div><p><b>Elle picks one artistic outlet.</b> She currently has three. Dance from January is the strongest candidate — it is the one that is genuinely hers rather than a school club, and Callie does it alongside her.</p>
+      <p>That would make Art Club and LitWits the ones to let go, which also clears the last recurring squeeze on the board: the Tuesday Art-Club-into-piano scramble disappears entirely.</p></div></li>
+    <li><span class="cost cut">Two off the list</span>
+      <div><p><b>T-ball and jujitsu come off.</b> Davey&rsquo;s soccer is year-round, so either would be a second competitive sport. Under this framework both are out — which closes two of your open questions without another phone call.</p></div></li>
+    <li><span class="cost">One new trip</span>
+      <div><p><b>Davey needs an artistic outlet</b> — the only genuinely new thing on this list. Thursday is his open afternoon and you are already out with the girls for gymnastics or dance, so an art or music class near either venue would ride along on a trip you are making anyway.</p>
+      <p>Monday afternoons are also completely free outside volleyball weeks, if Thursday turns out to be too full.</p></div></li>
+  </ul>
+</section>
+
 <section class="closing">
   <h3>Still to pin down</h3>
   <p class="sub">The blanks that would move something on this page. Every time on this page is now confirmed except where a row says otherwise. The first two are the ones that would still change the shape of the week.</p>
@@ -400,7 +498,8 @@ footer{margin-top:3.5rem;padding-top:1.25rem;border-top:2px solid var(--ink);
     <li><b>Is Callie&rsquo;s Wednesday practice 6:00 or 6:30?</b> <span class="why">6:30 gives a full hour between the two fields, and lets her eat at 5:00 instead of 4:30.</span></li>
     <li><b>What time are the Wednesday volleyball games?</b> <span class="why">The only weekday commitment I can&rsquo;t place on the timeline.</span></li>
     <li><b>What date in January does dance start?</b> <span class="why">It&rsquo;s also the date gymnastics ends, so it moves two things at once.</span></li>
-    <li><b>T-ball timing, and a day for jujitsu.</b> <span class="why">Davey&rsquo;s free afternoons are Monday, Tuesday, Thursday and the whole weekend.</span></li>
+    <li><b>How old are the three of them?</b> <span class="why">Decides whether Davey can start CCD and piano now, and how much he should reasonably carry.</span></li>
+    <li><b>Which artistic outlet is Elle keeping?</b> <span class="why">Dance, Art Club or LitWits. Dropping the two school clubs also clears the Tuesday piano squeeze.</span></li>
   </ol>
 </section>
 
